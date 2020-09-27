@@ -155,7 +155,6 @@ std::optional<MeshUniquePtr> ObjLoader::LoadObj(const char *fileLocation) {
     //newMesh->UV.reserve(vertexIndices.size());
     //newMesh->Normals.reserve(vertexIndices.size());
 
-    const glm::vec3 Center = usefulStuff.CalcCenter();
     const glm::vec4 NewMaxRange = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     const glm::vec4 NewMinRange = glm::vec4(-1.0f, -1.0f, -1.0f, -1.0f);
     const glm::vec4 OldMaxRange = glm::vec4(usefulStuff.MaxX, usefulStuff.MaxY, usefulStuff.MaxZ, 0);
@@ -191,18 +190,4 @@ std::optional<MeshUniquePtr> ObjLoader::LoadObj(const char *fileLocation) {
 
     fclose(file);
     return newMesh;
-}
-
-void Mesh::SetupBuffers() {
-    // Gen Vertex Array Object
-    glGenVertexArrays(1, &VAO_ID);
-    glBindVertexArray(VAO_ID);
-
-    glGenBuffers(1, &positionBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(glm::vec4),
-                 Vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
-
-
 }

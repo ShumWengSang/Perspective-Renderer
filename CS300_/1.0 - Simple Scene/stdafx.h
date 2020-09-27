@@ -19,6 +19,7 @@
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/common.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <vector>
 #include <optional>
@@ -29,11 +30,45 @@
 #include <memory>
 #include <cstdio>
 #include <cstdlib>
-#include <vector>
-#include <iostream>
-#include <cstring>
 #include <fstream>
+#include <functional>
+#include <algorithm>
 
+
+
+// Macros
+#if defined(unix) || defined(__unix__) || defined (__unix)
+#define PLATFORM_UNIX
+#endif
+
+#ifdef PLATFORM_UNIX
+#include <signal.h>
+#define DEBUG_BREAKPOINT() raise(SIGINT)
+#endif
+
+template <typename T>
+using SharedPtr = std::shared_ptr<T>;
+template <typename T, typename ... Args>
+constexpr SharedPtr<T> CreateSharedPtr(Args&& ... args)
+{
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
+template <typename T>
+using UniquePtr = std::unique_ptr<T>;
+template <typename T, typename ... Args>
+constexpr UniquePtr<T> CreateUniquePtr(Args&& ... args)
+{
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
+
+#define DEBUG_MODE
 
 #include "ObjLoader.h"
+#include "Renderer/Shader.h"
+#include "Renderer/Buffer.h"
+#include "Renderer/Shader.h"
+#include "Renderer/RendererAPI.h"
+
+
 #endif //SIMPLE_SCENE_STDAFX_H

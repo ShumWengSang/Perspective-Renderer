@@ -6,10 +6,9 @@ target_include_directories( ${TARGET_NAME} PUBLIC /usr/local/include/)
 
 
 add_library( common_lib
-        ../Common/shader.cpp
-        ../Common/shader.hpp
         ../Common/Scene.cpp
         ../Common/Scene.h)
+
 
 target_include_directories( common_lib PUBLIC /usr/local/include/eigen3/ )
 
