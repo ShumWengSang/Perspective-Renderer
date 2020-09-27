@@ -3,7 +3,7 @@
 uniform mat4  vertexTransform;
 
 // Input vertex data, different for all executions of this shader.
-layout(location = 0) in vec3  vPosition;
+layout(location = 0) in vec4  vPosition;
 
 void main()
 {

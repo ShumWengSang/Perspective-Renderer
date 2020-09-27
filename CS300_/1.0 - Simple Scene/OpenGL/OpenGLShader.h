@@ -38,7 +38,7 @@ private:
 private:
     static std::string ReadFile(std::string const & fileName);
     static GLuint Compile(std::string const & shaderContent, GLenum shaderType);
-    void LinkProgram(GLuint shaderID);
+    void LinkPrograms(GLuint *shaderIDs, unsigned size);
 
 };
 

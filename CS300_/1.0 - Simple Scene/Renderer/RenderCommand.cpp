@@ -22,6 +22,6 @@ void RenderCommand::Clear() {
     theRendererAPI->Clear();
 }
 
-void RenderCommand::DrawIndexec(SharedPtr<VertexArray> const &vertexArray, unsigned int count) {
+void RenderCommand::DrawIndexed(SharedPtr<VertexArray> const &vertexArray, unsigned int count) {
     theRendererAPI->DrawIndexed(vertexArray, count);
 }

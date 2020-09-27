@@ -69,6 +69,7 @@ constexpr UniquePtr<T> CreateUniquePtr(Args&& ... args)
 #include "Renderer/Buffer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/RendererAPI.h"
-
+#include "Renderer/Renderer.h"
+#include "Renderer/RenderCommand.h"
 
 #endif //SIMPLE_SCENE_STDAFX_H

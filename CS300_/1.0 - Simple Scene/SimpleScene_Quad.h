@@ -42,13 +42,18 @@ private:
 //    GLuint  vertexbuffer;
 //    GLuint  VertexArrayID;
     GLuint vertexBuffer;
-
-    std::vector<GLfloat>    geometryBuffer;
+    SharedPtr<VertexArray> quadVertexArray;
+    std::vector<GLfloat> geometryBuffer;
     GLfloat   angleOfRotation;
+    SharedPtr<Shader> defaultShader;
 
+private:
+    // Our own things
     MeshUniquePtr mesh;
+    SharedPtr<VertexArray> meshVertexArray;
+    SharedPtr<Shader> phongShader;
 
-    Shader exampleShader;
+
 };
 
 
