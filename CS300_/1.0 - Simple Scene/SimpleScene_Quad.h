@@ -7,8 +7,6 @@
 
 #include "../Common/Scene.h"
 #include "ObjLoader.h"
-#include "VertexDataManager.h"
-#include "shader.hpp"
 
 class SimpleScene_Quad : public Scene
 {
@@ -49,7 +47,7 @@ private:
     GLfloat   angleOfRotation;
 
     MeshUniquePtr mesh;
-    VertexDataManager exampleVertexDataManager;
+
     Shader exampleShader;
 };
 

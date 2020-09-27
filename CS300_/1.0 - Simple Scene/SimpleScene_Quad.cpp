@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "SimpleScene_Quad.h"
-#include <shader.hpp>
+
 
 static char ModelPath[] = "../../Common/models/";
 
@@ -62,13 +62,7 @@ void SimpleScene_Quad::CleanUp()
 void SimpleScene_Quad::SetupBuffers()
 {
 
-    exampleVertexDataManager.CreateVAO()
-    .BindVertexArrayObject()
-    .CreateVBO(vertexBuffer)
-    .BindVertexArray(vertexBuffer,
-                     geometryBuffer.size() * sizeof(GLfloat),
-                     geometryBuffer.data(),
-                     GL_STATIC_DRAW);
+
 
 //    glGenVertexArrays(1, &VertexArrayID);
 //    glBindVertexArray(VertexArrayID);
