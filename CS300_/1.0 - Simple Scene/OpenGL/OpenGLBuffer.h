@@ -48,7 +48,7 @@ private:
 class OpenGLVertexArray : public VertexArray
 {
 public:
-    OpenGLVertexArray() = default;
+    OpenGLVertexArray();
     ~OpenGLVertexArray() override;
 
     virtual void Bind() const override;

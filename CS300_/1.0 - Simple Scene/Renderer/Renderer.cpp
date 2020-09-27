@@ -7,7 +7,7 @@
 UniquePtr<Renderer::SceneData> Renderer::sceneData = CreateUniquePtr<Renderer::SceneData>();
 
 void Renderer::Init() {
-
+    RenderCommand::Init();
 }
 
 void Renderer::Shutdown() {
@@ -25,8 +25,7 @@ void Renderer::EndScene() {
 void Renderer::Submit(const SharedPtr<Shader> &shader, const SharedPtr<VertexArray> &vertexArray,
                       const glm::mat4 &transform) {
     shader->Bind();
-    shader->SetMat4("u_ViewProjection", sceneData->ViewProjectionMatrix);
-    shader->SetMat4("u_Transform", transform);
+    shader->SetMat4("vertexTransform", transform);
 
     vertexArray->Bind();
     RenderCommand::DrawIndexed(vertexArray);

@@ -1,10 +1,10 @@
 //
 // Created by pushpak on 3/28/18.
 //
-
+#include "../1.0 - Simple Scene/stdafx.h"
 #include "Scene.h"
 
-Scene::Scene() : _windowWidth(100), _windowHeight(100)
+Scene::Scene() : _windowHeight(100), _windowWidth(100)
 {
 
 }
@@ -25,6 +25,7 @@ Scene::~Scene()
 // Init: called once when the scene is initialized
 int Scene::Init()
 {
+    Renderer::Init();
     return -1;
 }
 

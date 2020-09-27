@@ -4,8 +4,7 @@
 #include "../stdafx.h"
 #include "OpenGLBuffer.h"
 
-static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-{
+GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type) {
     switch(type)
     {
         case ShaderDataType::Float: return GL_FLOAT;
@@ -33,10 +32,10 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(size_t size) {
     glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 }
 
-OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, size_t size) {
+OpenGLVertexBuffer::OpenGLVertexBuffer(float * vertices, size_t size) {
     glCreateBuffers(1, &RenderID);
     glBindBuffer(GL_ARRAY_BUFFER, RenderID);
-    glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 
 OpenGLVertexBuffer::~OpenGLVertexBuffer() {
@@ -170,4 +169,8 @@ void OpenGLVertexArray::Bind() const {
 
 OpenGLVertexArray::~OpenGLVertexArray() {
     glDeleteVertexArrays(1, &RendererID);
+}
+
+OpenGLVertexArray::OpenGLVertexArray() {
+    glCreateVertexArrays(1, &RendererID);
 }

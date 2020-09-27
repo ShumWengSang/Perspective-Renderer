@@ -3,24 +3,8 @@
 //
 #include "../stdafx.h"
 #include "OpenGLShader.h"
-///////////////////
-static GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path);
 
-///////////////////
-static GLuint LoadPipeline(const char * vertex_file_path,const char * fragment_file_path, GLuint * programIDs );
-
-// Load shaders where multiple shader files == one complete shader
-// Show how code can be reused across shaders
-static GLuint LoadMultiShaders(const char *vertex_file_path, const char *fragment_file_path,
-                               const char *geom_file_path, Primitive_Enum  out_primitive_type );
-
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-
-GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path)
+static inline GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path)
 {
 
     // Create the shaders
@@ -117,7 +101,7 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 
-GLuint LoadPipeline(const char * vertex_file_path,const char * fragment_file_path, GLuint * programIDs )
+static inline GLuint LoadPipeline(const char * vertex_file_path,const char * fragment_file_path, GLuint * programIDs )
 {
     // Hardcoding the values to 2
 
@@ -240,7 +224,7 @@ GLuint LoadPipeline(const char * vertex_file_path,const char * fragment_file_pat
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 
-GLuint LoadMultiShaders(const char *vertex_file_path, const char *fragment_file_path,
+static inline GLuint LoadMultiShaders(const char *vertex_file_path, const char *fragment_file_path,
                         const char *geom_file_path,
                         Primitive_Enum out_primitive_type)
 {
@@ -439,12 +423,12 @@ void OpenGLShader::SetFloat4(const std::string &name, const glm::vec4 &value) {
     glUniform4f(location, value.x, value.y, value.z, value.w);
 }
 
-void OpenGLShader::SetMat4(const std::string &name, const glm::mat4 &value) {
+void OpenGLShader::SetMat3(const std::string &name, const glm::mat3 &value) {
     GLint location = glGetUniformLocation(RendererID, name.c_str());
     glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void OpenGLShader::SetMat3(const std::string &name, const glm::mat3 &value) {
+void OpenGLShader::SetMat4(const std::string &name, const glm::mat4 &value) {
     GLint location = glGetUniformLocation(RendererID, name.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
@@ -464,7 +448,7 @@ std::string OpenGLShader::ReadFile(const std::string &fileName) {
         size_t size = in.tellg();
 
         // Resize to size, place it all in.
-        if(size != -1)
+        if(size != -1u)
         {
             result.resize(size);
             in.seekg(0, std::ios::beg);
@@ -508,41 +492,18 @@ GLuint OpenGLShader::Compile(const std::string &shaderContent, GLenum shaderType
     return shaderID;
 }
 
-void OpenGLShader::LinkProgram(GLuint shaderID) {
-    GLint Result = GL_FALSE;
-    int InfoLogLength;
-
-    // Link the program
-    printf("Linking program\n");
-
-    glAttachShader(RendererID, shaderID);
-    glLinkProgram(RendererID);
-
-    // Check the program
-    glGetProgramiv(RendererID, GL_LINK_STATUS, &Result);
-    glGetProgramiv(RendererID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    if ( InfoLogLength > 0 ){
-        std::vector<char> ProgramErrorMessage(InfoLogLength+1);
-        glGetProgramInfoLog(RendererID, InfoLogLength, nullptr, &ProgramErrorMessage[0]);
-        printf("%s\n", &ProgramErrorMessage[0]);
-    }
-
-    glDetachShader(RendererID, shaderID);
-
-    glDeleteShader(shaderID);
-}
-
 OpenGLShader::OpenGLShader(const std::string &name, const std::string &vertexSrc, const std::string &fragmentSrc) : Name(name){
 
     // Read the vertex program
+    GLuint shaderIDs[2] = {};
     std::string shaderContent = ReadFile(vertexSrc);
-    GLuint shaderID = Compile(shaderContent, GL_VERTEX_SHADER);
-    RendererID = glCreateProgram(); // Create ProgramID BEFORE linking
-    LinkProgram(shaderID);
+    shaderIDs[0] = Compile(shaderContent, GL_VERTEX_SHADER);
+
 
     shaderContent = ReadFile(fragmentSrc);
-    shaderID = Compile(shaderContent, GL_FRAGMENT_SHADER);
-    LinkProgram(shaderID);
+    shaderIDs[1] = Compile(shaderContent, GL_FRAGMENT_SHADER);
+    RendererID = glCreateProgram(); // Create ProgramID BEFORE linking
+    LinkPrograms(shaderIDs, sizeof(shaderIDs)/sizeof(shaderIDs[0]));
 }
 #ifdef _WIN32
 char sep = '\\'
@@ -563,3 +524,30 @@ OpenGLShader::~OpenGLShader() {
     glDeleteProgram(RendererID);
 }
 
+void OpenGLShader::LinkPrograms(GLuint *shaderIDs, unsigned int size) {
+    GLint Result = GL_FALSE;
+    int InfoLogLength;
+
+    // Link the program
+    printf("Linking program\n");
+
+    for(unsigned i = 0; i < size; ++i)
+    {
+        glAttachShader(RendererID, shaderIDs[i]);
+    }
+    glLinkProgram(RendererID);
+
+    // Check the program
+    glGetProgramiv(RendererID, GL_LINK_STATUS, &Result);
+    glGetProgramiv(RendererID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    if ( InfoLogLength > 0 ){
+        std::vector<char> ProgramErrorMessage(InfoLogLength+1);
+        glGetProgramInfoLog(RendererID, InfoLogLength, nullptr, &ProgramErrorMessage[0]);
+        printf("%s\n", &ProgramErrorMessage[0]);
+    }
+    for(unsigned i = 0; i < size; ++i)
+    {
+        glDetachShader(RendererID, shaderIDs[i]);
+        glDeleteShader(shaderIDs[i]);
+    }
+}
