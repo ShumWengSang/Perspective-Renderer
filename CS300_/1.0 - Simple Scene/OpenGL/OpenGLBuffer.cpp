@@ -108,7 +108,8 @@ void OpenGLVertexArray::AddVertexBuffer(const SharedPtr<VertexBuffer> &vertexBuf
         DEBUG_BREAKPOINT();
     }
 
-    glBindVertexArray(RendererID);
+    this->Bind();
+    // glBindVertexArray(RendererID);
     vertexBuffer->Bind();
 
     const auto& layout = vertexBuffer->GetLayout();
@@ -126,13 +127,14 @@ void OpenGLVertexArray::AddVertexBuffer(const SharedPtr<VertexBuffer> &vertexBuf
             case ShaderDataType::Int4:
             case ShaderDataType::Bool:
             {
-                glEnableVertexAttribArray(VertexBufferIndex);
+
                 glVertexAttribPointer(VertexBufferIndex,
                                       element.GetComponentCount(),
                                       ShaderDataTypeToOpenGLBaseType(element.Type),
                                       element.Normalized ? GL_TRUE : GL_FALSE,
                                       layout.GetStride(),
                                       (const void*)(element.Offset));
+                glEnableVertexAttribArray(VertexBufferIndex);
                 VertexBufferIndex++;
                 break;
             }

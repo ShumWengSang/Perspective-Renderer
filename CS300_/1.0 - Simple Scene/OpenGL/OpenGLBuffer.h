@@ -64,7 +64,7 @@ public:
 
 private:
     unsigned RendererID;
-    unsigned VertexBufferIndex;
+    unsigned VertexBufferIndex = 0;
     std::vector<SharedPtr<VertexBuffer>> VertexBuffers;
     SharedPtr<IndexBuffer> internal_IndexBuffer;
 };
