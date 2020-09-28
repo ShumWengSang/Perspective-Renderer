@@ -5,9 +5,9 @@
 // "WritePixel( x, y, rasterColor )"
 
 // Output data
-out vec3 color;
+out vec4 color;
 
 void main()
 {
-	color = vec3(0.564f, 0.0f, 0.125f);
+	color = vec4(0.564f, 0.0f, 0.125f,1.0f);
 }

@@ -61,26 +61,9 @@ void SimpleScene_Quad::CleanUp()
 //////////////////////////////////////////////////////
 void SimpleScene_Quad::SetupBuffers()
 {
-    // We are remaking the example scene to prove our architecture works.
-//    quadVertexArray = VertexArray::Create();
-//
-//    SharedPtr<VertexBuffer> quadVB = CreateSharedPtr<VertexBuffer>(geometryBuffer, sizeof(geometryBuffer));
-//    quadVB->SetLayout({
-//                              { ShaderDataType::Float, "vPosition"}
-//    });
-//    quadVertexArray->AddVertexBuffer(quadVB);
-
-//    glGenVertexArrays(1, &VertexArrayID);
-//    glBindVertexArray(VertexArrayID);
-//
-//    glGenBuffers(1, &vertexbuffer);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//    glBufferData(GL_ARRAY_BUFFER, geometryBuffer.size() * sizeof(GLfloat),
-//                 geometryBuffer.data(), GL_STATIC_DRAW);
-
 
     meshVertexArray = VertexArray::Create();
+    meshVertexArray->Bind();
     // Add attribute
     SharedPtr<VertexBuffer> meshVB= VertexBuffer::Create(
             (float*)geometryBuffer.data(),
@@ -90,16 +73,17 @@ void SimpleScene_Quad::SetupBuffers()
     });
     meshVertexArray->AddVertexBuffer(meshVB);
 
-    unsigned int Indices[] = { 0, 3, 1,
-                               1, 3, 2,
-                               2, 3, 0,
-                               0, 1, 2 };
+    unsigned int Indices[] = { 0, 1, 2,
+                               1, 3, 2
+    };
 
     // Add index array
     SharedPtr<IndexBuffer> meshIB = IndexBuffer::Create(
             Indices,
             sizeof(Indices) / sizeof(Indices[0]));
     meshVertexArray->SetIndexBuffer(meshIB);
+
+    meshVertexArray->Unbind();
     return;
 }
 
@@ -108,10 +92,6 @@ void SimpleScene_Quad::SetupBuffers()
 int SimpleScene_Quad::Init()
 {
     // Create and compile our GLSL program from the shaders
-//    exampleShader.SetID(
-//            LoadShaders("../../Common/shaders/QuadVertexShader.vert",
-//                        "../../Common/shaders/QuadFragmentShader.frag")
-//    );
     defaultShader = Shader::Create("DefaultQuad",
                                    "../../Common/shaders/QuadVertexShader.vert",
                                    "../../Common/shaders/QuadFragmentShader.frag");
@@ -125,10 +105,10 @@ int SimpleScene_Quad::Init()
 //                        1.0f, 1.0f, 0.0f,
 //                        0.0f, 1.0f, 0.0f
 //    };
-    geometryBuffer = { 0.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        1.0f, 1.0f, 0.0f,
+    geometryBuffer = {  0.0f, 0.0f, 0.0f, 1.00f,
+                        1.0f, 0.0f, 0.0f, 1.00f,
+                        0.0f, 1.0f, 0.0f, 1.00f,
+                        1.0f, 1.0f, 0.0f, 1.00f,
     };
 //    geometryBuffer = { 1.0f, -1.0f, 0.0f,
 //                       0.0f, -1.0f, 1.0f,
@@ -162,9 +142,9 @@ int SimpleScene_Quad::Render()
     RenderCommand::SetClearColor({0.5f,0.5f,0.5f,0.5f});
     RenderCommand::Clear();
 
-    meshVertexArray->Bind();
-    meshVertexArray->GetVertexBuffers()[0]->Bind();
-    //glBindBuffer(GL_ARRAY_BUFFER, );
+    //meshVertexArray->Bind();
+    //meshVertexArray->GetVertexBuffers()[0]->Bind();
+//
 //    glEnableVertexAttribArray(0);
 //    glVertexAttribPointer( 0,
 //                            4,
@@ -180,7 +160,7 @@ int SimpleScene_Quad::Render()
     // Draw the triangle !
     // T * R * S * Vertex
     glm::mat4 modelMat = glm::mat4(1.0f);
-    glm::vec3 scaleVector = glm::vec3(100000.0f);
+    glm::vec3 scaleVector = glm::vec3(1.0f);
     glm::vec3 centroid = glm::vec3( -0.5f, -0.5f, 0.0f );
     modelMat = glm::rotate(angleOfRotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
             glm::scale( scaleVector ) *
@@ -190,7 +170,7 @@ int SimpleScene_Quad::Render()
 
 //    defaultShader->Bind();
 //    defaultShader->SetMat4("vertexTransform", modelMat);
-
+    //modelMat = glm::identity<glm::mat4>();
     Renderer::Submit(defaultShader, meshVertexArray, modelMat);
     //glDrawArrays(GL_TRIANGLES, 0, 6);
 
