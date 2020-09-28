@@ -142,8 +142,8 @@ int SimpleScene_Quad::Render()
     RenderCommand::SetClearColor({0.5f,0.5f,0.5f,0.5f});
     RenderCommand::Clear();
 
-    //meshVertexArray->Bind();
-    //meshVertexArray->GetVertexBuffers()[0]->Bind();
+//    meshVertexArray->Bind();
+//    meshVertexArray->GetVertexBuffers()[0]->Bind();
 //
 //    glEnableVertexAttribArray(0);
 //    glVertexAttribPointer( 0,
