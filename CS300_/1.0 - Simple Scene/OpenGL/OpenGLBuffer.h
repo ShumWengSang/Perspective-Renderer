@@ -31,7 +31,7 @@ private:
 class OpenGLIndexBuffer : public IndexBuffer
 {
 public:
-    OpenGLIndexBuffer(unsigned * indices, size_t count);
+    OpenGLIndexBuffer(GLuint * indices, size_t count);
     ~OpenGLIndexBuffer() override;
 
     void Bind() const override;

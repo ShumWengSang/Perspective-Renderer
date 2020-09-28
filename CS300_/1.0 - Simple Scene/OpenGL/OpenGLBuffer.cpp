@@ -77,10 +77,10 @@ size_t OpenGLIndexBuffer::GetCount() const {
     return Count;
 }
 
-OpenGLIndexBuffer::OpenGLIndexBuffer(unsigned int *indices, size_t count) : Count(count){
+OpenGLIndexBuffer::OpenGLIndexBuffer(GLuint *indices, size_t count) : Count(count){
     glCreateBuffers(1, &RenderID);
-    glBindBuffer(GL_ARRAY_BUFFER, RenderID);
-    glBufferData(GL_ARRAY_BUFFER, count * sizeof(unsigned), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RenderID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint ), indices, GL_STATIC_DRAW);
 }
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer() {
