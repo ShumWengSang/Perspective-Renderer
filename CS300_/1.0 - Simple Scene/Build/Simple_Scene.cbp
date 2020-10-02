@@ -44,6 +44,9 @@
 				<Option type="2"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/usr/include/c++/9"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
@@ -67,6 +70,9 @@
 				<Option type="2"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/usr/include/c++/9"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
@@ -90,6 +96,9 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
 					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../Common"/>
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/usr/include/c++/9"/>
@@ -114,6 +123,9 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
+					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
 					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../Common"/>
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/usr/include/c++/9"/>
@@ -132,7 +144,40 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Affine.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Affine.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/GLApplication.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_glfw.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_glfw.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_opengl3.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_opengl3.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_demo.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_draw.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_widgets.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjLoader.cpp">
@@ -141,10 +186,28 @@
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjLoader.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Object.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Object.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjectManager.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjectManager.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLBuffer.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLBuffer.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLMesh.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLMesh.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLRendererAPI.cpp">
@@ -163,6 +226,12 @@
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Buffer.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Camera.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Camera.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/RenderCommand.cpp">

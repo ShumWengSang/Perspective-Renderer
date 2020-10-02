@@ -3,6 +3,8 @@
 //
 #include "../stdafx.h"
 #include "RenderCommand.h"
+#include "RendererAPI.h"
+#include "Buffer.h"
 
 UniquePtr<RendererAPI> RenderCommand::theRendererAPI = RendererAPI::Create();
 

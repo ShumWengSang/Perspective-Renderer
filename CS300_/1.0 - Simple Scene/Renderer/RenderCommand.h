@@ -5,6 +5,8 @@
 #ifndef SIMPLE_SCENE_RENDERCOMMAND_H
 #define SIMPLE_SCENE_RENDERCOMMAND_H
 
+class VertexArray;
+class RendererAPI;
 
 class RenderCommand {
 public:

@@ -173,6 +173,10 @@ OpenGLVertexArray::~OpenGLVertexArray() {
     glDeleteVertexArrays(1, &RendererID);
 }
 
-OpenGLVertexArray::OpenGLVertexArray() {
+OpenGLVertexArray::OpenGLVertexArray(VertexArray::PrimitiveType type) : primitiveType(type) {
     glCreateVertexArrays(1, &RendererID);
+}
+
+const VertexArray::PrimitiveType OpenGLVertexArray::GetType() const {
+    return this->primitiveType;
 }

@@ -6,6 +6,8 @@ include( ../Common/build_files/Common_packages.cmake )
 set( TARGET_NAME SimpleScene_OGL4 )
 set( CMAKE_CXX_FLAGS "-Wall -g " )
 
+include_directories(ImGui/examples/example_glfw_opengl3 ImGui/examples ImGui)
+
 #include_directories( ../Common/Scene.h ../Common/shader.hpp)
 
 add_executable( ${TARGET_NAME}
@@ -23,7 +25,24 @@ add_executable( ${TARGET_NAME}
         OpenGL/OpenGLShader.cpp
         Renderer/Shader.cpp
         Renderer/Shader.h
-        Renderer/RendererAPI.cpp Renderer/RendererAPI.h OpenGL/OpenGLRendererAPI.cpp OpenGL/OpenGLRendererAPI.h Renderer/Renderer.cpp Renderer/Renderer.h Renderer/RenderCommand.cpp Renderer/RenderCommand.h)
+        Renderer/RendererAPI.cpp
+        Renderer/RendererAPI.h
+        OpenGL/OpenGLRendererAPI.cpp
+        OpenGL/OpenGLRendererAPI.h
+        Renderer/Renderer.cpp
+        Renderer/Renderer.h
+        Renderer/RenderCommand.cpp
+        Renderer/RenderCommand.h
+        Renderer/Camera.cpp
+        Renderer/Camera.h
+        Affine.cpp
+        Affine.h
+        ImGui/imgui.cpp
+        ImGui/imgui_draw.cpp
+        ImGui/imgui_widgets.cpp
+        ImGui/imgui_demo.cpp
+        ImGui/examples/imgui_impl_glfw.cpp
+        ImGui/examples/imgui_impl_opengl3.cpp Object.cpp Object.h OpenGL/OpenGLMesh.cpp OpenGL/OpenGLMesh.h ObjectManager.cpp ObjectManager.h)
 
 # Set target properties
 include( ../Common/build_files/Common_target.cmake )

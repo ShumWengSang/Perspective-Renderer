@@ -68,6 +68,7 @@ private:
 class VertexBuffer
 {
 public:
+
     virtual ~VertexBuffer() = default;
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
@@ -89,12 +90,19 @@ public:
 
     virtual size_t GetCount() const =0;
 
-    static SharedPtr<IndexBuffer> Create(unsigned * vertices, size_t size);
+    static SharedPtr<IndexBuffer> Create(unsigned * vertices, size_t count);
 };
 
 class VertexArray
 {
 public:
+    enum class PrimitiveType
+    {
+        Triangles,
+        Lines,
+        None
+    };
+
     virtual ~VertexArray() = default;
 
     virtual void Bind() const = 0;
@@ -106,7 +114,9 @@ public:
     virtual const std::vector<SharedPtr<VertexBuffer>> & GetVertexBuffers() const = 0;
     virtual const SharedPtr<IndexBuffer> & GetIndexBuffer() const = 0;
 
-    static SharedPtr<VertexArray> Create();
+    virtual const PrimitiveType GetType() const = 0;
+
+    static SharedPtr<VertexArray> Create(PrimitiveType type = PrimitiveType::Triangles);
 };
 
 #endif //SIMPLE_SCENE_BUFFER_H

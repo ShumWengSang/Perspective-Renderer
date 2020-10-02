@@ -5,6 +5,9 @@
 #ifndef SIMPLE_SCENE_OPENGLRENDERERAPI_H
 #define SIMPLE_SCENE_OPENGLRENDERERAPI_H
 
+#include "../Renderer/RendererAPI.h"
+
+class VertexArray;
 
 class OpenGLRendererAPI : public RendererAPI {
 public:

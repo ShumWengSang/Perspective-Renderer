@@ -1,8 +1,8 @@
 
 uniform mat4 vertexTransform;
 
-in layout(location = 0) vec3 modelPosition;
-in layout(location = 1) vec3 vertexNormal;
+in layout(location = 0) vec4 modelPosition;
+in layout(location = 1) vec4 vertexNormal;
 //in layout(location = 2) vec3 diffuseColor;
 
 vec3 diffuseColor = vec3( 0.3f, 0.3f, 0.3f );

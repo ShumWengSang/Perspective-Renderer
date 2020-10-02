@@ -4,6 +4,8 @@
 #include "../stdafx.h"
 #include "OpenGLShader.h"
 
+unsigned OpenGLShader::currentBind = 0;
+
 static inline GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path)
 {
 
@@ -396,11 +398,15 @@ static inline GLuint LoadMultiShaders(const char *vertex_file_path, const char *
 }
 
 void OpenGLShader::Bind() const {
-    glUseProgram(RendererID);
+    if(currentBind != RendererID) {
+        glUseProgram(RendererID);
+        currentBind = RendererID;
+    }
 }
 
 void OpenGLShader::Unbind() const {
     glUseProgram(0);
+    currentBind = 0;
 }
 
 void OpenGLShader::SetInt(const std::string &name, int value) {
@@ -544,6 +550,7 @@ void OpenGLShader::LinkPrograms(GLuint *shaderIDs, unsigned int size) {
         std::vector<char> ProgramErrorMessage(InfoLogLength+1);
         glGetProgramInfoLog(RendererID, InfoLogLength, nullptr, &ProgramErrorMessage[0]);
         printf("%s\n", &ProgramErrorMessage[0]);
+        DEBUG_BREAKPOINT();
     }
     for(unsigned i = 0; i < size; ++i)
     {

@@ -3,16 +3,18 @@
 //
 #include "../1.0 - Simple Scene/stdafx.h"
 #include "Scene.h"
+#include "../1.0 - Simple Scene/Renderer/Renderer.h"
 
 Scene::Scene() : _windowHeight(100), _windowWidth(100)
 {
-
+    Renderer::OnWindowsResize(_windowWidth,_windowHeight);
 }
 
 Scene::Scene(int windowWidth, int windowHeight)
 {
     _windowHeight = windowHeight;
     _windowWidth = windowWidth;
+    Renderer::OnWindowsResize(_windowWidth,_windowHeight);
 }
 
 Scene::~Scene()
