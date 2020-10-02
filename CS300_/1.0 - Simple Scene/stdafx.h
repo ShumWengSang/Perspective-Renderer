@@ -5,11 +5,15 @@
 #ifndef SIMPLE_SCENE_STDAFX_H
 #define SIMPLE_SCENE_STDAFX_H
 
-// Include GLEW
-#include <GL/glew.h>
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
-// Include GLFW
-#include <GLFW/glfw3.h>
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
+#include <GL/gl3w.h>            // Initialize with gl3wInit()
+#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
+#include <GL/glew.h>            // Initialize with glewInit()
+#endif
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -20,6 +24,7 @@
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/common.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/ext.hpp>
 
 #include <vector>
 #include <optional>
@@ -33,7 +38,22 @@
 #include <fstream>
 #include <functional>
 #include <algorithm>
+#include <cmath>
+#include <set>
 
+#include "Affine.h"
+
+struct KeyCompare
+{
+    bool operator()(const glm::vec3 & a, const glm::vec3 & b) const
+    {
+        return a.x < b.x ||
+                (Math::near(a.x, b.x) && a.y < b.y)||
+                (Math::near(a.x, b.x) && Math::near(a.y, b.y) && a.z < b.z);
+    }
+};
+
+using Vec3Set = std::set<glm::vec3, KeyCompare>;
 
 
 // Macros
@@ -44,6 +64,8 @@
 #ifdef PLATFORM_UNIX
 #include <signal.h>
 #define DEBUG_BREAKPOINT() raise(SIGINT)
+#else
+#define DEBUG_BREAKPOINT() std::cout << "Error!" << std::endl
 #endif
 
 template <typename T>
@@ -62,14 +84,9 @@ constexpr UniquePtr<T> CreateUniquePtr(Args&& ... args)
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
-#define DEBUG_MODE
+inline const float PI = 3.14159265359f;
 
-#include "ObjLoader.h"
-#include "Renderer/Shader.h"
-#include "Renderer/Buffer.h"
-#include "Renderer/Shader.h"
-#include "Renderer/RendererAPI.h"
-#include "Renderer/Renderer.h"
-#include "Renderer/RenderCommand.h"
+#define DEBUG_MODE
+#define DEBUG_OUT
 
 #endif //SIMPLE_SCENE_STDAFX_H

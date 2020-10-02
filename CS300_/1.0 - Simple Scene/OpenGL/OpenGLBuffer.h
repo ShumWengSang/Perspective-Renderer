@@ -48,8 +48,10 @@ private:
 class OpenGLVertexArray : public VertexArray
 {
 public:
-    OpenGLVertexArray();
+    OpenGLVertexArray(VertexArray::PrimitiveType type);
     ~OpenGLVertexArray() override;
+
+    const PrimitiveType GetType() const override;
 
     virtual void Bind() const override;
     virtual void Unbind() const override;
@@ -67,6 +69,7 @@ private:
     unsigned VertexBufferIndex = 0;
     std::vector<SharedPtr<VertexBuffer>> VertexBuffers;
     SharedPtr<IndexBuffer> internal_IndexBuffer;
+    VertexArray::PrimitiveType primitiveType;
 };
 
 #endif //SIMPLE_SCENE_OPENGLBUFFER_H

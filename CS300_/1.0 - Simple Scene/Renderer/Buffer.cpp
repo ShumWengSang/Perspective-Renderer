@@ -45,7 +45,11 @@ unsigned BufferElement::GetComponentCount() const {
 
         case ShaderDataType::Mat3:
             return 3;
-        case ShaderDataType::Mat4:
+        case ShaderDataType::Mat4:    enum class PrimitiveType
+    {
+        Index_Drawing,
+        Lines
+    };
             return 4;
 
         case ShaderDataType::Int:
@@ -85,14 +89,14 @@ SharedPtr<VertexBuffer> VertexBuffer::Create(float *vertices, size_t size) {
     return nullptr;
 }
 
-SharedPtr<IndexBuffer> IndexBuffer::Create(unsigned *vertices, size_t size) {
+SharedPtr<IndexBuffer> IndexBuffer::Create(unsigned *vertices, size_t count) {
     // Depending on API, we can change this around
-    return CreateSharedPtr<OpenGLIndexBuffer>(vertices, size);
+    return CreateSharedPtr<OpenGLIndexBuffer>(vertices, count);
     return nullptr;
 }
 
-SharedPtr<VertexArray> VertexArray::Create() {
-    return CreateSharedPtr<OpenGLVertexArray>();
+SharedPtr<VertexArray> VertexArray::Create(PrimitiveType type) {
+    return CreateSharedPtr<OpenGLVertexArray>(type);
     return nullptr;
 }
 

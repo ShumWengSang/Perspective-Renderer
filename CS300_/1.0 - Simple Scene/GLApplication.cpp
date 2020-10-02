@@ -57,6 +57,22 @@ int main()
     // call
     glfwMakeContextCurrent(window);
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    const char* glsl_version = "#version 130";
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
     // Initialize GLEW
     glewExperimental = static_cast<GLboolean>(true); // Needed for core profile
     if (glewInit() != GLEW_OK)

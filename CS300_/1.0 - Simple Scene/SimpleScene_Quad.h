@@ -6,7 +6,13 @@
 #define SIMPLE_SCENE_SIMPLESCENE_QUAD_H
 
 #include "../Common/Scene.h"
-#include "ObjLoader.h"
+
+class Mesh;
+class VertexArray;
+class Shader;
+class Camera;
+class Object;
+class ObjectManager;
 
 class SimpleScene_Quad : public Scene
 {
@@ -23,7 +29,7 @@ public:
 
     int Render() override;
     int postRender() override;
-
+    int preRender() override;
 
 private:
 
@@ -37,23 +43,35 @@ private:
 
     void SetupNanoGUI(GLFWwindow *pWwindow) override;
 
-    // data members
-//    GLuint  programID;
-//    GLuint  vertexbuffer;
-//    GLuint  VertexArrayID;
-    GLuint vertexBuffer;
-    SharedPtr<VertexArray> quadVertexArray;
-    std::vector<GLfloat> geometryBuffer;
-    GLfloat   angleOfRotation;
-    SharedPtr<Shader> defaultShader;
+    std::vector<GLfloat>    geometryBuffer;
+    GLfloat                 angleOfRotation;
 
 private:
-    // Our own things
-    MeshUniquePtr mesh;
-    SharedPtr<VertexArray> meshVertexArray;
-    SharedPtr<Shader> phongShader;
+    // Obj object.
+    SharedPtr<Object>       objLoadedObject;
+    SharedPtr<Object>       faceNormalLine;
+    SharedPtr<Object>       vertexNormalLine;
 
+    UniquePtr<ObjectManager> objManager;
 
+    SharedPtr<Object>       sphereObject[8];
+    SharedPtr<Object>       sphereFaceNormalLine[8];
+    SharedPtr<Object>       sphereVertexNormalLine[8];
+
+    SharedPtr<Shader>       phongShader;
+    SharedPtr<Shader>       lineShader;
+    UniquePtr<Camera>       mainCamera;
+
+    // ImGUI changable settings
+    // Light
+    glm::vec3 lightDirection = glm::vec3(0.7f, 0.7f, 0.7f);;
+    glm::vec3 lightColor = glm::vec3(0.0f,0.0f, -10.0f);
+    glm::vec4 lineColor = glm::vec4(0.5f,0.7f,0.3f, 1.0f);
+
+    // ImGUI states
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 };
 
 
