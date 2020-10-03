@@ -14,24 +14,30 @@ private:
     glm::mat4 transform = {};
     SharedPtr<VertexArray> VAO;
 public:
+    // Transform
     const glm::mat4 & GetTransformMatrix() const;
     void SetTransform(glm::mat4 const& transform);
 
+    // VAO
     void SetVAO(SharedPtr<VertexArray> const & VAO, SharedPtr<Shader> const & shader);
     SharedPtr<VertexArray> & GetVAO();
 
-    SharedPtr<Shader> const & GetShader() const;
+    // Shader
+    std::vector<SharedPtr<Shader>> const & GetShaders() const;
+    void AddShaderPass(SharedPtr<Shader> const & shader);
 
     // Children
     std::vector<SharedPtr<Object>> children;
-
     void AddChild(SharedPtr<Object> const & child);
 
+    // Update function
     void SetUpdate(std::function<void(Object&, glm::mat4 const &)> lambda);
     void Update(glm::mat4 const & objMatrix = glm::mat4(1.0f));
+
+    bool Renderable = true;
 private:
     std::function<void(Object&, glm::mat4 const &)> updateFunction;
-    SharedPtr<Shader> shader;
+    std::vector<SharedPtr<Shader>> shaders;
 };
 
 

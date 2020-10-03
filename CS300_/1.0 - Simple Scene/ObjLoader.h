@@ -33,7 +33,8 @@ struct Mesh
 
     // This is also the index array.
     std::vector<Face> Faces;
-    std::vector<Edge> Edges;
+    // Alternative indexer (for non-triangles)
+    std::vector<unsigned> Index;
 
     // Lighting Data
     glm::vec3 DiffuseColor;
@@ -56,6 +57,7 @@ class ObjLoader
 public:
     static std::optional<MeshUniquePtr> LoadObj(const char* fileLocation);
     static std::optional<MeshUniquePtr> CreateSphere(float radius, unsigned numDivisions);
+    static std::optional<MeshUniquePtr> CreateCircularLine(float radius, unsigned divisions);
 };
 
 

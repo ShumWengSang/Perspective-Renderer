@@ -17,6 +17,8 @@ static float Remap(float value, float low1, float high1, float low2, float high2
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 static glm::vec4 Remap(glm::vec4 const & value,
                        glm::vec4 const &  low1, glm::vec4 const & high1,
                        glm::vec4 const &  low2, glm::vec4 const &  high2)
@@ -28,6 +30,7 @@ static glm::vec4 Remap(glm::vec4 const & value,
     VecMapShortcut(w);
     return result;
 }
+#pragma GCC diagnostic pop
 #pragma clang diagnostic pop
 
 static glm::vec4 Remap(glm::vec4 const & value,
@@ -295,6 +298,27 @@ std::optional<MeshUniquePtr> ObjLoader::CreateSphere(float radius, unsigned numD
         }
     }
     return sphereMesh;
+}
+
+// Creates line around the xz plane
+std::optional<MeshUniquePtr> ObjLoader::CreateCircularLine(float radius, unsigned int divisions) {
+    MeshUniquePtr mesh = CreateUniquePtr<OpenGLMesh>();
+
+    std::vector<unsigned> index;
+    float stackStep = 2 * PI / divisions;
+
+    for(unsigned i = 0; i < divisions; ++i)
+    {
+        float stackAngle = PI / 2 - i * stackStep;
+        float x = radius * sinf(stackAngle);
+        float z = radius * cosf(stackAngle);
+        mesh->Vertices.emplace_back(glm::vec4(x,0,z,1));
+
+        mesh->Index.emplace_back(i);
+        mesh->Index.emplace_back(i + 1);
+    }
+    mesh->Index.back() = 0;
+    return mesh;
 }
 
 std::ostream &operator<<(std::ostream &os, const Mesh::Face &face) {

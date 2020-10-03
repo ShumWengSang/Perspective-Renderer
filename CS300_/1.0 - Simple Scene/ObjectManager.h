@@ -11,7 +11,6 @@ class ObjectManager {
     std::vector<SharedPtr<Object>> Objects;
 public:
     SharedPtr<Object> CreateObject();
-
     // Reminder: NEVER CREATE AN UPDATE FOR ALL OBJECTS HERE
     // need to rethink update if you do.
 

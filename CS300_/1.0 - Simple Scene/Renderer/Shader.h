@@ -29,7 +29,10 @@ public:
 
     virtual const std::string& GetName() const = 0;
     static SharedPtr<Shader> Create(std::string const & filePath);
-    static SharedPtr<Shader> Create(std::string const & name, std::string const & vertexSrc, std::string const & fragmentSrc);
+    static SharedPtr<Shader> Create(std::string const & name,
+                                    std::string const & vertexSrc,
+                                    std::string const & fragmentSrc,
+                                    std::string const & geomSrc = std::string());
 };
 
 class ShaderLibrary

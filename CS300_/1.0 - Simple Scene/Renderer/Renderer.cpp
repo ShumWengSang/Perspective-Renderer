@@ -26,7 +26,8 @@ void Renderer::Submit(const SharedPtr<Shader> &shader, const SharedPtr<VertexArr
                       const glm::mat4 &transform) {
     shader->Bind();
     shader->SetMat4("model", transform);
-    shader->SetMat4("viewProjection", Renderer::sceneData->ViewProjectionMatrix);
+    shader->SetMat4("View", Renderer::sceneData->ViewMatrix);
+    shader->SetMat4("Projection", Renderer::sceneData->ProjectionMatrix);
     vertexArray->Bind();
     RenderCommand::DrawIndexed(vertexArray);
 }
@@ -38,7 +39,8 @@ void Renderer::OnWindowsResize(unsigned int width, unsigned int height) {
 void Renderer::BeginScene(Camera const & camera) {
     glm::mat4 perspective =  Camera::perspective(camera);
     glm::mat4 view = Camera::view(camera);
-    Renderer::sceneData->ViewProjectionMatrix = perspective * view;
+    Renderer::sceneData->ViewMatrix = view;
+    Renderer::sceneData->ProjectionMatrix = perspective;
 }
 
 

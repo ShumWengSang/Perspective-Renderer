@@ -2,8 +2,9 @@
 
 uniform vec3 lightColor;
 uniform vec3 lightDirection;
+uniform vec3 Projection;
 
-in VS_OUT
+in VS_GS_VERTEX
 {
     vec3 fragNormal;
     vec4 worldPosition;
@@ -20,7 +21,6 @@ void main()
     vec4 ambient = vec4(ambientCoefficient * lightColor, 1.0f);
 
     // Diffuse
-    // vec3 lightDir = normalize(lightPos - fs_in.worldPosition.xyz);
     vec3 lightDir = normalize(lightDirection);
     float N_dot_L = max( dot( normalize(fs_in.fragNormal), lightDir), 0.0f);
     vec4 diffuse = vec4(N_dot_L * lightColor, 1.0f);
@@ -29,7 +29,4 @@ void main()
     vec4 finalLightColor = ambient + diffuse;
     fragColor = finalLightColor * fs_in.objectColor;
 
-    // vec3 lightVector =  fs_in.worldPosition.xyz;
-    // float N_dot_L = max( dot( normalize(fs_in.fragNormal), normalize(lightVector)), 0.0f );
-    // fragColor = vec4(ambient + vec3(0.9f) * fs_in.fragDiffuse * N_dot_L, 1.0f);
 }
