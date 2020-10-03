@@ -47,30 +47,34 @@ private:
     GLfloat                 angleOfRotation;
 
 private:
-    // Obj object.
-    SharedPtr<Object>       objLoadedObject;
-    SharedPtr<Object>       faceNormalLine;
-    SharedPtr<Object>       vertexNormalLine;
-
     UniquePtr<ObjectManager> objManager;
 
+    // Obj object.
+    SharedPtr<Object>       objLoadedObject;
     SharedPtr<Object>       sphereObject[8];
-    SharedPtr<Object>       sphereFaceNormalLine[8];
-    SharedPtr<Object>       sphereVertexNormalLine[8];
+    SharedPtr<Object>       sphereLineObject;
 
     SharedPtr<Shader>       phongShader;
+    SharedPtr<Shader>       generateNormalShader;
     SharedPtr<Shader>       lineShader;
+
     UniquePtr<Camera>       mainCamera;
 
     // ImGUI changable settings
     // Light
     glm::vec3 lightDirection = glm::vec3(0.7f, 0.7f, 0.7f);;
-    glm::vec3 lightColor = glm::vec3(0.0f,0.0f, -10.0f);
+    glm::vec3 lightColor = glm::vec3(0.5f,0.3f, 0.5f);
     glm::vec4 lineColor = glm::vec4(0.5f,0.7f,0.3f, 1.0f);
+
+    glm::vec3 backgroundColor = glm::vec3(0.3f,0.3f,0.3f);
+
+    glm::vec3 spherePathPosition = glm::vec3(0, -0.1, 0);
+    glm::vec3 spherePathScale = glm::vec3(3);
 
     // ImGUI states
     bool show_demo_window = true;
     bool show_another_window = false;
+    int showNormals = 0;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 };
 

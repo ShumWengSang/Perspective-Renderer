@@ -10,9 +10,15 @@
 void ObjectManager::RenderAllObject() {
     for(unsigned i = 0; i < Objects.size(); ++i)
     {
-        Renderer::Submit(Objects[i]->GetShader(),
-                         Objects[i]->GetVAO(),
-                         Objects[i]->GetTransformMatrix());
+        for(auto& shader : Objects[i]->GetShaders())
+        {
+            if(Objects[i]->Renderable) {
+                Renderer::Submit(
+                        shader,
+              Objects[i]->GetVAO(),
+               Objects[i]->GetTransformMatrix());
+            }
+        }
     }
 }
 

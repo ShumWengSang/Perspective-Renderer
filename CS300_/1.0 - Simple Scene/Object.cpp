@@ -33,7 +33,7 @@ void Object::Update(const glm::mat4 &objMatrix) {
 }
 
 void Object::SetVAO(const SharedPtr<VertexArray> &VAO, const SharedPtr<Shader> &shader) {
-    this->shader = shader;
+    this->shaders.emplace_back(shader);
     this->VAO = VAO;
 }
 
@@ -41,6 +41,10 @@ SharedPtr<VertexArray> &Object::GetVAO() {
     return this->VAO;
 }
 
-SharedPtr<Shader> const &Object::GetShader() const {
-    return this->shader;
+std::vector<SharedPtr<Shader>> const &Object::GetShaders() const {
+    return this->shaders;
+}
+
+void Object::AddShaderPass(SharedPtr<Shader> const & shader) {
+    shaders.emplace_back(shader);
 }

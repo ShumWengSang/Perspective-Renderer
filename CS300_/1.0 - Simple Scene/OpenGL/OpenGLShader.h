@@ -9,7 +9,8 @@ class OpenGLShader : public Shader
 {
 public:
     explicit OpenGLShader(std::string const & filepath);
-    OpenGLShader(std::string const & name, std::string const & vertexSrc, std::string const & fragmentSrc);
+    OpenGLShader(std::string const & name, std::string const & vertexSrc, std::string const & fragmentSrc,
+                 std::string const & geometrySrc = std::string());
     ~OpenGLShader() override;
 
     void Bind() const override;

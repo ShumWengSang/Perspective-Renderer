@@ -7,10 +7,19 @@
 
 Mesh &OpenGLMesh::SetIndexBuffer(SharedPtr<VertexArray> &vaoOwner) {
     // Add index array
-    SharedPtr<IndexBuffer> meshIB = IndexBuffer::Create(
-            (unsigned*)this->Faces.data(),
-            (this->Faces.size() * 3));
-    vaoOwner->SetIndexBuffer(meshIB);
+    if(vaoOwner->GetType() == VertexArray::PrimitiveType::Triangles) {
+        SharedPtr<IndexBuffer> meshIB = IndexBuffer::Create(
+                (unsigned *) this->Faces.data(),
+                (this->Faces.size() * 3));
+        vaoOwner->SetIndexBuffer(meshIB);
+    }
+    else if(vaoOwner->GetType() == VertexArray::PrimitiveType::Lines)
+    {
+        SharedPtr<IndexBuffer> meshIB = IndexBuffer::Create(
+                (unsigned *) this->Index.data(),
+                (this->Index.size()));
+        vaoOwner->SetIndexBuffer(meshIB);
+    }
     return *this;
 }
 

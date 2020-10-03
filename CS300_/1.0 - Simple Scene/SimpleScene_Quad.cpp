@@ -21,7 +21,7 @@ static const glm::vec4 O  = Math::point(0,0,0),
 
 
 static char ModelPath[] = "../../Common/models/";
-
+extern std::string GLOBAL_OBJFILE; // Located in GLAppLication
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -73,7 +73,14 @@ void SimpleScene_Quad::CleanUp()
 void SimpleScene_Quad::SetupBuffers()
 {
     // Load the obj file
-    std::string obj = "rhino.obj";
+    std::string obj;
+
+    // Load cube2.obj if obj not provided
+    if(GLOBAL_OBJFILE.empty())
+        obj = "cube2.obj";
+    else { // Else load the global one
+        obj = GLOBAL_OBJFILE;
+    }
     std::string FullPath = ModelPath + obj;
     auto mesh = ObjLoader::LoadObj(FullPath.c_str());
     // Check if mesh was loaded
@@ -81,11 +88,10 @@ void SimpleScene_Quad::SetupBuffers()
     {
         mesh = std::move(mesh.value());
     }
+    // Setup the buffers for the OBJ object
     objLoadedObject->SetVAO(VertexArray::Create(), phongShader);
-    faceNormalLine->SetVAO(VertexArray::Create(VertexArray::PrimitiveType::Lines), lineShader);
-    vertexNormalLine->SetVAO(VertexArray::Create(VertexArray::PrimitiveType::Lines), lineShader);
-    //faceNormalLine->VAO = VertexArray::Create(VertexArray::PrimitiveType::Lines);
-    //vertexNormalLine->VAO = VertexArray::Create(VertexArray::PrimitiveType::Lines);
+    objLoadedObject->AddShaderPass(generateNormalShader);
+
     // Buffer names are hardcoded, but not that impt as long as order is correct.
     mesh.value()->
             SetVerticeBuffer(objLoadedObject->GetVAO()).
@@ -94,32 +100,34 @@ void SimpleScene_Quad::SetupBuffers()
             SetVertexNormal(objLoadedObject->GetVAO()).
             SetIndexBuffer(objLoadedObject->GetVAO());
 
-    mesh.value()->GenerateFaceNormalLines(faceNormalLine->GetVAO())
-    .GenerateVertexNormalLines(vertexNormalLine->GetVAO());
-
+    // Now we create sphere objects. We create one template, and point
+    // the other spheres at it.
     sphereObject[0]->SetVAO(VertexArray::Create(), phongShader);
-    sphereFaceNormalLine[0]->SetVAO(VertexArray::Create(VertexArray::PrimitiveType::Lines), lineShader);
-    sphereVertexNormalLine[0]->SetVAO(VertexArray::Create(VertexArray::PrimitiveType::Lines), lineShader);
+    sphereObject[0]->AddShaderPass(generateNormalShader);
 
     auto sphereMesh = ObjLoader::CreateSphere(0.5f, 6);
     sphereMesh.value()->
         SetVerticeBuffer(sphereObject[0]->GetVAO()).
         GenerateRandomColors(sphereObject[0]->GetVAO()).
         SetVertexNormal(sphereObject[0]->GetVAO()).
-        SetIndexBuffer(sphereObject[0]->GetVAO()).
-        GenerateVertexNormalLines(sphereVertexNormalLine[0]->GetVAO());
-
-    sphereMesh.value()->GenerateFaceNormalLines(sphereFaceNormalLine[0]->GetVAO());
+        SetIndexBuffer(sphereObject[0]->GetVAO());
 
     for(int i = 1; i < 8; i++)
     {
-        sphereFaceNormalLine[i]->SetVAO(sphereFaceNormalLine[0]->GetVAO(), lineShader);
         sphereObject[i]->SetVAO(sphereObject[0]->GetVAO(), phongShader);
-        sphereVertexNormalLine[i]->SetVAO(sphereVertexNormalLine[0]->GetVAO(), lineShader);
-        //sphereFaceNormalLine[i]->VAO = sphereFaceNormalLine[0]->VAO;
-        //sphereObject[i]->VAO = sphereObject[0]->VAO;
-        //sphereVertexNormalLine[i]->VAO = sphereVertexNormalLine[0]->VAO;
+        sphereObject[i]->AddShaderPass(generateNormalShader);
     }
+
+    // Now we create a line object.
+    sphereLineObject->SetVAO(VertexArray::Create(VertexArray::PrimitiveType::Lines), lineShader);
+
+    // Generate the points
+    auto sphereLineMesh = ObjLoader::CreateCircularLine(1.0f, 30);
+    UniquePtr<Mesh> meshPtr = std::move(sphereLineMesh.value());
+
+    meshPtr->SetVerticeBuffer(sphereLineObject->GetVAO());
+    meshPtr->SetIndexBuffer(sphereLineObject->GetVAO());
+
     return;
 }
 
@@ -132,11 +140,16 @@ int SimpleScene_Quad::Init()
                                  "../DiffuseShaderPhong.vert",
                                  "../DiffuseShaderPhong.frag");
 
+    generateNormalShader = Shader::Create("generateNormalShader",
+                                          "../NormalGenerator.vert",
+                                          "../NormalGenerator.frag",
+                                          "../NormalGenerator.geom");
+
     lineShader = Shader::Create("lineShader",
                                 "../LineShader.vert",
                                 "../LineShader.frag");
 
-    auto rotateScaleLambda = [&](Object& obj, glm::mat4 objTransform)->void
+    auto rotateScaleLambda = [&](Object& obj, glm::mat4 objTransform)-> void
     {
         // Draw the VAO !
         // T * R * S * Vertex
@@ -151,16 +164,11 @@ int SimpleScene_Quad::Init()
         obj.SetTransform(modelMat);
     };
 
+    // Create OBJ object.
     objLoadedObject = objManager->CreateObject();
-    faceNormalLine = objManager->CreateObject();
-    vertexNormalLine = objManager->CreateObject();
-
     objLoadedObject->SetUpdate(rotateScaleLambda);
-    faceNormalLine->SetUpdate(rotateScaleLambda);
-    vertexNormalLine->SetUpdate(rotateScaleLambda);
 
-
-
+    // Create Sphere Objects
     for(int i = 0; i < 8; ++i)
     {
         auto sphereUpdate = [&, i](Object& obj, glm::mat4 parentMatrix)-> void
@@ -176,15 +184,26 @@ int SimpleScene_Quad::Init()
             obj.SetTransform(modelMat);
         };
         sphereObject[i] = objManager->CreateObject();
-        sphereFaceNormalLine[i] = objManager->CreateObject();
-        sphereVertexNormalLine[i] = objManager->CreateObject();
-
         sphereObject[i]->SetUpdate(sphereUpdate);
-        sphereFaceNormalLine[i]->SetUpdate(sphereUpdate);
-        sphereVertexNormalLine[i]->SetUpdate(sphereUpdate);
     }
 
+    // Create sphere line object.
+    auto sphereLineObjectUpdate = [&](Object& obj, glm::mat4 objTransform)-> void
+    {
+        // Draw the VAO !
+        // T * R * S * Vertex
+        glm::mat4 modelMat = glm::mat4(1.0f);
+        glm::vec3 scaleVector = this->spherePathScale;
+        glm::vec3 centroid =  this->spherePathPosition;
 
+        modelMat = objTransform * glm::translate( centroid ) *
+                   glm::rotate(angleOfRotation, glm::vec3(0.0f, 1.0f, 0.0f)) *
+                   glm::scale( scaleVector );
+
+        obj.SetTransform(modelMat);
+    };
+    this->sphereLineObject = objManager->CreateObject();
+    this->sphereLineObject->SetUpdate(sphereLineObjectUpdate);
 
     SetupBuffers();
 
@@ -195,48 +214,30 @@ int SimpleScene_Quad::Init()
 //////////////////////////////////////////////////////
 int SimpleScene_Quad::Render()
 {
-    RenderCommand::SetClearColor({0.5f,0.5f,0.5f,0.5f});
+    RenderCommand::SetClearColor(glm::vec4(backgroundColor, 1.0f));
     RenderCommand::Clear();
 
     objLoadedObject->Update();
-    faceNormalLine->Update();
-    vertexNormalLine->Update();
-
+    //objLoadedObject->Renderable = false;
+    sphereLineObject->Update();
     for(int i = 0; i < 8; ++i)
     {
+        //sphereObject[i]->Renderable = false;
         sphereObject[i]->Update();
-        sphereFaceNormalLine[i]->Update();
-        sphereVertexNormalLine[i]->Update();
     }
 
     phongShader->Bind();
     phongShader->SetFloat3("lightColor", lightColor);
     phongShader->SetFloat3("lightDirection", lightDirection);
-            //modelMat = glm::identity<glm::mat4>();
 
     objManager->RenderAllObject();
 
-    /////////////////////////// Render the obj and the spheres
-    // Renderer::Submit(phongShader, objLoadedObject->VAO, objLoadedObject->GetTransformMatrix());
-    //RenderObject(phongShader, *objLoadedObject);
-    for(int i = 0; i < 8; ++i)
-    {
-        //RenderObject(phongShader, *sphereObject[i]);
-//        Renderer::Submit(phongShader, sphereObject[i]->VAO, sphereObject[i]->GetTransformMatrix());
-    }
+    // Abuse the state nature of opengl. We change the shader here, and it'll reflect in the
+    // next frame
+    generateNormalShader->Bind();
+    generateNormalShader->SetFloat4("lineColor", lineColor);
+    generateNormalShader->SetInt("showNormals", showNormals);
 
-    ///////////////////////// Render the normal lines!
-    lineShader->Bind();
-    lineShader->SetFloat4("lineColor", lineColor);
-    //Renderer::Submit(lineShader, faceNormalLine->VAO, faceNormalLine->GetTransformMatrix());
-//    RenderObject(lineShader, *faceNormalLine);
-//    RenderObject(lineShader, *vertexNormalLine);
-
-    for(int i = 0; i < 8; ++i)
-    {
-        //RenderObject(lineShader, *sphereFaceNormalLine[i]);
-        //Renderer::Submit(lineShader, sphereFaceNormalLine[i]->VAO, sphereFaceNormalLine[i]->GetTransformMatrix());
-    }
     return 0;
 }
 
@@ -263,18 +264,44 @@ int SimpleScene_Quad::preRender() {
 //        ImGui::ShowDemoWindow(&show_demo_window);
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-    {
 
-        ImGui::Begin("Assignment 1");                          // Create a window called "Hello, world!" and append into it.
 
-        ImGui::DragFloat3("Light Direction",
-                          (float*)(&(this->lightDirection)));
-        ImGui::ColorPicker3("Light Color",
-                          (float*)(&(this->lightColor)));
+        if(ImGui::Begin("Assignment 1")) {// Create a window called "Hello, world!" and append into it.
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                        ImGui::GetIO().Framerate);
+            if(ImGui::CollapsingHeader("Background color"))
+            {
+                ImGui::ColorPicker3("Light Color",
+                                    (float *) (&(this->backgroundColor)));
+            }
+            if (ImGui::CollapsingHeader("Light Direction")) {
+                ImGui::DragFloat3("Vec3 Light Dir",
+                                  (float *) (&(this->lightDirection)));
+            }
+            if(ImGui::CollapsingHeader("Light Color"))
+            {
+                ImGui::ColorPicker3("Light Color",
+                                    (float *) (&(this->lightColor)));
 
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
-    }
+            }
+            if(ImGui::CollapsingHeader("Display Normals?"))
+            {
+                ImGui::RadioButton("Don't Show", &showNormals, 0);
+                ImGui::RadioButton("Show Face Normals", &showNormals, 1);
+                ImGui::RadioButton("Show Vertex Normals", &showNormals, 2);
+            }
+            if(ImGui::CollapsingHeader("Sphere path"))
+            {
+                ImGui::DragFloat3("Vec3 Path Position",
+                                  (float *) (&(this->spherePathPosition)));
+
+                ImGui::DragFloat3("Vec3 Path Scale",
+                                  (float *) (&(this->spherePathScale)));
+            }
+
+            ImGui::End();
+        }
+
 
     // 3. Show another simple window.
     if (show_another_window)

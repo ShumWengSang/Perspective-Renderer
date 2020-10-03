@@ -12,8 +12,9 @@ SharedPtr<Shader> Shader::Create(const string &filePath) {
     return CreateSharedPtr<OpenGLShader>(filePath);
 }
 
-SharedPtr<Shader> Shader::Create(const string &name, const string &vertexSrc, const string &fragmentSrc) {
-    return CreateSharedPtr<OpenGLShader>(name, vertexSrc, fragmentSrc);
+SharedPtr<Shader> Shader::Create(const string &name, const string &vertexSrc, const string &fragmentSrc,
+                                 const string &geomSrc) {
+    return CreateSharedPtr<OpenGLShader>(name, vertexSrc, fragmentSrc, geomSrc);
 }
 
 bool ShaderLibrary::Exists(const string &name) const {

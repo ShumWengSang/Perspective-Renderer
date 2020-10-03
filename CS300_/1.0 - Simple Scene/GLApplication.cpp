@@ -14,6 +14,7 @@ bool savePPMImageFile(std::string &filepath, std::vector<GLfloat> &pixels, int w
 
 GLFWwindow *window;
 Scene  *scene;
+std::string GLOBAL_OBJFILE = std::string();
 
 int windowWidth = 1024;
 int windowHeight = 768;
@@ -21,7 +22,7 @@ int windowHeight = 768;
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-int main()
+int main(int argc, char *argv[])
 {
     // Initialise GLFW
     if (!glfwInit())
@@ -29,6 +30,11 @@ int main()
         fprintf(stderr, "Failed to initialize GLFW\n");
         getchar();
         return -1;
+    }
+
+    if(argc > 1)
+    {
+        GLOBAL_OBJFILE = std::string(argv[1]);
     }
 
     // Setting up OpenGL properties
