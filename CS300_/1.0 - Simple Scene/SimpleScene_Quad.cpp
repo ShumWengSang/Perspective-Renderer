@@ -136,18 +136,19 @@ void SimpleScene_Quad::SetupBuffers()
 int SimpleScene_Quad::Init()
 {
     // Create and compile our GLSL program from the shaders
+    static const std::string ShaderPath = "../Shaders/";
     phongShader = Shader::Create("PhongShader",
-                                 "../DiffuseShaderPhong.vert",
-                                 "../DiffuseShaderPhong.frag");
+                                 ShaderPath + "DiffuseShaderPhong.vert",
+                                 ShaderPath + "DiffuseShaderPhong.frag");
 
     generateNormalShader = Shader::Create("generateNormalShader",
-                                          "../NormalGenerator.vert",
-                                          "../NormalGenerator.frag",
-                                          "../NormalGenerator.geom");
+                                          ShaderPath + "NormalGenerator.vert",
+                                          ShaderPath + "NormalGenerator.frag",
+                                          ShaderPath + "NormalGenerator.geom");
 
     lineShader = Shader::Create("lineShader",
-                                "../LineShader.vert",
-                                "../LineShader.frag");
+                                ShaderPath + "LineShader.vert",
+                                ShaderPath + "LineShader.frag");
 
     auto rotateScaleLambda = [&](Object& obj, glm::mat4 objTransform)-> void
     {
