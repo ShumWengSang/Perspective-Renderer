@@ -106,6 +106,7 @@ std::optional<MeshUniquePtr> ObjLoader::LoadObj(const char *fileLocation) {
     // Now we can to process this so opengl is happy with it.
     MeshUniquePtr newMesh = CreateUniquePtr<OpenGLMesh>();
 
+    // Do actual loading
     while (true) {
         char lineHeader[128];
         // read the first word of the line
