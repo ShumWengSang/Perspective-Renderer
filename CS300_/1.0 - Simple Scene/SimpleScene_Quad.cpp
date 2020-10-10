@@ -1,6 +1,16 @@
-//
-// Created by pushpak on 6/1/18.
-//
+/* Start Header -------------------------------------------------------
+ * Copyright (C) 2020 DigiPen Institute of Technology.
+ * Reproduction or disclosure of this file or its contents without the prior
+ * written consent of DigiPen Institute of Technology is prohibited.
+ * File Name: SimpleScene_Quad.cpp
+ * Purpose: The quad scene with the obj file loaded and spheres and stuff.
+ * Language: C++, G++
+ * Platform: g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M,
+ *           OpenGL version string: 4.6.0 NVIDIA 390.138
+ * Project: RolandShum_CS300_1
+ * Author: Roland Shum, roland.shum@digipen.edu
+ * Creation date: 3rd October 2020
+ * End Header --------------------------------------------------------*/
 
 #include "stdafx.h"
 #include "SimpleScene_Quad.h"
@@ -303,16 +313,6 @@ int SimpleScene_Quad::preRender() {
             ImGui::End();
         }
 
-
-    // 3. Show another simple window.
-    if (show_another_window)
-    {
-        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me"))
-            show_another_window = false;
-        ImGui::End();
-    }
     ImGui::Render();
     return 0;
 }
