@@ -5,7 +5,7 @@
 #ifndef SIMPLE_SCENE_SIMPLESCENE_QUAD_H
 #define SIMPLE_SCENE_SIMPLESCENE_QUAD_H
 
-#include "../Common/Scene.h"
+#include "Scene.h"
 #include "Renderer/Shader.h"
 
 class Mesh;

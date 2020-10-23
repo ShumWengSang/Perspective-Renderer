@@ -66,7 +66,7 @@ using Vec3Set = std::set<glm::vec3, KeyCompare>;
 #include <signal.h>
 #define DEBUG_BREAKPOINT() raise(SIGINT)
 #else
-#define DEBUG_BREAKPOINT() std::cout << "Error!" << std::endl
+#define DEBUG_BREAKPOINT() __debugbreak() 
 #endif
 
 template <typename T>

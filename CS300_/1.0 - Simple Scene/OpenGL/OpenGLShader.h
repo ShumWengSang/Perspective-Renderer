@@ -41,8 +41,7 @@ public:
 
     const std::string& GetPath(int pathID) const override;
     //////////////////////////////////////////////////////
-    SharedPtr<Shader>
-    Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) override;
+    void Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) override;
 
 private:
     unsigned RendererID;
