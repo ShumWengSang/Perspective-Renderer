@@ -3,7 +3,7 @@
 
 
 // Local / project headers
-#include "../Common/Scene.h"
+#include "Scene.h"
 
 #include "SimpleScene_Quad.h"
 

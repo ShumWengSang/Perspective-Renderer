@@ -35,7 +35,7 @@ public:
                                     std::string const & fragmentSrc,
                                     std::string const & geomSrc = std::string());
 
-    virtual SharedPtr<Shader> Reload(std::string const & vertexSrc,
+    virtual void Reload(std::string const & vertexSrc,
                                     std::string const & fragmentSrc,
                                     std::string const & geomSrc) = 0;
 };

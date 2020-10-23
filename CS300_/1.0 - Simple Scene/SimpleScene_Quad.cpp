@@ -99,7 +99,7 @@ void SimpleScene_Quad::SetupBuffers()
         mesh = std::move(mesh.value());
     }
     // Setup the buffers for the OBJ object
-    objLoadedObject->SetVAO(VertexArray::Create(), phongLighting);
+    objLoadedObject->SetVAO(VertexArray::Create(), diffuseShader);
     objLoadedObject->AddShaderPass(generateNormalShader);
 
     // Buffer names are hardcoded, but not that impt as long as order is correct.

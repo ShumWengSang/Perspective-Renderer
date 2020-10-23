@@ -157,7 +157,7 @@ unsigned OpenGLShader::InitializeShader(const std::string &vertexSrc, const std:
 }
 
 #ifdef _WIN32
-char sep = '\\'
+char sep = '\\';
 #elif linux
 char sep = '/';
 #endif
@@ -214,7 +214,6 @@ const std::string &OpenGLShader::GetPath(int pathID) const {
     return ShaderPath[pathID];
 }
 
-SharedPtr<Shader>
-OpenGLShader::Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) {
+void OpenGLShader::Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) {
     RendererID = InitializeShader(vertexSrc, fragmentSrc, geomSrc);
 }

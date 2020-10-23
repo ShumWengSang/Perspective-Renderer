@@ -15,7 +15,7 @@ target_include_directories( common_lib PUBLIC /usr/local/include/eigen3/ )
 target_link_libraries( ${TARGET_NAME} PUBLIC ${OPENGL_opengl_LIBRARY} ${GLEW_LIBRARIES}
         ${GLFW_LIBRARIES} )
 target_link_libraries( ${TARGET_NAME} PUBLIC ${OPENGL_glu_LIBRARY} ${OPENGL_glx_LIBRARY})
-
+target_link_libraries( ${TARGET_NAME} PUBLIC GLEW::GLEW)
 
 target_link_libraries( ${TARGET_NAME} PUBLIC common_lib )
 
