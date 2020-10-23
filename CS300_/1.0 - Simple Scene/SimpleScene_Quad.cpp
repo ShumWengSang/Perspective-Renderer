@@ -99,20 +99,20 @@ void SimpleScene_Quad::SetupBuffers()
         mesh = std::move(mesh.value());
     }
     // Setup the buffers for the OBJ object
-    objLoadedObject->SetVAO(VertexArray::Create(), phongShader);
+    objLoadedObject->SetVAO(VertexArray::Create(), phongLighting);
     objLoadedObject->AddShaderPass(generateNormalShader);
 
     // Buffer names are hardcoded, but not that impt as long as order is correct.
     mesh.value()->
             SetVerticeBuffer(objLoadedObject->GetVAO()).
-            GenerateRandomColors(objLoadedObject->GetVAO()).
+            GenerateVertexColor(objLoadedObject->GetVAO()).
             CalcVertexNormal(objLoadedObject->GetVAO()).
             SetVertexNormal(objLoadedObject->GetVAO()).
             SetIndexBuffer(objLoadedObject->GetVAO());
 
     // Now we create sphere objects. We create one template, and point
     // the other spheres at it.
-    sphereObject[0]->SetVAO(VertexArray::Create(), phongShader);
+    sphereObject[0]->SetVAO(VertexArray::Create(), diffuseShader);
     sphereObject[0]->AddShaderPass(generateNormalShader);
 
     auto sphereMesh = ObjLoader::CreateSphere(0.5f, 6);
@@ -124,7 +124,7 @@ void SimpleScene_Quad::SetupBuffers()
 
     for(int i = 1; i < 8; i++)
     {
-        sphereObject[i]->SetVAO(sphereObject[0]->GetVAO(), phongShader);
+        sphereObject[i]->SetVAO(sphereObject[0]->GetVAO(), diffuseShader);
         sphereObject[i]->AddShaderPass(generateNormalShader);
     }
 
@@ -138,6 +138,16 @@ void SimpleScene_Quad::SetupBuffers()
     meshPtr->SetVerticeBuffer(sphereLineObject->GetVAO());
     meshPtr->SetIndexBuffer(sphereLineObject->GetVAO());
 
+    std::string quadPath = std::string(ModelPath) + "quad.obj";
+    UniquePtr<Mesh> quadMesh = std::move(ObjLoader::LoadObj(quadPath.c_str()).value());
+    planeObject->SetVAO(VertexArray::Create(), diffuseShader);
+    quadMesh->SetVerticeBuffer(planeObject->GetVAO()).
+            GenerateRandomColors(planeObject->GetVAO()).
+            CalcVertexNormal(planeObject->GetVAO()).
+            SetVertexNormal(planeObject->GetVAO()).
+            SetIndexBuffer(planeObject->GetVAO());
+
+
     return;
 }
 
@@ -147,7 +157,8 @@ int SimpleScene_Quad::Init()
 {
     // Create and compile our GLSL program from the shaders
     static const std::string ShaderPath = "../Shaders/";
-    phongShader = Shader::Create("PhongShader",
+
+    diffuseShader = Shader::Create("PhongShader",
                                  ShaderPath + "DiffuseShaderPhong.vert",
                                  ShaderPath + "DiffuseShaderPhong.frag");
 
@@ -159,6 +170,15 @@ int SimpleScene_Quad::Init()
     lineShader = Shader::Create("lineShader",
                                 ShaderPath + "LineShader.vert",
                                 ShaderPath + "LineShader.frag");
+
+    phongLighting = Shader::Create("Phong Lighting",
+                                ShaderPath + "Assignment2/PhongLighting.vert",
+                                ShaderPath + "Assignment2/PhongLighting.frag");
+
+    shaderLibrary.Add("Diffuse Shader", diffuseShader);
+    shaderLibrary.Add("Generate Normal Geo Shader", generateNormalShader);
+    shaderLibrary.Add("Line Shader", lineShader);
+    shaderLibrary.Add("Phong Lighting", phongLighting);
 
     auto rotateScaleLambda = [&](Object& obj, glm::mat4 objTransform)-> void
     {
@@ -216,6 +236,22 @@ int SimpleScene_Quad::Init()
     this->sphereLineObject = objManager->CreateObject();
     this->sphereLineObject->SetUpdate(sphereLineObjectUpdate);
 
+    auto planeObjectUpdate = [&](Object& obj, glm::mat4 objTransform)-> void {
+        // Draw the VAO !
+        // T * R * S * Vertex
+        glm::mat4 modelMat = glm::mat4(1.0f);
+        glm::vec3 scaleVector = this->planeScale;
+        glm::vec3 centroid = this->planePosition;
+
+        modelMat = objTransform * glm::translate(centroid) *
+                   glm::rotate(3.14f / 2, glm::vec3(-1.0f, 0.0f, 0.0f)) *
+                   glm::scale(scaleVector);
+
+        obj.SetTransform(modelMat);
+    };
+    this->planeObject = objManager->CreateObject();
+    this->planeObject->SetUpdate(planeObjectUpdate);
+
     SetupBuffers();
 
     return Scene::Init();
@@ -231,15 +267,20 @@ int SimpleScene_Quad::Render()
     objLoadedObject->Update();
     //objLoadedObject->Renderable = false;
     sphereLineObject->Update();
+    planeObject->Update();
     for(int i = 0; i < 8; ++i)
     {
-        //sphereObject[i]->Renderable = false;
+        sphereObject[i]->Renderable = false;
         sphereObject[i]->Update();
     }
 
-    phongShader->Bind();
-    phongShader->SetFloat3("lightColor", lightColor);
-    phongShader->SetFloat3("lightDirection", lightDirection);
+    diffuseShader->Bind();
+    diffuseShader->SetFloat3("lightColor", lightColor);
+    diffuseShader->SetFloat3("lightDirection", lightDirection);
+
+    phongLighting->Bind();
+    phongLighting->SetFloat3("lightColor", lightColor);
+    phongLighting->SetFloat3("lightDirection", lightDirection);
 
     objManager->RenderAllObject();
 
@@ -270,49 +311,74 @@ int SimpleScene_Quad::preRender() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-//    if (show_demo_window)
-//        ImGui::ShowDemoWindow(&show_demo_window);
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
 
-    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+    if (ImGui::Begin("Assignment 1"))
+    {
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                    ImGui::GetIO().Framerate);
+        if (ImGui::CollapsingHeader("Background color")) {
+            ImGui::ColorEdit3("Light Color",
+                                (float *) (&(this->backgroundColor)));
+        }
+        if (ImGui::CollapsingHeader("Light Direction")) {
+            ImGui::DragFloat3("Vec3 Light Dir",
+                              (float *) (&(this->lightDirection)));
+        }
+        if (ImGui::CollapsingHeader("Light Color")) {
+            ImGui::ColorEdit3("Light Color",
+                                (float *) (&(this->lightColor)));
 
+        }
+        if (ImGui::CollapsingHeader("Display Normals?")) {
+            ImGui::RadioButton("Don't Show", &showNormals, 0);
+            ImGui::RadioButton("Show Face Normals", &showNormals, 1);
+            ImGui::RadioButton("Show Vertex Normals", &showNormals, 2);
+        }
+        if(ImGui::CollapsingHeader("Plane pos"))
+        {
+            ImGui::DragFloat3("Vec3 Pos ",
+                              (float *) (&(this->planePosition)));
+            ImGui::DragFloat3("Vec3 Scale",
+                              (float *) (&(this->planeScale)));
 
-        if(ImGui::Begin("Assignment 1")) {// Create a window called "Hello, world!" and append into it.
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-                        ImGui::GetIO().Framerate);
-            if(ImGui::CollapsingHeader("Background color"))
-            {
-                ImGui::ColorPicker3("Light Color",
-                                    (float *) (&(this->backgroundColor)));
-            }
-            if (ImGui::CollapsingHeader("Light Direction")) {
-                ImGui::DragFloat3("Vec3 Light Dir",
-                                  (float *) (&(this->lightDirection)));
-            }
-            if(ImGui::CollapsingHeader("Light Color"))
-            {
-                ImGui::ColorPicker3("Light Color",
-                                    (float *) (&(this->lightColor)));
-
-            }
-            if(ImGui::CollapsingHeader("Display Normals?"))
-            {
-                ImGui::RadioButton("Don't Show", &showNormals, 0);
-                ImGui::RadioButton("Show Face Normals", &showNormals, 1);
-                ImGui::RadioButton("Show Vertex Normals", &showNormals, 2);
-            }
-            if(ImGui::CollapsingHeader("Sphere path"))
-            {
-                ImGui::DragFloat3("Vec3 Path Position",
-                                  (float *) (&(this->spherePathPosition)));
-
-                ImGui::DragFloat3("Vec3 Path Scale",
-                                  (float *) (&(this->spherePathScale)));
-            }
-
-            ImGui::End();
+        }
+        if(ImGui::CollapsingHeader("Shader Library"))
+        {
+            ImGui_ShaderLibrary(shaderLibrary);
         }
 
+
+    }
+    ImGui::End();
     ImGui::Render();
     return 0;
+}
+
+void ImGui_ShaderLibrary(ShaderLibrary & shaderlib)
+{
+    if (ImGui::TreeNode("Shaders")) {
+        for (auto &pair : shaderlib.Shaders) {
+            auto &shader = pair.second;
+            auto &name = pair.first;
+            if (ImGui::TreeNode(name.c_str())) {
+                auto &tuple = shaderlib.ShaderFilePaths[name];
+                std::string const &vertexPath = std::get<0>(tuple);
+                std::string const &fragPath = std::get<1>(tuple);
+                std::string const &geoPath = std::get<2>(tuple);
+
+                ImGui::SameLine();
+                if (ImGui::Button("Reload")) {
+                    shader->Reload(vertexPath, fragPath, geoPath);
+                }
+
+                ImGui::Text("Vertex Path: %s", vertexPath.c_str());
+                ImGui::Text("Frag Path: %s", fragPath.c_str());
+                ImGui::Text("Geo Path: %s", geoPath.c_str());
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+    }
 }

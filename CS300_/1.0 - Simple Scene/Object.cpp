@@ -48,3 +48,8 @@ std::vector<SharedPtr<Shader>> const &Object::GetShaders() const {
 void Object::AddShaderPass(SharedPtr<Shader> const & shader) {
     shaders.emplace_back(shader);
 }
+
+void Object::ReplaceShader(const SharedPtr<Shader> &shader) {
+    shaders.clear();
+    shaders.emplace_back(shader);
+}

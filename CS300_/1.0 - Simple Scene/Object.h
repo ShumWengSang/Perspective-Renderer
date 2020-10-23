@@ -25,6 +25,7 @@ public:
     // Shader
     std::vector<SharedPtr<Shader>> const & GetShaders() const;
     void AddShaderPass(SharedPtr<Shader> const & shader);
+    void ReplaceShader(SharedPtr<Shader> const & shader);
 
     // Children
     std::vector<SharedPtr<Object>> children;

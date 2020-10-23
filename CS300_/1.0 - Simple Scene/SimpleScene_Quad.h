@@ -6,6 +6,7 @@
 #define SIMPLE_SCENE_SIMPLESCENE_QUAD_H
 
 #include "../Common/Scene.h"
+#include "Renderer/Shader.h"
 
 class Mesh;
 class VertexArray;
@@ -53,10 +54,13 @@ private:
     SharedPtr<Object>       objLoadedObject;
     SharedPtr<Object>       sphereObject[8];
     SharedPtr<Object>       sphereLineObject;
+    SharedPtr<Object>       planeObject;
 
-    SharedPtr<Shader>       phongShader;
+    ShaderLibrary           shaderLibrary;
+    SharedPtr<Shader>       diffuseShader;
     SharedPtr<Shader>       generateNormalShader;
     SharedPtr<Shader>       lineShader;
+    SharedPtr<Shader>       phongLighting;
 
     UniquePtr<Camera>       mainCamera;
 
@@ -68,8 +72,14 @@ private:
 
     glm::vec3 backgroundColor = glm::vec3(0.3f,0.3f,0.3f);
 
+    // Path sphere scale + pos
     glm::vec3 spherePathPosition = glm::vec3(0, -0.1, 0);
     glm::vec3 spherePathScale = glm::vec3(3);
+
+    // Plane transform
+    glm::vec3 planePosition = glm::vec3(0.0f,0.0f,0.0f);
+    glm::vec3 planeScale = glm::vec3(2);
+    glm::vec3 planeRotation = glm::vec3(0.0f,0.0f,0.0f);
 
     // ImGUI states
     bool show_demo_window = true;
@@ -78,5 +88,6 @@ private:
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 };
 
+void ImGui_ShaderLibrary(ShaderLibrary & shaderlib);
 
 #endif //SIMPLE_SCENE_SIMPLESCENE_QUAD_H

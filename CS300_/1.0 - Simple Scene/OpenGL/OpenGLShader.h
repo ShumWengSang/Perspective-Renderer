@@ -5,6 +5,14 @@
 #define SIMPLE_SCENE_OPENGLSHADER_H
 #include "../Renderer/Shader.h"
 
+enum ShaderType : unsigned
+{
+    VertexShader = 0,
+    FragmentShader,
+    GeometryShader,
+    MaxShader
+};
+
 class OpenGLShader : public Shader
 {
 public:
@@ -31,17 +39,27 @@ public:
 
     const std::string &GetName() const override;
 
+    const std::string& GetPath(int pathID) const override;
     //////////////////////////////////////////////////////
+    SharedPtr<Shader>
+    Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) override;
+
 private:
     unsigned RendererID;
     std::string Name;
+    std::string ShaderPath[MaxShader];
 
 private:
     static std::string ReadFile(std::string const & fileName);
     static GLuint Compile(std::string const & shaderContent, GLenum shaderType);
-    void LinkPrograms(GLuint *shaderIDs, unsigned size);
+    void LinkPrograms(GLuint *shaderIDs, unsigned size, unsigned id);
 private:
     static unsigned currentBind;
+
+    friend class ShaderLibrary;
+
+    unsigned int
+    InitializeShader(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geometricSrc);
 };
 
 

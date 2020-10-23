@@ -121,14 +121,21 @@ GLuint OpenGLShader::Compile(const std::string &shaderContent, GLenum shaderType
 #ifdef DEBUG_OUT
         printf("%s\n", &VertexShaderErrorMessage[0]);
 #endif
+        throw std::exception();
     }
     return shaderID;
 }
 
+// This is main constructor
 OpenGLShader::OpenGLShader(const std::string &name, const std::string &vertexSrc, const std::string &fragmentSrc,
-                           const std::string &geometricSrc) : Name(name){
+                           const std::string &geometricSrc) : Name(name), ShaderPath{vertexSrc, fragmentSrc, geometricSrc}{
+    RendererID = InitializeShader(vertexSrc, fragmentSrc, geometricSrc);
 
-    // Read the vertex program
+
+}
+
+unsigned OpenGLShader::InitializeShader(const std::string &vertexSrc, const std::string &fragmentSrc,
+                                        const std::string &geometricSrc) {// Read the vertex program
     int i = 0;
     GLuint shaderIDs[3] = {};
     std::string shaderContent = ReadFile(vertexSrc);
@@ -144,9 +151,11 @@ OpenGLShader::OpenGLShader(const std::string &name, const std::string &vertexSrc
     shaderIDs[i++] = Compile(shaderContent, GL_FRAGMENT_SHADER);
 
 
-    RendererID = glCreateProgram(); // Create ProgramID BEFORE linking
-    LinkPrograms(shaderIDs, i);
+    unsigned newID = glCreateProgram(); // Create ProgramID BEFORE linking
+    LinkPrograms(shaderIDs, i, newID);
+    return newID;
 }
+
 #ifdef _WIN32
 char sep = '\\'
 #elif linux
@@ -167,7 +176,7 @@ OpenGLShader::~OpenGLShader() {
     glDeleteProgram(RendererID);
 }
 
-void OpenGLShader::LinkPrograms(GLuint *shaderIDs, unsigned int size) {
+void OpenGLShader::LinkPrograms(GLuint *shaderIDs, unsigned int size, unsigned id) {
     GLint Result = GL_FALSE;
     int InfoLogLength;
 
@@ -178,22 +187,34 @@ void OpenGLShader::LinkPrograms(GLuint *shaderIDs, unsigned int size) {
 
     for(unsigned i = 0; i < size; ++i)
     {
-        glAttachShader(RendererID, shaderIDs[i]);
+        glAttachShader(id, shaderIDs[i]);
     }
-    glLinkProgram(RendererID);
+    glLinkProgram(id);
 
     // Check the program
-    glGetProgramiv(RendererID, GL_LINK_STATUS, &Result);
-    glGetProgramiv(RendererID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    glGetProgramiv(id, GL_LINK_STATUS, &Result);
+    glGetProgramiv(id, GL_INFO_LOG_LENGTH, &InfoLogLength);
     if ( InfoLogLength > 0 ){
         std::vector<char> ProgramErrorMessage(InfoLogLength+1);
-        glGetProgramInfoLog(RendererID, InfoLogLength, nullptr, &ProgramErrorMessage[0]);
+        glGetProgramInfoLog(id, InfoLogLength, nullptr, &ProgramErrorMessage[0]);
         printf("%s\n", &ProgramErrorMessage[0]);
         DEBUG_BREAKPOINT();
+        throw std::exception();
     }
     for(unsigned i = 0; i < size; ++i)
     {
-        glDetachShader(RendererID, shaderIDs[i]);
+        glDetachShader(id, shaderIDs[i]);
         glDeleteShader(shaderIDs[i]);
     }
+}
+
+const std::string &OpenGLShader::GetPath(int pathID) const {
+    if(pathID < 0 || pathID >= MaxShader)
+        DEBUG_BREAKPOINT();
+    return ShaderPath[pathID];
+}
+
+SharedPtr<Shader>
+OpenGLShader::Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) {
+    RendererID = InitializeShader(vertexSrc, fragmentSrc, geomSrc);
 }

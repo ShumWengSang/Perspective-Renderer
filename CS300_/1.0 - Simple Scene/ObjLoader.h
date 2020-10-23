@@ -45,6 +45,7 @@ struct Mesh
     virtual Mesh& SetVerticeBuffer(SharedPtr<VertexArray>& vaoOwner) = 0;
     virtual Mesh& SetVertexNormal(SharedPtr<VertexArray>& vaoOwner) = 0;
     virtual Mesh& GenerateRandomColors(SharedPtr<VertexArray>& vaoOwner) = 0;
+    virtual Mesh& GenerateVertexColor(SharedPtr<VertexArray>& vaoOwner) = 0;
     virtual Mesh& GenerateFaceNormalLines(SharedPtr<VertexArray>& vaoOwner) = 0;
     virtual Mesh& GenerateVertexNormalLines(SharedPtr<VertexArray>& vaoOwner) = 0;
     virtual Mesh& CalcVertexNormal(SharedPtr<VertexArray>& vaoOwner) = 0;

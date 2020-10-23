@@ -201,3 +201,24 @@ Mesh &OpenGLMesh::GenerateVertexNormalLines(SharedPtr<VertexArray> &vaoOwner) {
     vaoOwner->SetIndexBuffer(meshIB);
     return *this;
 }
+
+Mesh &OpenGLMesh::GenerateVertexColor(SharedPtr<VertexArray> &vaoOwner) {
+    std::vector<float> colors(4 * this->Vertices.size());
+    for(unsigned i = 1; i < colors.size(); i +=4)
+    {
+        colors[i] = 1;
+    }
+    // Set alpha
+    for(unsigned  i = 3; i < colors.size(); i += 4)
+    {
+        colors[i] = 1.0f;
+    }
+    SharedPtr<VertexBuffer> colorVB = VertexBuffer::Create(
+            colors.data(),
+            sizeof(colors[0]) * colors.size());
+    colorVB->SetLayout({
+                               { ShaderDataType::Float4, "vColor"}
+                       });
+    vaoOwner->AddVertexBuffer(colorVB);
+    return *this;
+}

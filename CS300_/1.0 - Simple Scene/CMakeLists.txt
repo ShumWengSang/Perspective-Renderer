@@ -42,7 +42,7 @@ add_executable( ${TARGET_NAME}
         ImGui/imgui_widgets.cpp
         ImGui/imgui_demo.cpp
         ImGui/examples/imgui_impl_glfw.cpp
-        ImGui/examples/imgui_impl_opengl3.cpp Object.cpp Object.h OpenGL/OpenGLMesh.cpp OpenGL/OpenGLMesh.h ObjectManager.cpp ObjectManager.h)
+        ImGui/examples/imgui_impl_opengl3.cpp Object.cpp Object.h OpenGL/OpenGLMesh.cpp OpenGL/OpenGLMesh.h ObjectManager.cpp ObjectManager.h Renderer/Light.cpp Renderer/Light.h)
 
 # Set target properties
 include( ../Common/build_files/Common_target.cmake )

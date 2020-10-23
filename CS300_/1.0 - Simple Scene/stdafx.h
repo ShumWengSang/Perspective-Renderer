@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <cmath>
 #include <set>
+#include <exception>
 
 #include "Affine.h"
 
@@ -83,6 +84,9 @@ constexpr UniquePtr<T> CreateUniquePtr(Args&& ... args)
 {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
+
+template <typename T>
+using WeakPtr = std::weak_ptr<T>;
 
 inline const float PI = 3.14159265359f;
 
