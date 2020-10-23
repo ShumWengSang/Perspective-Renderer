@@ -23,6 +23,8 @@ public:
     Mesh &SetVertexNormal(SharedPtr<VertexArray> &vaoOwner) override;
 
     Mesh &GenerateFaceNormalLines(SharedPtr<VertexArray> &vaoOwner) override;
+
+    Mesh &GenerateVertexColor(SharedPtr<VertexArray> &vaoOwner) override;
 };
 
 

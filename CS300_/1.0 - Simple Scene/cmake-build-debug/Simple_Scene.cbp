@@ -234,6 +234,12 @@
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Camera.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Light.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Light.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
 		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/RenderCommand.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
