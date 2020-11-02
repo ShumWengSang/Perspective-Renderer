@@ -51,7 +51,7 @@ void OpenGLRendererAPI::Init() {
 #ifdef DEBUG_MODE
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+    glDebugMessageCallback((GLDEBUGPROC)OpenGLMessageCallback, nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 #endif
     glEnable(GL_BLEND);

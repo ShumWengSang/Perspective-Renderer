@@ -4,307 +4,270 @@
 	<Project>
 		<Option title="Simple_Scene"/>
 		<Option makefile_is_custom="1"/>
-		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\Common\;CMake Files\..\Common\build_files\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\;CMake Files\..\..\..\..\..\..\usr\lib\cmake\;CMake Files\..\..\..\..\..\..\usr\lib\cmake\glm\;"/>
+		<Option compiler="msvc8"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\scripts\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\scripts\buildsystems\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glfw3\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glew\;CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glm\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
+				<Option working_dir="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rebuild_cache">
-				<Option working_dir="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="edit_cache">
-				<Option working_dir="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="common_lib">
-				<Option output="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug/libcommon_lib.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
-					<Add directory="/usr/local/include/eigen3"/>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 common_lib"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="common_lib/fast">
-				<Option output="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug/libcommon_lib.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
-					<Add directory="/usr/local/include/eigen3"/>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 common_lib/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 all"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="SimpleScene_OGL4">
-				<Option output="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug/SimpleScene_OGL4" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
+				<Option output="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug/SimpleScene_OGL4.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
-				<Option compiler="gcc"/>
+				<Option compiler="msvc8"/>
 				<Compiler>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../Common"/>
-					<Add directory="/usr/local/include/eigen3"/>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
+					<Add option="-DGLFW_DLL"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
+					<Add directory="C:/vcpkg-2020.07/installed/x86-windows/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 SimpleScene_OGL4"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 SimpleScene_OGL4"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="SimpleScene_OGL4/fast">
-				<Option output="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug/SimpleScene_OGL4" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
+				<Option output="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug/SimpleScene_OGL4.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
-				<Option compiler="gcc"/>
+				<Option compiler="msvc8"/>
 				<Compiler>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
-					<Add directory="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../Common"/>
-					<Add directory="/usr/local/include/eigen3"/>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
+					<Add option="-DGLFW_DLL"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
+					<Add directory="C:/vcpkg-2020.07/installed/x86-windows/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 SimpleScene_OGL4/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/roland/Documents/CS300/CS300_/1.0\ -\ Simple\ Scene/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 SimpleScene_OGL4/fast"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 edit_cache"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;C:\Users\user\Documents\git\CS300\CS300_\1.0 - Simple Scene\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Affine.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Affine.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Affine.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Affine.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/GLApplication.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/GLApplication.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_glfw.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_glfw.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_glfw.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_glfw.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_opengl3.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_opengl3.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_opengl3.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/imgui_impl_opengl3.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_demo.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_demo.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_draw.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_draw.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_widgets.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/imgui_widgets.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjLoader.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ObjLoader.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjLoader.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ObjLoader.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Object.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Object.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Object.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Object.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjectManager.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ObjectManager.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/ObjectManager.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ObjectManager.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLBuffer.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLBuffer.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLBuffer.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLBuffer.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLMesh.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLMesh.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLMesh.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLMesh.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLRendererAPI.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLRendererAPI.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLRendererAPI.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLRendererAPI.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLShader.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLShader.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLShader.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLShader.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Buffer.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Buffer.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Buffer.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Buffer.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Camera.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Camera.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Camera.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Camera.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Light.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Light.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Light.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Light.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/RenderCommand.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/RenderCommand.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/RenderCommand.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/RenderCommand.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Renderer.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Renderer.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Renderer.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Renderer.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/RendererAPI.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/RendererAPI.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/RendererAPI.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/RendererAPI.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Shader.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Shader.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/Renderer/Shader.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Shader.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/SimpleScene_Quad.cpp">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Scene.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/SimpleScene_Quad.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Scene.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/stdafx.h">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/SimpleScene_Quad.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/Common/Scene.cpp">
-			<Option target="common_lib"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/SimpleScene_Quad.h">
+			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/Common/Scene.h">
-			<Option target="common_lib"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/stdafx.h">
+			<Option target="SimpleScene_OGL4"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/CMakeLists.txt">
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../Common/build_files/Common_packages.cmake">
-			<Option virtualFolder="CMake Files\..\Common\build_files\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/scripts/buildsystems/vcpkg.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\scripts\buildsystems\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../Common/build_files/Common_target.cmake">
-			<Option virtualFolder="CMake Files\..\Common\build_files\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glfw3/glfw3Config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Config.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glfw3/glfw3ConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3ConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glfw3/glfw3Targets-debug.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Targets-none.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glfw3/glfw3Targets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Targets.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glfw3/glfw3Targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../../../../../../usr/lib/cmake/glm/glmConfig-version.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\cmake\glm\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glew/CopyImportedTargetProperties.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glew\"/>
 		</Unit>
-		<Unit filename="/home/roland/Documents/CS300/CS300_/1.0 - Simple Scene/../../../../../../usr/lib/cmake/glm/glmConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\cmake\glm\"/>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glew/glew-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glew\"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glew/glew-targets-debug.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glew\"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glew/glew-targets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glew\"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glew/glew-targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glew\"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glew/vcpkg-cmake-wrapper.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glew\"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/../../../../../../../vcpkg-2020.07/installed/x86-windows/share/glm/glm-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\vcpkg-2020.07\installed\x86-windows\share\glm\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>
