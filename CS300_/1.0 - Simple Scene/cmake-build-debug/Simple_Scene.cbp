@@ -28,6 +28,7 @@
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene"/>
 					<Add directory="C:/vcpkg-2020.07/installed/x86-windows/include"/>
 					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.25.28610\include"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
@@ -55,6 +56,7 @@
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples/example_glfw_opengl3"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui/examples"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/ImGui"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene"/>
 					<Add directory="C:/vcpkg-2020.07/installed/x86-windows/include"/>
 					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.25.28610\include"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
@@ -170,6 +172,12 @@
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLShader.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLUniformBufferObject.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/OpenGL/OpenGLUniformBufferObject.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Buffer.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
@@ -210,6 +218,12 @@
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/Shader.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/UniformBufferObject.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Renderer/UniformBufferObject.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_/1.0 - Simple Scene/Scene.cpp">
