@@ -16,7 +16,7 @@ find_package( glm REQUIRED)
 
 set( TARGET_NAME SimpleScene_OGL4 )
 
-include_directories(ImGui/examples/example_glfw_opengl3 ImGui/examples ImGui)
+include_directories(ImGui/examples/example_glfw_opengl3 ImGui/examples ImGui ${CMAKE_SOURCE_DIR})
 
 #include_directories( ../Common/Scene.h ../Common/shader.hpp)
 #set( CMAKE_CXX_FLAGS "-Wall -g " )
@@ -56,7 +56,7 @@ add_executable( ${TARGET_NAME}
         ImGui/imgui_demo.cpp
         ImGui/examples/imgui_impl_glfw.cpp
         ImGui/examples/imgui_impl_opengl3.cpp Object.cpp Object.h OpenGL/OpenGLMesh.cpp OpenGL/OpenGLMesh.h ObjectManager.cpp ObjectManager.h Renderer/Light.cpp Renderer/Light.h
-        Scene.cpp Scene.h)
+        Scene.cpp Scene.h Renderer/UniformBufferObject.cpp Renderer/UniformBufferObject.h OpenGL/OpenGLUniformBufferObject.cpp OpenGL/OpenGLUniformBufferObject.h)
 
 # Set target properties
 target_link_libraries( ${TARGET_NAME} PUBLIC ${OPENGL_opengl_LIBRARY} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} )

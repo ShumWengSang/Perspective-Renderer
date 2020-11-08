@@ -3,7 +3,7 @@
 //
 #include "../stdafx.h"
 #include "OpenGLShader.h"
-
+#include "../Renderer/UniformBufferObject.h"
 unsigned OpenGLShader::currentBind = 0;
 
 void OpenGLShader::Bind() const {
@@ -216,4 +216,19 @@ const std::string &OpenGLShader::GetPath(int pathID) const {
 
 void OpenGLShader::Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) {
     RendererID = InitializeShader(vertexSrc, fragmentSrc, geomSrc);
+    for(auto& func : CallbackList)
+    {
+        func();
+    }
+}
+
+void OpenGLShader::SetUniformBuffer(UniformBufferObject &uniformBuffer) {
+    unsigned int uniformBlockIndex = glGetUniformBlockIndex(RendererID, uniformBuffer.GetName().c_str());
+    if(uniformBlockIndex == -1)
+        DEBUG_BREAKPOINT();
+    glUniformBlockBinding(RendererID, uniformBlockIndex, 0);
+}
+
+void OpenGLShader::AddShaderReloadedCallback(const Shader::ShaderReloadedCallback &callback) {
+    CallbackList.emplace_back(callback);
 }

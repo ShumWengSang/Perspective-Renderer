@@ -12,9 +12,14 @@ enum Primitive_Enum
     LineStrip
 };
 
+class UniformBufferObject;
+
 class Shader
 {
 public:
+    using ShaderReloadedCallback = std::function<void()>;
+    virtual void AddShaderReloadedCallback(const ShaderReloadedCallback& callback) = 0;
+
     virtual ~Shader() = default;
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
@@ -38,6 +43,8 @@ public:
     virtual void Reload(std::string const & vertexSrc,
                                     std::string const & fragmentSrc,
                                     std::string const & geomSrc) = 0;
+
+    virtual void SetUniformBuffer(UniformBufferObject& uniformBuffer) = 0;
 };
 
 class ShaderLibrary

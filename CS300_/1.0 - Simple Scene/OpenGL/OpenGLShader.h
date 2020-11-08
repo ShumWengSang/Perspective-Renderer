@@ -43,18 +43,19 @@ public:
     //////////////////////////////////////////////////////
     void Reload(const std::string &vertexSrc, const std::string &fragmentSrc, const std::string &geomSrc) override;
 
+    void SetUniformBuffer(UniformBufferObject &uniformBuffer) override;
+    void AddShaderReloadedCallback(const ShaderReloadedCallback& callback) override;
 private:
     unsigned RendererID;
     std::string Name;
     std::string ShaderPath[MaxShader];
-
+    std::vector<ShaderReloadedCallback> CallbackList;
 private:
     static std::string ReadFile(std::string const & fileName);
     static GLuint Compile(std::string const & shaderContent, GLenum shaderType);
     void LinkPrograms(GLuint *shaderIDs, unsigned size, unsigned id);
 private:
     static unsigned currentBind;
-
     friend class ShaderLibrary;
 
     unsigned int
