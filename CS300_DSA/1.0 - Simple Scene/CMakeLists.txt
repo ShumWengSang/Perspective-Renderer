@@ -17,7 +17,7 @@ find_package( glm REQUIRED)
 set( TARGET_NAME SimpleScene_OGL4 )
 
 include_directories(ImGui/examples/example_glfw_opengl3 ImGui/examples ImGui ${CMAKE_SOURCE_DIR})
-
+include_directories(stb-master/)
 #include_directories( ../Common/Scene.h ../Common/shader.hpp)
 #set( CMAKE_CXX_FLAGS "-Wall -g " )
 

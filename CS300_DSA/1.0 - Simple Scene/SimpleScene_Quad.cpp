@@ -23,6 +23,7 @@
 #include "Object.h"
 #include "UniformBuffer.h"
 #include "MyUBO.h"
+#include "Texture.h"
 
 
 static const glm::vec4 O  = Math::point(0,0,0),
@@ -32,8 +33,9 @@ static const glm::vec4 O  = Math::point(0,0,0),
 
 
 static char ModelPath[] = "../../Common/models/";
+static char TexturePath[] = "../../Common/textures/";
 extern std::string GLOBAL_OBJFILE; // Located in GLAppLication
-
+extern int texture_mode;
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 SimpleScene_Quad::~SimpleScene_Quad()
@@ -79,7 +81,7 @@ void SimpleScene_Quad::SetupBuffers()
 
     // Load cube2.obj if obj not provided
     if(GLOBAL_OBJFILE.empty())
-        obj = "cube2.obj";
+        obj = "sphere.obj";
     else { // Else load the global one
         obj = GLOBAL_OBJFILE;
     }
@@ -96,10 +98,10 @@ void SimpleScene_Quad::SetupBuffers()
     {
         std::cout << "Error! Quad.obj not loaded!" << std::endl;
     }
-    planeMesh->get()->GenerateVertexNormals().GenerateColors({0.1f,0.1f,0.1f});
+    planeMesh->get()->GenerateVertexNormals().GenerateColors({0.1f,0.1f,0.1f}).GenerateTexCoords(texture_mode);
     // We need to generate the normals and the colors
-    mesh->get()->GenerateVertexNormals().GenerateColors({0.4f, 0.3f, 0.1f});
-    sphereMesh->get()->GenerateColors({0.3f, 0.7f, 0.9f});
+    mesh->get()->GenerateVertexNormals().GenerateColors({0.4f, 0.3f, 0.1f}).GenerateTexCoords(texture_mode);
+    sphereMesh->get()->GenerateColors({0.3f, 0.7f, 0.9f}).GenerateTexCoords(texture_mode);
 
     // Create the format of the vertex
     /* vertex formatting information */
@@ -107,7 +109,8 @@ void SimpleScene_Quad::SetupBuffers()
             {
                     createAttribFormat<glm::vec3>(0, offsetof(Vertex, position)),
                     createAttribFormat<glm::vec3>(1, offsetof(Vertex, color)),
-                    createAttribFormat<glm::vec3>(2, offsetof(Vertex, normal))
+                    createAttribFormat<glm::vec3>(2, offsetof(Vertex, normal)),
+                    createAttribFormat<glm::vec2>(3, offsetof(Vertex, texCoord))
             };
 
     // Create VAO, VBO, and IBO for mesh object
@@ -197,6 +200,17 @@ void SimpleScene_Quad::SetupBuffers()
         lightUBO = CreateSharedPtr<UniformBuffer<LightUBO>>(ubufferID, LightUBOBinding);
     }
 
+    // Load some textures
+    {
+        const std::string texturePath = TexturePath;
+        auto const DiffuseID = Texture::CreateTexture2DFromFile(texturePath + "metal_roof_diff_512x512.png", Texture::STBI_rgb);
+        auto const SpecularID = Texture::CreateTexture2DFromFile(texturePath + "metal_roof_spec_512x512.png", Texture::STBI_rgb);
+        DiffuseTexture = CreateSharedPtr<Texture>(DiffuseID, DiffuseBinding);
+        SpecularTexture = CreateSharedPtr<Texture>(SpecularID, SpecularBinding);
+
+        DiffuseTexture->Bind();
+        SpecularTexture->Bind();
+    }
 
 }
 
@@ -254,18 +268,26 @@ int SimpleScene_Quad::Render()
     }
     lightUbo.cameraPosition = mainCamera->eye();
     lightUBO->SendData();
+
+
     // Draw mesh for diffuse shader
     {
-        PhongShading->Bind();
-//        auto vertexProgram = PhongLighting->GetShader(ProgramPipeline::ShaderType::Vertex);
-//        vertexProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-//        vertexProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-
-        auto fragmentProgram = PhongShading->GetShader(ProgramPipeline::ShaderType::Fragment);
-        fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-        fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-        DrawObject(meshArray, PhongShading, meshObj);
-        DrawObject(planeArray, PhongShading, planeObj);
+        if(useShader == 0) {
+            PhongLighting->Bind();
+            auto vertexProgram = PhongLighting->GetShader(ProgramPipeline::ShaderType::Vertex);
+            vertexProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
+            vertexProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
+            DrawObject(meshArray, PhongLighting, meshObj);
+            DrawObject(planeArray, PhongLighting, planeObj);
+        }
+        else if(useShader == 1) {
+            PhongShading->Bind();
+            auto fragmentProgram = PhongShading->GetShader(ProgramPipeline::ShaderType::Fragment);
+            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
+            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
+            DrawObject(meshArray, PhongShading, meshObj);
+            DrawObject(planeArray, PhongShading, planeObj);
+        }
     }
 
 
@@ -297,6 +319,7 @@ int SimpleScene_Quad::Render()
     {
         NormalLineGeoPipeline->Bind();
         DrawObject(meshArray, NormalLineGeoPipeline, meshObj);
+        DrawObject(planeArray, NormalLineGeoPipeline, planeObj);
     }
 
     return 0;
@@ -359,6 +382,11 @@ int SimpleScene_Quad::preRender() {
 
             NormalLineGeoPipeline->GetShader(ProgramPipeline::ShaderType::Geometry)->SetUniform(uniformFaceMode, showNormals);
             NormalLineGeoPipeline->GetShader(ProgramPipeline::ShaderType::Fragment)->SetUniform(uniformLineColor, this->lineColor);
+        }
+        if (ImGui::CollapsingHeader("Shader to use?")) {
+            ImGui::RadioButton("Phong Lighting (Vertex)", &useShader, 0);
+            ImGui::RadioButton("Phong Shading (Fragment)", &useShader, 1);
+            ImGui::RadioButton("Blinn-Phong", &useShader, 2);
         }
         if(ImGui::CollapsingHeader("Mesh Materials"))
         {

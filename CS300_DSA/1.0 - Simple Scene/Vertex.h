@@ -24,8 +24,9 @@
 class Vertex {
 public:
     glm::vec3 position, color, normal;
-    Vertex(glm::vec3 const& position, glm::vec3 const& color, glm::vec3 const& normal)
-    : position(position), color(color), normal(normal){}
+    glm::vec2 texCoord;
+    Vertex(glm::vec3 const& position, glm::vec3 const& color, glm::vec3 const& normal, glm::vec2 texcoord)
+    : position(position), color(color), normal(normal), texCoord(texcoord){}
 };
 
 // This class describes the formatting layout of that one element
