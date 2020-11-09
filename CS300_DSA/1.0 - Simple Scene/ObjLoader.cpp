@@ -374,7 +374,7 @@ std::vector<Vertex> Mesh::CreateVertexFromMesh(const Mesh &mesh) {
     // Now we need to create Vertex from each of the different buffers in mesh and put em in.
     for(unsigned i = 0; i < mesh.Vertices.size(); ++i)
     {
-        Vertex newVertex = Vertex(mesh.Vertices[i], mesh.Color[i], mesh.VertexNormals[i]);
+        Vertex newVertex = Vertex(mesh.Vertices[i], mesh.Color[i], mesh.VertexNormals[i], mesh.TexCoords[i]);
         result.emplace_back(newVertex);
     }
     return result;
@@ -441,6 +441,52 @@ Mesh & Mesh::GenerateColors(glm::vec3 colors) {
     for(unsigned i = 0; i < this->Vertices.size(); ++i)
     {
         Color.emplace_back(colors);
+    }
+    return *this;
+}
+
+Mesh &Mesh::GenerateTexCoords(int mode) {
+    this->TexCoords.reserve(Vertices.size());
+    if(mode == 0) // Linear Projection
+    {
+        for(auto& vertex : Vertices)
+        {
+            // Idea: Find percentage which you are along the line.
+            float u = (vertex.x + 1 )/ 2;
+            float v = (vertex.y + 1 )/ 2;
+            TexCoords.emplace_back(glm::vec2(u, v));
+        }
+    }
+    else if(mode == 1) // Cylinder
+    {
+        for(auto& vertex : Vertices)
+        {
+            // Idea: Find percentage which you are along the line.
+            // TexCoords.emplace_back({vertex.x / 1.0f, vertex.y / 1.0f});
+            float theta = std::atan2(vertex.y, vertex.x);
+            float z = (vertex.z + 1 )/ 2;
+
+            float u = theta / (2 * PI);
+            float v = z;
+
+            TexCoords.emplace_back(glm::vec2(u,v));
+        }
+    }
+    else if(mode == 2) // Sphere
+    {
+        for(auto& vertex : Vertices)
+        {
+            // Idea: Find percentage which you are along the line.
+            // TexCoords.emplace_back({vertex.x / 1.0f, vertex.y / 1.0f});
+            float theta = std::atan2(vertex.y, vertex.x);
+            float z = (vertex.z + 1 )/ 2;
+            float r = vertex.x * vertex.x + vertex.y * vertex.y + vertex.z * vertex.z;
+            r = sqrt(r);
+            float pheta = acos(vertex.z / r);
+            float u = theta / (2 * PI);
+            float v = (PI - pheta) / PI;
+            TexCoords.emplace_back(glm::vec2(u,v));
+        }
     }
     return *this;
 }

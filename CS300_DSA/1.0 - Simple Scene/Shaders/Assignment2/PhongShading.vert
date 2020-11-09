@@ -5,11 +5,13 @@ out VS_GS_VERTEX
 {
     vec3 viewPosition;
     vec3 vNormal;
+    vec2 vTexCoord;
 } vs_out;
 
 layout(location = 0) in vec3 vPosition;
 layout(location = 1) in vec3 vColor;
 layout(location = 2) in vec3 vvertexNormal;
+layout(location = 3) in vec2 TexCoord;
 
 layout(location = 0) uniform mat4 model;
 
@@ -27,6 +29,7 @@ void main() {
 
     vs_out.vNormal = normalize(normalTransform * normalize(vvertexNormal));
     vs_out.viewPosition = (ModelViewMatrix * vec4(vPosition, 1.0)).xyz;
+    vs_out.vTexCoord = TexCoord;
 
     gl_Position = Projection * ModelViewMatrix * vec4(vPosition, 1.0);;
 }

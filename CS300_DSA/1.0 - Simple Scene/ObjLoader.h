@@ -32,6 +32,7 @@ public:
     std::vector<glm::vec3> VertexNormalsFace;
     std::vector<glm::vec3> Color;
     std::vector<glm::vec2> UV;
+    std::vector<glm::vec2> TexCoords;
 
     // This is also the index array.
     std::vector<Face> Faces;
@@ -46,6 +47,7 @@ public:
     Mesh & GenerateVertexNormals();
     Mesh & GenerateColors();
     Mesh & GenerateColors(glm::vec3 colors);
+    Mesh & GenerateTexCoords(int mode);
     static std::vector<Vertex> CreateVertexFromMesh(Mesh const & mesh);
 
 };

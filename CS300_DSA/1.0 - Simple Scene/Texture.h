@@ -27,29 +27,30 @@
 
 class Texture {
 public:
-    Texture();
+    enum STBI_COMP_TYPE
+    {
+        STBI_default = 0, // only used for desired_channels
+
+        STBI_grey       = 1,
+        STBI_grey_alpha = 2,
+        STBI_rgb        = 3,
+        STBI_rgb_alpha  = 4
+    };
+
+    Texture(GLuint textureID, GLuint bindingPort);
     ~Texture();
 
     static GLuint CreateTexture2D(GLenum internalFormat, GLenum format, GLsizei  width, GLsizei  height,
-                                  void* data = nullptr, GLenum filter = GL_LINEAR, GLenum repeat = GL_REPEAT)
-    {
-        GLuint tex = 0;
-        glCreateTextures(GL_TEXTURE_2D, 1, &tex);
-        glTextureStorage2D(tex, 1, internalFormat, width, height);
+                                  void* data = nullptr, GLenum filter = GL_LINEAR, GLenum repeat = GL_REPEAT);
 
-        glTextureParameteri(tex, GL_TEXTURE_MIN_FILTER, filter);
-        glTextureParameteri(tex, GL_TEXTURE_MAG_FILTER, filter);
-        glTextureParameteri(tex, GL_TEXTURE_WRAP_S, repeat);
-        glTextureParameteri(tex, GL_TEXTURE_WRAP_T, repeat);
-        glTextureParameteri(tex, GL_TEXTURE_WRAP_R, repeat);
+    using stb_comp_t = STBI_COMP_TYPE;
+    static GLuint CreateTexture2DFromFile(std::string_view filepath, stb_comp_t comp = STBI_rgb_alpha);
 
-        if (data)
-        {
-            glTextureSubImage2D(tex, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
-        }
-
-        return tex;
-    }
+    void Destroy();
+    void Bind();
+private:
+    GLuint textureID;
+    GLuint bindingPort;
 };
 
 

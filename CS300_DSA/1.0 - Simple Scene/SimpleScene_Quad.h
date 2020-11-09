@@ -16,6 +16,7 @@ class ProgramPipeline;
 class Object;
 class MyUBO;
 class LightUBO;
+class Texture;
 template <typename T>
 class UniformBuffer;
 
@@ -68,6 +69,10 @@ private:
     SharedPtr<UniformBuffer<MyUBO>> uniformBuffer;
     SharedPtr<UniformBuffer<LightUBO>> lightUBO;
 
+    // Textures
+    SharedPtr<Texture> DiffuseTexture;
+    SharedPtr<Texture> SpecularTexture;
+
 private:
     float cubeAngle = 0.0f;
 
@@ -85,14 +90,15 @@ private:
 
     // Plane transform
     glm::vec3 planePosition = glm::vec3(0.0f,-2.0f,0.0f);
-    glm::vec3 planeScale = glm::vec3(2);
+    glm::vec3 planeScale = glm::vec3(5);
     float rotateAngle = 3.14f / 2;
 
     // ImGUI states
     bool show_demo_window = true;
+    int useShader = 0; // 0 for phong lighting, 1 for phong shader, 2 for blinn
     int showNormals = 0;
-    glm::vec3 AmbientColor = glm::vec3(0.3f,0.3f,0.3f);
-    glm::vec3 EmissiveColor = glm::vec3(1.0f, 0, 0);
+    glm::vec3 AmbientColor = glm::vec3(0.1f,0.1f,0.1f);
+    glm::vec3 EmissiveColor = glm::vec3(0.0f, 0, 0);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     UniquePtr<Camera> mainCamera;
@@ -111,6 +117,10 @@ private:
     // Phong Diffuse
     static constexpr auto uniformlightColor = 0;
     static constexpr auto uniformLightDirection = 1;
+
+    // Texture binding points
+    static constexpr auto DiffuseBinding = 0;
+    static constexpr auto SpecularBinding = 1;
 
     friend void ImGui_ShaderLibrary(SimpleScene_Quad& scene);
 };

@@ -38,13 +38,13 @@ public:
     glm::vec4 lightInfo[16] = {}; // x = light type, y = spotlight fall off , z = theta, w = phi
     // glm::vec4 globalValues; // Num of Light, c1, c2, c3
     glm::vec4 cameraPosition = {};
-    glm::vec4 fogColor = glm::vec4(1.0f);
-    glm::vec4 globalAmbientColor = glm::vec4(1.0f);
+    glm::vec4 fogColor = glm::vec4(0.0f);
+    glm::vec4 globalAmbientColor = glm::vec4(0.0f);
     glm::vec4 coEfficients  = glm::vec4(0.5, 0.3, 0.6, 1.0); // r = ambient, b = diffuse, c = specular
     struct
     {
         float numOfLight;
-        float c1 = 0.239f, c2 = 0.115f, c3 = 0.358f;
+        float c1 = 1.f, c2 = 0.0f, c3 = 0.0f;
     };
 };
 

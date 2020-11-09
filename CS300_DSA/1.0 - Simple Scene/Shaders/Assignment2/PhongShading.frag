@@ -5,6 +5,7 @@ layout (location = 0) in v_in
 {
     vec3 vPosition;
     vec3 vNormal;
+    vec2 vTexCoord;
 } i;
 
 layout(location = 1) uniform vec3 AmbientColor;
@@ -29,8 +30,9 @@ layout(binding = 1, std140) uniform LightUBO
     vec4 globalValues; // Num of Light, c1, c2, c3
 };
 
-vec3 diffuseColor_kd = vec3(0.0f, 0.5f, 0.0f);
-vec3 specularColor_ks = vec3(1f, 1f, 1f);
+layout (binding = 0) uniform sampler2D tex_Diffuse;
+layout (binding = 1) uniform sampler2D tex_Specular;
+
 
 // Assumes all are normalized
 vec3 reflection(vec3 L, vec3 normal)
@@ -51,6 +53,9 @@ float Svalue(float near, float far, float v)
 }
 
 void main() {
+    const vec3 diffuseColor_kd = texture(tex_Diffuse, i.vTexCoord).xyz;
+    const vec3 specularColor_ks = texture(tex_Specular, i.vTexCoord).xyz;
+
     // Light position in view space
     const vec3 lightPos = (View * lightPos[0]).xyz;
     const vec3 vNormal = normalize(i.vNormal);
@@ -71,17 +76,15 @@ void main() {
     const vec3 R = reflection(-lightDir, vNormal);
     //const vec3 R = normalize(reflect(-lightDir, vNormal));
     const vec3 V = normalize(EyePosition - i.vPosition);
-    const vec3 specular = coEfficients.b * specularColor_ks * pow(max(dot(R,V), 0), 32);
+    const vec3 specular = coEfficients.b * specularColor_ks * pow(max(dot(R,V), 0), specularColor_ks.r *
+    specularColor_ks.r * 255);
 
     // Emissive
     vec3 emissive = EmissiveColor;
 
     // Local Color
     vec3 localLightColor = ambient + diffuse + specular;
-    // fragColor = vec4(localLightColor, 1.0);
 
-//    fragColor = vec4(vec3(max(dot(R,V), 0)), 1.0);
-//    fragColor = vec4(specular + diffuse, 1.0f);
     // Find attenuation
     float distance = distance(lightPos, i.vPosition);
     float att = attenuation(globalValues.y, globalValues.z, globalValues.w, distance);
