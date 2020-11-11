@@ -49,6 +49,7 @@ public:
     Mesh & GenerateColors(glm::vec3 colors);
     Mesh &GenerateTexCoords(int mode, int toggleNormal);
     static std::vector<Vertex> CreateVertexFromMesh(Mesh const & mesh);
+    static std::vector<Vertex> CreateVertexFromMeshDefaultLine(Mesh const & mesh);
 
 };
 

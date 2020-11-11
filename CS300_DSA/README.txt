@@ -3,48 +3,62 @@
  * Reproduction or disclosure of this file or its contents without the prior
  * written consent of DigiPen Institute of Technology is prohibited.
  * File Name: README.txt
- * Purpose: README of CS300 Assigment 1
+ * Purpose: README of CS300 Assigment 2
  * Language: C++, G++
- * Platform: g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M, 
- *           OpenGL version string: 4.6.0 NVIDIA 390.138
- * Project: RolandShum_CS300_1
+ * Platform: Linux:
+ *              g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M, 
+ *              OpenGL version string: 4.6.0 NVIDIA 390.138
+ *           Windows:
+ *              OS: Windows NT 10.0.18362.0
+ *              Host: GIGABYTE AERO 15WV8
+ *              CPU: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
+ *              GPU: Intel(R) UHD Graphics 630 NVIDIA GeForce GTX 1060
+ *              OpenGL version: 4.6 NVIDIA 451.67
+ * Project: RolandShum_CS300_2
  * Author: Roland Shum, roland.shum@digipen.edu
- * Creation date: 3rd October 2020
+ * Creation date: 11th November 2020
  * End Header --------------------------------------------------------*/
 
-EXTENSION GRANTED BY PROFESSOR PUSHPAK
 
  Parts completed 
-   -- Setting up OpenGL application 
-    -- Windows set up
-      -- GLApplication.cpp, line 27, main()
-    -- OpenGL
-      -- OpenGLRendererAPI.cpp line52, OpenGLRendererAPI::Init()
-   -- Reading OBJ file
-     -- Located in ObjLoader.cpp, LoadObj(), line 53
-   -- Vertex and fragment shaders for phong
-     -- Shaders
-       -- Located in Shaders folder
-     -- Child of abstracted Shader class is OpenGLShader (OpenGLShader.h)
-     -- Uniforms are sent in SimpleScene_Quad.cpp Render() line 218
-     -- View and Projection matrix sent in Renderer.cpp, Renderer::BeginScene() line 39
-   -- Scene setup + rotating spheres
-     -- Scene is setup in SimpleScene_Quad.cpp, Init(), line 138
-     -- VAO and VBO created and set in SimpleScene_Quad.cpp, SetupBuffers() line 73
-     -- Sphere generated in ObjLoader.cpp CreateSphere() line 227
-   -- Face and vertex normal calculation + display
-     -- This is achieved with a geometry shader.
-      -- Shader loaded at SimpleScene_Quad.cpp Init() line 144
-      -- Shader is called "NormalGenerator"
-      -- Shader pass added at SimpleScene_Quad.cpp, SetupBuffers() line 93
-   -- Misc ImGui
-     -- ImGui
-       -- Hold left mouse to scroll change vec3 values, control click to change values directly.
-       -- Implemented in SimpleScene_Quad.cpp, preRender(), line 259
+   -- All parts of assignment completed
+    -- Texture loading
+      -- Texture.cpp line52, Texture::CreateTexture2DFromFile()
+      -- Uses STB image library
+      -- Loads PNG converted from given PPM using Paint.NET (thus artifacts may be seen on texture)
+   -- Shaders
+     -- Uses UBOs to transfer light data to shaders
+     -- Phong Lighting
+        -- Shaders/Assignment2/PhongLighting vert/frag
+     -- Phong Shader
+        -- Shaders/Assignment2/PhongShader
+     -- BlinnPhong
+        -- Shaders/Assignment2/BlinnPhong frag (vert uses the same as PhongShader.vert)
+     -- Reload of shaders done under ImGui->Shader Library->Pipelines->#SHADERNAME#->Reload
+     -- You can specify which shader to be using to render the mesh in realtime using ImGui
+        -- ImGui -> Shader to use? -> (Toggle between shaders)
+     -- Implemented multiple lights.
+        -- ImGui -> Light Settings
+   -- UV Mapping
+        -- CPU and GPU
+        -- Both normal and positional generation.
+        -- ImGui -> UV Generation Mode (if CPU, you have to click the reload buttons)
+            -- "Use Normals" means to use normals or position to generate UV.
+            -- CPU Generate -> (New header shows up for CPU)
+            -- GPU Generate -> (New header shows up for GPU)
+        
+   -- Gui Features implemented
+        -- Number of lights (at top of ImGui interface)
+        -- Light Type (light settings -> light %number -> toggle
+        -- Pause/start light rotation
+        -- Multiple scenarios for quick grading.
        
     -- Compile warnings are attempt to surpress warnings from different compilers.
+
     
-Computer developed: 
+Computers developed: 
+
+Linux:
 
              /////////////                roland@pop-os 
          /////////////////////            ------------- 
@@ -82,11 +96,25 @@ OpenGL extensions:
 OpenGL ES profile version string: OpenGL ES 3.2 NVIDIA 390.138
 OpenGL ES profile shading language version string: OpenGL ES GLSL ES 3.20
 OpenGL ES profile extensions:
+
+
+Windows:
+ user@DESKTOP-VGHHFDO
+
+ OS: Windows NT 10.0.18362.0
+ Host: GIGABYTE AERO 15WV8
+ Uptime: 2 days 55 minutes
+ Packages:
+ PowerShell: PowerShell v5.1.18362.1110
+ CPU: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
+ GPU: Intel(R) UHD Graphics 630 NVIDIA GeForce GTX 1060
+ OpenGL version: 4.6 NVIDIA 451.67
+ Geforce Drivers 451.67 7-5-2020 Version 86.6.44.0.58
               
 
 
-Hours Spent per week: 6 hours
-Additional Information: Abstracted Renderer from openGL code. Used geometry shader for line rendering.
+Hours Spent: 48 hours
+Additional Information: Used geometry shader for line rendering. Used OpenGL 4.6 DSA paradigm.
 Please use Linux and install glfw3, glm, and glew
 
 sudo apt-get install libglfw3-dev libglm-dev libglew-dev
@@ -97,41 +125,40 @@ Further information below.
 
  
  Summary:
-   The project consists of a framework written on on top of the given scene framework. 
-   Inspired by the Hazel engine by Cherno, the framework seeks to bring OOP to the 
-   OpenGL objects. There is an abstraction layer known as the Renderer, and then below
-   that we have our OpenGL*Object*. 
+   The entire framework was rewritten to use OpenGL 4.6 DSA methods, as well as having a low abstraction
+   paradigm. So most things can be seen in the Quad_Scene::SetupBuffers() function.
+   The paradigm modelled here is that the user controls the creation of opengl objects, but do not have
+   to worry about destruction of opengl objects.
+   
+   Heavily inspired by: https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions
     
-   The project was developed in Linux, G++. While theoretically it can build and compile
-   on other platforms and other compilers, it has not been tested.
+   The project was developed in Linux, G++. Also tested and usable in Windows with CLion
+   and vcpkg, using MSVC compiler.
     
 Instructions:
   The project is compiled with Cmake. To compile, go to Build and input "cmake .." and then 
   call the generated make file. This should generate an exe called "SimpleScene_OGL4" 
   in the Build folder. Feel free to use any other supported IDE for CMake.
   
-  To run the project, just run the exe. This will load the cube2.obj.
+  To run the project, just run the exe. This will load the default sphere.obj.
   To facilitate grading, you may pass a c-string from the command line to the exe and 
   it will load that obj file.
-    IE: SimpleScene_OGL4 cube.obj
+    IE: SimpleScene_OGL4 cube2.obj
 
+  If using MSVC on Windows, the CMake is coded so that it works with vcpkg. You have to link
+  the vcpkg to the Cmake with -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg-2020.07/scripts/buildsystems/vcpkg.cmake"
+  This was used with Clion. Settings->Build,Execution,Deployment -> CMake -> CMake options:
+  
+  Use the scenarios for quick preview of lights that are setup already.
     
 Useful Information:
-  SimpleScene_Quad::Init() is where everything is kickstarted.
-  
-  OpenGLRendererAPI::Init() is where OpenGL settings is set at first.
-  
-  OpenGLRendererAPI::DrawIndexed() is where the draw call is called.
-  
-  OpenGLBuffer.cpp is where all the Vertex Buffer and Vertex Array code exists. 
-  Of note is OpenGLVertexArray::AddVertexBuffer(), which turns on the attributes 
-  based on the given layout.
+  You can view SimpleScene_Quad::SetupBuffers() is where most of the work is done.
+  We are reusing the PhongShader.vert as our blinn-phong vertex shader.
+  This is all done with the OpenGL Pipeline binding.
   
   Shaders support geometry shader! This is used in generating the face vertex lines and the 
   vertex normal lines!
-    
-  OBJ loader is located in ObjLoader.cpp line 53.
-  Procedural sphere geneator is located in ObjLoader.cpp line 223
+
   
 Simple Directory Diagram:
 
@@ -141,7 +168,7 @@ root
     |
     Common
     |
-    |-- Professor Pushpak files
+    |-- Models
     |
     |
     1.0 Simple Scene
@@ -160,11 +187,4 @@ root
     |
     |----- Scene files and misc files
     
-Shaders:
-    Phong Shader: We use a phong shader with a global light direction to create the illusion of light on our objects.
-    
-    Line Shader: The sphere line uses a standard shader that puts the object into NDC with a given color and renders it.
-    
-    Normal Generating Shader: Generated GL_LINES that represents the face normals and vertex normals.
-  
   

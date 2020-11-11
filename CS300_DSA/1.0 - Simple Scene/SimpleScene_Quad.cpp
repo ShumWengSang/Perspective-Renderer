@@ -91,6 +91,7 @@ void SimpleScene_Quad::SetupBuffers()
     auto mesh = ObjLoader::LoadObj(FullPath);
     auto planeMesh = ObjLoader::LoadObj(ModelPath + std::string("quad.obj"));
     auto sphereMesh = ObjLoader::CreateSphere(0.3f, 8);
+    auto sphereLineMesh = ObjLoader::CreateCircularLine(1.0f, 30);
     // Check if mesh was loaded
     if(!mesh)
     {
@@ -133,6 +134,14 @@ void SimpleScene_Quad::SetupBuffers()
         planeArray->PushBuffer({vbo_mesh, ibo_mesh});
         planeArray->SetIndexSize(planeMesh->get()->Index.size());
         VBOplaneMesh = vbo_mesh;
+    }
+    // Create sphere line
+    {
+        std::vector<Vertex> QuadVertices = Mesh::CreateVertexFromMeshDefaultLine(*sphereLineMesh.value());
+        auto const[vao_mesh, vbo_mesh, ibo_mesh] = createGeometry(QuadVertices, sphereLineMesh->get()->Index, vertexFormat);
+        sphereLine = CreateSharedPtr<VertexArray>(vao_mesh);
+        sphereLine->PushBuffer({vbo_mesh, ibo_mesh});
+        sphereLine->SetIndexSize(sphereLineMesh->get()->Index.size());
     }
     // Create sphere VAO
     {
@@ -275,6 +284,11 @@ int SimpleScene_Quad::Init()
                                 });
     }
 
+    sphereLineObj = CreateSharedPtr<Object>();
+    sphereLineObj->SetModelMatrix(glm::translate( spherePathPosition ) *
+                                  glm::rotate(angleOfRotation, glm::vec3(0.0f, 1.0f, 0.0f)) *
+                                          glm::scale(spherePathScale));
+
     // Setup light colors and light UBO settings...
     LightUBO& lightUbo = lightUBO->GetUniformData();
     for(int i = 1 ; i < 16; i++)
@@ -362,6 +376,14 @@ int SimpleScene_Quad::Render()
         NormalLineGeoPipeline->Bind();
         DrawObject(meshArray, NormalLineGeoPipeline, meshObj);
         DrawObject(planeArray, NormalLineGeoPipeline, planeObj);
+    }
+
+    // Draw circular line
+    {
+        defaultPipeline->Bind();
+        sphereLine->Bind();
+        defaultPipeline->GetShader(ProgramPipeline::ShaderType::Vertex)->SetUniform(uniformModel, sphereLineObj->GetModelMatrix());
+        glDrawElements(GL_LINES, sphereLine->GetIndexSize(), GL_UNSIGNED_INT, nullptr);
     }
 
     return 0;
@@ -550,6 +572,10 @@ int SimpleScene_Quad::preRender() {
         if(ImGui::CollapsingHeader("Object Transformation"))
         {
             EditTransform(*mainCamera.get(), meshObj->GetModelMatrixRef());
+        }
+        if(ImGui::CollapsingHeader("Plane Transformation"))
+        {
+            EditTransform(*mainCamera.get(), sphereLineObj->GetModelMatrixRef());
         }
         if(ImGui::CollapsingHeader("Plane pos"))
         {
