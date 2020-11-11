@@ -367,6 +367,19 @@ bool Mesh::Face::Contains(unsigned index) const {
     return index1 == index || index2 == index || index3 == index;
 }
 
+std::vector<Vertex> Mesh::CreateVertexFromMeshDefaultLine(const Mesh &mesh) {
+    std::vector<Vertex> result;
+    result.reserve(mesh.Vertices.size());
+
+    // Now we need to create Vertex from each of the different buffers in mesh and put em in.
+    for(unsigned i = 0; i < mesh.Vertices.size(); ++i)
+    {
+        Vertex newVertex = Vertex(mesh.Vertices[i], glm::vec3(0,1,0), glm::vec3(0), glm::vec2(0));
+        result.emplace_back(newVertex);
+    }
+    return result;
+}
+
 std::vector<Vertex> Mesh::CreateVertexFromMesh(const Mesh &mesh) {
     std::vector<Vertex> result;
     result.reserve(mesh.Vertices.size());

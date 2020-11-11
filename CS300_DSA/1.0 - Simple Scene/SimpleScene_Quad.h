@@ -55,11 +55,13 @@ private:
     SharedPtr<Object> meshObj;
     SharedPtr<Object> planeObj;
     SharedPtr<Object> sphereObj[MAX_LIGHT];
+    SharedPtr<Object> sphereLineObj;
 
     // VAO
     SharedPtr<VertexArray> meshArray;
     SharedPtr<VertexArray> planeArray;
     SharedPtr<VertexArray> sphereArray;
+    SharedPtr<VertexArray> sphereLine;
 
     // VBO attribute buffers (used for regenerating)
     GLuint VBOplaneMesh;
@@ -72,6 +74,7 @@ private:
     SharedPtr<ProgramPipeline> PhongLighting;
     SharedPtr<ProgramPipeline> PhongShading;
     SharedPtr<ProgramPipeline> BlinnShading;
+
     // UBO
     SharedPtr<UniformBuffer<MyUBO>> uniformBuffer;
     SharedPtr<UniformBuffer<LightUBO>> lightUBO;
