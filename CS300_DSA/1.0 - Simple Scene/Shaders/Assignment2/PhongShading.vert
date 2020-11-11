@@ -3,6 +3,7 @@ out gl_PerVertex { vec4 gl_Position; };
 
 out VS_GS_VERTEX
 {
+    vec3 vPosition;
     vec3 viewPosition;
     vec3 vNormal;
     vec2 vTexCoord;
@@ -20,9 +21,12 @@ layout(binding = 0, std140) uniform UBO
     mat4 Projection;
     mat4 View;
     vec4 NearFar; // Z and W are nothing
+    ivec4 Modes; // x = GPU mode
 };
 
 void main() {
+    // Generate UV if necessary
+
     // Calculate view space attributes
     const mat4 ModelViewMatrix = View * model;
     const mat3 normalTransform = transpose(inverse(mat3(ModelViewMatrix)));
@@ -30,6 +34,7 @@ void main() {
     vs_out.vNormal = normalize(normalTransform * normalize(vvertexNormal));
     vs_out.viewPosition = (ModelViewMatrix * vec4(vPosition, 1.0)).xyz;
     vs_out.vTexCoord = TexCoord;
+    vs_out.vPosition = vPosition;
 
     gl_Position = Projection * ModelViewMatrix * vec4(vPosition, 1.0);;
 }

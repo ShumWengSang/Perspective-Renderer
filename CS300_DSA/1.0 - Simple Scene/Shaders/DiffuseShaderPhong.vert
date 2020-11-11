@@ -4,7 +4,6 @@ layout(location = 0) out v_out
 {
     vec4 worldPosition;
     vec3 fragNormal;
-    vec3 objectColor;
 } o;
 
 layout(location = 0) in vec3 vPosition;
@@ -17,6 +16,8 @@ layout(binding = 0, std140) uniform UBO
 {
     mat4 Projection;
     mat4 View;
+    vec4 NearFar; // Z and W are nothing
+    ivec4 Modes; // X = GPU mode
 };
 
 
@@ -28,6 +29,5 @@ void main()
     vec4 fragPosition = Projection * View * model * vec4(vPosition, 1.0);
     o.worldPosition = fragPosition;
 
-    o.objectColor = vColor;
     gl_Position = fragPosition;
 }

@@ -29,9 +29,9 @@ public:
     enum class ShaderType : unsigned
     {
         Vertex = 0,
-        Geometry,
-        Fragment,
-        MAX
+        Geometry = 1,
+        Fragment = 2,
+        MAX = 3
     };
     ProgramPipeline(GLuint id, std::string_view name);
     ~ProgramPipeline();
@@ -53,7 +53,7 @@ public:
 
     ProgramPipeline(ProgramPipeline const &) = delete;
     ProgramPipeline& operator=(const ProgramPipeline&) = delete;
-private:
+public:
     SharedPtr<ShaderObject> ReloadShader(SharedPtr<ShaderObject> const & shr, ShaderType type);
     void Destroy();
 

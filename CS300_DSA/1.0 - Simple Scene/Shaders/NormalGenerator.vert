@@ -11,6 +11,8 @@ layout(binding = 0, std140) uniform UBO
 {
     mat4 Projection;
     mat4 View;
+    vec4 NearFar; // Z and W are nothing
+    ivec4 Modes; // X = GPU mode
 };
 
 layout(location = 0) out VS_GS_VERTEX

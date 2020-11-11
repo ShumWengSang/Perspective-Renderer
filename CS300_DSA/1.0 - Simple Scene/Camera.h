@@ -43,8 +43,8 @@ public:
     glm::mat4 static view(const Camera& cam);
     glm::mat4 static perspective(const Camera& cam);
 
-    glm::mat4 GetPerspectiveGLM();
-    glm::mat4 GetViewMatrixGLM();
+    glm::mat4 GetPerspectiveGLM() const;
+    glm::mat4 GetViewMatrixGLM() const;
 private:
     glm::vec4 eye_point;
     glm::vec4 right_vector, up_vector, back_vector;

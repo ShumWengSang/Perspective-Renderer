@@ -24,6 +24,7 @@
 #include "UniformBuffer.h"
 #include "MyUBO.h"
 #include "Texture.h"
+#include "ImGuizmo.h"
 
 
 static const glm::vec4 O  = Math::point(0,0,0),
@@ -31,6 +32,7 @@ static const glm::vec4 O  = Math::point(0,0,0),
                        EY = Math::vector(0,1,0),
                        EZ = Math::vector(0,0,1);
 
+static const glm::vec4 LookAt = glm::normalize(-EZ + glm::vec4(0, -0.5f, 0, 0.0f));
 
 static char ModelPath[] = "../../Common/models/";
 static char TexturePath[] = "../../Common/textures/";
@@ -48,7 +50,7 @@ SimpleScene_Quad::~SimpleScene_Quad()
 SimpleScene_Quad::SimpleScene_Quad(int windowWidth, int windowHeight) : Scene(windowWidth, windowHeight),
 //                                                                        programID(0), vertexbuffer(0), VertexArrayID(0),
                                                                         angleOfRotation(0.0f), mainCamera(CreateUniquePtr<Camera>(
-                                                                                O + 10.0f * EZ, -EZ, EY, 45.0f, windowWidth / (float)windowHeight, 0.1f, 1000.0f
+                                                                                O + 15.0f * EZ + 2.0f * EY, LookAt, EY, 45.0f, windowWidth / (float)windowHeight, 0.1f, 1000.0f
                                                                                 ))
 {
     initMembers();
@@ -98,10 +100,11 @@ void SimpleScene_Quad::SetupBuffers()
     {
         std::cout << "Error! Quad.obj not loaded!" << std::endl;
     }
-    planeMesh->get()->GenerateVertexNormals().GenerateColors({0.1f,0.1f,0.1f}).GenerateTexCoords(texture_mode);
+
+    planeMesh->get()->GenerateVertexNormals().GenerateColors({0.1f, 0.1f, 0.1f}).GenerateTexCoords(texture_mode, false);
     // We need to generate the normals and the colors
-    mesh->get()->GenerateVertexNormals().GenerateColors({0.4f, 0.3f, 0.1f}).GenerateTexCoords(texture_mode);
-    sphereMesh->get()->GenerateColors({0.3f, 0.7f, 0.9f}).GenerateTexCoords(texture_mode);
+    mesh->get()->GenerateVertexNormals().GenerateColors({0.4f, 0.3f, 0.1f}).GenerateTexCoords(texture_mode, false);
+    sphereMesh->get()->GenerateColors({0.3f, 0.7f, 0.9f}).GenerateTexCoords(texture_mode, false);
 
     // Create the format of the vertex
     /* vertex formatting information */
@@ -120,6 +123,7 @@ void SimpleScene_Quad::SetupBuffers()
         meshArray = CreateSharedPtr<VertexArray>(vao_mesh);
         meshArray->PushBuffer({vbo_mesh, ibo_mesh});
         meshArray->SetIndexSize(mesh->get()->Index.size());
+        VBOmesh = vbo_mesh;
     }
     // Create VAO for plane object
     {
@@ -128,6 +132,7 @@ void SimpleScene_Quad::SetupBuffers()
         planeArray = CreateSharedPtr<VertexArray>(vao_mesh);
         planeArray->PushBuffer({vbo_mesh, ibo_mesh});
         planeArray->SetIndexSize(planeMesh->get()->Index.size());
+        VBOplaneMesh = vbo_mesh;
     }
     // Create sphere VAO
     {
@@ -146,6 +151,7 @@ void SimpleScene_Quad::SetupBuffers()
                 ShaderPath + "DefaultShader.vert", "", ShaderPath + "DefaultShader.frag");
 
         defaultPipeline = CreateSharedPtr<ProgramPipeline>(default_pr, "Default Shaders");
+
         defaultPipeline->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
         defaultPipeline->PushShader(default_frag_shader, ProgramPipeline::ShaderType::Fragment);
     }
@@ -186,6 +192,16 @@ void SimpleScene_Quad::SetupBuffers()
         PhongShading->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
         PhongShading->PushShader(default_frag_shader, ProgramPipeline::ShaderType::Fragment);
     }
+    {
+        // Blinn Phong
+        auto const[default_pr, default_vert_shader, default_geo_shader, default_frag_shader] = Shader::CreateProgram(
+                ShaderPath + "Assignment2/BlinnPhong.vert", "" "", ShaderPath + "Assignment2/BlinnPhong.frag");
+
+        BlinnShading = CreateSharedPtr<ProgramPipeline>(default_pr, "Blinn-Phong Shader");
+        // BlinnShading->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
+        BlinnShading->PushShader(PhongShading->GetShader(ProgramPipeline::ShaderType::Vertex), ProgramPipeline::ShaderType::Vertex);
+        BlinnShading->PushShader(default_frag_shader, ProgramPipeline::ShaderType::Fragment);
+    }
 
     // Create UBO
     {
@@ -212,6 +228,8 @@ void SimpleScene_Quad::SetupBuffers()
         SpecularTexture->Bind();
     }
 
+    this->quadMesh = std::move(planeMesh.value());
+    this->mesh = std::move(mesh.value());
 }
 
 //////////////////////////////////////////////////////
@@ -221,14 +239,17 @@ int SimpleScene_Quad::Init()
     SetupBuffers();
 
     meshObj = CreateSharedPtr<Object>();
-    meshObj->SetUpdate([&](Object& obj)
-                       {
-                           glm::vec3 scaleVector = glm::vec3(1.0f);
-                           glm::vec3 centroid = meshPosition;
-                           obj.SetModelMatrix(glm::translate( centroid ) *
-                                      glm::rotate(cubeAngle, glm::vec3(0.0f, 1.0f, 0.0f)) *
-                                      glm::scale( scaleVector ));
-                       }); // angleOfRotation
+    meshObj->SetModelMatrix(glm::translate( glm::vec3(0.0f) ) *
+                            glm::rotate(cubeAngle, glm::vec3(0.0f, 1.0f, 0.0f)) *
+                            glm::scale( glm::vec3(1.0f) ));
+//    meshObj->SetUpdate([&](Object& obj)
+//                       {
+//                           glm::vec3 scaleVector = glm::vec3(1.0f);
+//                           glm::vec3 centroid = meshPosition;
+//                           obj.SetModelMatrix(glm::translate( centroid ) *
+//                                      glm::rotate(cubeAngle, glm::vec3(0.0f, 1.0f, 0.0f)) *
+//                                      glm::scale( scaleVector ));
+//                       }); // angleOfRotation
 
     planeObj = CreateSharedPtr<Object>();
     planeObj->SetUpdate([&](Object& obj)
@@ -244,13 +265,24 @@ int SimpleScene_Quad::Init()
         sphereObj[i] = CreateSharedPtr<Object>();
         sphereObj[i]->SetUpdate([&, i](Object& obj)
                                 {
-                                    glm::mat4 modelMat = glm::mat4(1.0f);
-                                    glm::vec3 scaleVector = glm::vec3(1.f);
-                                    glm::vec3 centroid = glm::vec3( 0,0,3);
-                                    obj.SetModelMatrix(glm::scale( scaleVector ) *
-                                               glm::rotate(angleOfRotation + (2 * PI / 16) * i + PI, glm::vec3(0.0f, 1.0f, 0.0f)) *
-                                               glm::translate( centroid ));
+                                        glm::mat4 modelMat = glm::mat4(1.0f);
+                                        glm::vec3 scaleVector = glm::vec3(1.f);
+                                        glm::vec3 centroid = glm::vec3(0, 0, 3);
+                                        obj.SetModelMatrix(glm::scale(scaleVector) *
+                                                           glm::rotate(angleOfRotation + (2 * PI / 16) * i + PI,
+                                                                       glm::vec3(0.0f, 1.0f, 0.0f)) *
+                                                           glm::translate(centroid));
                                 });
+    }
+
+    // Setup light colors and light UBO settings...
+    LightUBO& lightUbo = lightUBO->GetUniformData();
+    for(int i = 1 ; i < 16; i++)
+    {
+        lightUbo.lightInfo[i] = lightUbo.lightInfo[0];
+        lightUbo.lightDiffuseColor[i] = lightUbo.lightDiffuseColor[0];
+        lightUbo.lightAmbientColor[i] = lightUbo.lightAmbientColor[0];
+        lightUbo.lightSpecularColor[i] = lightUbo.lightSpecularColor[0];
     }
 
     return Scene::Init();
@@ -264,7 +296,9 @@ int SimpleScene_Quad::Render()
     LightUBO& lightUbo = lightUBO->GetUniformData();
     for(int i = 0; i < MAX_LIGHT; i++)
     {
+        // Update light position and direction
         lightUbo.lightPos[i] = glm::column(sphereObj[i]->GetModelMatrix(), 3);
+        lightUbo.lightDir[i] = glm::normalize(glm::column(meshObj->GetModelMatrixRef(),3) - lightUbo.lightPos[i]);
     }
     lightUbo.cameraPosition = mainCamera->eye();
     lightUBO->SendData();
@@ -288,6 +322,15 @@ int SimpleScene_Quad::Render()
             DrawObject(meshArray, PhongShading, meshObj);
             DrawObject(planeArray, PhongShading, planeObj);
         }
+        else if(useShader == 2)
+        {
+            BlinnShading->Bind();
+            auto fragmentProgram = BlinnShading->GetShader(ProgramPipeline::ShaderType::Fragment);
+            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
+            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
+            DrawObject(meshArray, BlinnShading, meshObj);
+            DrawObject(planeArray, BlinnShading, planeObj);
+        }
     }
 
 
@@ -297,12 +340,11 @@ int SimpleScene_Quad::Render()
         auto fragProgram = PhongDiffuse->GetShader(ProgramPipeline::ShaderType::Fragment);
         // Render the diffuse only pass.
 
-        // Update the uniforms for the diffuse shader
-        fragProgram->SetUniform(uniformLightDirection, lightDirection);
-        fragProgram->SetUniform(uniformlightColor, lightColor);
 
         // Draw spheres
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < (int)lightUBO->GetUniformData().numOfLight; i++) {
+            fragProgram->SetUniform(uniformlightColor, glm::vec3(lightUBO->GetUniformData().lightDiffuseColor[i]));
+            fragProgram->SetUniform(uniformLightDirection, glm::vec3(lightUBO->GetUniformData().lightDir[i]));
             DrawObject(sphereArray, PhongDiffuse, sphereObj[i]);
         }
     }
@@ -330,7 +372,9 @@ int SimpleScene_Quad::Render()
 int SimpleScene_Quad::postRender()
 {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    angleOfRotation += 0.01f;
+    if(SphereUpdate) {
+        angleOfRotation += 0.01f;
+    }
     return 0;
 }
 
@@ -355,17 +399,157 @@ int SimpleScene_Quad::preRender() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
 
-    if (ImGui::Begin("Assignment 1"))
+    if (ImGui::Begin("Assignment 2"))
     {
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
+        ImGui::Checkbox("Rotate light", &this->SphereUpdate);
+        static int numOfLight = 1;
+        numOfLight = (int)lightUBO->GetUniformData().numOfLight;
+        ImGui::SliderInt("Number of lights", &numOfLight, 1, 16);
+        lightUBO->GetUniformData().numOfLight = (float)numOfLight;
+        ImGui::Columns(3);
+        if(ImGui::Button("One Point light"))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 1.0f;
+            data.lightInfo[0].x = 0.0f;
+            data.lightDiffuseColor[0] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        }
+        ImGui::NextColumn();
+        if(ImGui::Button("One Directional light"))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 1.0f;
+            data.lightInfo[0].x = 1.0f;
+            data.lightDiffuseColor[0] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        }
+        ImGui::NextColumn();
+        if(ImGui::Button("One Spotlight light"))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 1.0f;
+            data.lightInfo[0].x = 2.0f;
+            data.lightDiffuseColor[0] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+        ImGui::NextColumn();
+
+        if(ImGui::Button("Scenario 1 - Point light"))
+        {
+            useShader = 2;
+            // All lights of same type and parameter
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 16.0f;
+            for(int i = 0; i < 16; ++i)
+            {
+                data.lightInfo[i].x = 0.0f;
+                data.lightDiffuseColor[i] = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+            }
+        }
+        ImGui::NextColumn();
+        if(ImGui::Button("Scenario 1 - Spotlight"))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 16.0f;
+            for(int i = 0; i < 16; ++i)
+            {
+                data.lightInfo[i].x = 2.0f;
+                data.lightDiffuseColor[i] = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+            }
+        }
+        ImGui::NextColumn();
+        if(ImGui::Button("Scenario 1 - Directional "))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 16.0f;
+            for(int i = 0; i < 16; ++i)
+            {
+                data.lightInfo[i].x = 1.0f;
+                data.lightDiffuseColor[i] = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+            }
+        }
+        ImGui::NextColumn();
+        // New column
+        if(ImGui::Button("Scenario 2 - Point "))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 16.0f;
+            for(int i = 0; i < 16; ++i)
+            {
+                data.lightInfo[i].x = 0.0f;
+                data.lightDiffuseColor[i] = glm::vec4((rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f);
+            }
+        }
+        ImGui::NextColumn();
+        if(ImGui::Button("Scenario 2 - Directional "))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 16.0f;
+            for(int i = 0; i < 16; ++i)
+            {
+                data.lightInfo[i].x = 1.0f;
+                data.lightDiffuseColor[i] = glm::vec4((rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f);
+            }
+        }
+        ImGui::NextColumn();
+        if(ImGui::Button("Scenario 2 - Spotlight "))
+        {
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 16.0f;
+            for(int i = 0; i < 16; ++i)
+            {
+                data.lightInfo[i].x = 2.0f;
+                data.lightDiffuseColor[i] = glm::vec4((rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f);
+            }
+        }
+        ImGui::Columns(1);
+        if(ImGui::Button("Scenario 3"))
+        {
+            int i = 0;
+            useShader = 2;
+            LightUBO& data = lightUBO->GetUniformData();
+            data.numOfLight = 16.0f;
+            for(i; i < 6; ++i)
+            {
+                data.lightInfo[i].x = 0.0f;
+                data.lightDiffuseColor[i] = glm::vec4((i * (255 / 6.0f)) / 255.0f, 0, 0, 1);
+            }
+            data.lightInfo[0].x = 2.0f;
+            for(i; i < 12; ++i)
+            {
+                data.lightInfo[i].x = 0.0f;
+                data.lightDiffuseColor[i] = glm::vec4(0, ((i - 6) * (255 / 6.0f)) / 255.0f, 0, 1);
+            }
+            data.lightInfo[7].x = 2.0f;
+            for(i; i < 16; ++i)
+            {
+                data.lightInfo[i].x = 0.0f;
+                data.lightDiffuseColor[i] = glm::vec4(0, 0, ((i - 12) * (255 / 4.0f)) / 255.0f, 1);
+            }
+            data.lightInfo[13].x = 2.0f;
+        }
         if (ImGui::CollapsingHeader("Background color")) {
             ImGui::ColorEdit3("Background Color",
                               (float *) (&(this->backgroundColor)));
+        }
+        if(ImGui::CollapsingHeader("Object Transformation"))
+        {
+            EditTransform(*mainCamera.get(), meshObj->GetModelMatrixRef());
         }
         if(ImGui::CollapsingHeader("Plane pos"))
         {
@@ -383,6 +567,66 @@ int SimpleScene_Quad::preRender() {
             NormalLineGeoPipeline->GetShader(ProgramPipeline::ShaderType::Geometry)->SetUniform(uniformFaceMode, showNormals);
             NormalLineGeoPipeline->GetShader(ProgramPipeline::ShaderType::Fragment)->SetUniform(uniformLineColor, this->lineColor);
         }
+        if(ImGui::CollapsingHeader("UV Generation Mode?"))
+        {
+            static bool CPU_Generate = false;
+            static bool GPU_Generate = false;
+            static bool UseNormals = false;
+            ImGui::Text("Press buttons to generate for CPU.");
+            ImGui::Checkbox("CPU Generate?", &CPU_Generate);
+            ImGui::Checkbox("GPU Generate?", &GPU_Generate);
+            ImGui::Checkbox("Use Normals", &UseNormals);
+            if(!GPU_Generate)
+            {
+                uniformBuffer->GetUniformData().modes.x = 0;
+            }
+
+            if (ImGui::CollapsingHeader("CPU UV Generation", &CPU_Generate))
+            {
+                ImGui::Text("Planar Mapping"); ImGui::SameLine();
+                if(ImGui::Button("Generate Plane"))
+                {
+                    int mode = 0;
+                    mesh->GenerateTexCoords(mode, UseNormals);
+                    quadMesh->GenerateTexCoords(mode, UseNormals);
+                    auto vertices = Mesh::CreateVertexFromMesh(*mesh);
+                    glNamedBufferSubData(VBOmesh, 0, vertices.size() * sizeof(vertices[0]), vertices.data());
+                    auto verticesQuad = Mesh::CreateVertexFromMesh(*quadMesh);
+                    glNamedBufferSubData(VBOplaneMesh, 0, verticesQuad.size() * sizeof(verticesQuad[0]), verticesQuad.data());
+                }
+                ImGui::Text("Cylinder Mapping"); ImGui::SameLine();
+                if(ImGui::Button("Generate Cylinder"))
+                {
+                    int mode = 1;
+                    mesh->GenerateTexCoords(mode, UseNormals);
+                    quadMesh->GenerateTexCoords(mode, UseNormals);
+                    auto vertices = Mesh::CreateVertexFromMesh(*mesh);
+                    glNamedBufferSubData(VBOmesh, 0, vertices.size() * sizeof(vertices[0]), vertices.data());
+                    auto verticesQuad = Mesh::CreateVertexFromMesh(*quadMesh);
+                    glNamedBufferSubData(VBOplaneMesh, 0, verticesQuad.size() * sizeof(verticesQuad[0]), verticesQuad.data());
+                }
+                ImGui::Text("Spherical Mapping"); ImGui::SameLine();
+                if(ImGui::Button("Generate Sphere"))
+                {
+                    int mode = 2;
+                    mesh->GenerateTexCoords(mode, UseNormals);
+                    quadMesh->GenerateTexCoords(mode, UseNormals);
+                    auto vertices = Mesh::CreateVertexFromMesh(*mesh);
+                    glNamedBufferSubData(VBOmesh, 0, vertices.size() * sizeof(vertices[0]), vertices.data());
+                    auto verticesQuad = Mesh::CreateVertexFromMesh(*quadMesh);
+                    glNamedBufferSubData(VBOplaneMesh, 0, verticesQuad.size() * sizeof(verticesQuad[0]), verticesQuad.data());
+                }
+            }
+            if (ImGui::CollapsingHeader("GPU UV Generate", &GPU_Generate))
+            {
+                int& GPUmode = uniformBuffer->GetUniformData().modes.x;
+                uniformBuffer->GetUniformData().modes.y = (int)UseNormals;
+                ImGui::RadioButton("Planer Mapping", &GPUmode, 1);
+                ImGui::RadioButton("Cylindrical Mapping",&GPUmode, 2);
+                ImGui::RadioButton("Spherical Mapping", &GPUmode, 3);
+            }
+
+        }
         if (ImGui::CollapsingHeader("Shader to use?")) {
             ImGui::RadioButton("Phong Lighting (Vertex)", &useShader, 0);
             ImGui::RadioButton("Phong Shading (Fragment)", &useShader, 1);
@@ -394,43 +638,51 @@ int SimpleScene_Quad::preRender() {
                               glm::value_ptr(this->AmbientColor));
             ImGui::ColorEdit3("Emissive Color",
                               glm::value_ptr(this->EmissiveColor));
-            ImGui::SliderFloat("Cube Rotation", &cubeAngle, 0.0f, 2 * PI);
-
-            ImGui::DragFloat3("Mesh position", glm::value_ptr(meshPosition));
-            // meshPosition
         }
         if(ImGui::CollapsingHeader("Light Settings"))
         {
             LightUBO& data = lightUBO->GetUniformData();
-            for(int i = 0; i < MAX_LIGHT; ++i)
-            {
-                std::string id = std::string(1, (char)('0' + i));
-                if(ImGui::TreeNode(id.c_str(), "Lights %i", i)) {
-                    ImGui::ColorEdit4("Light Color",
-                                      (float *) (glm::value_ptr(data.lightColor[i])));
-                    ImGui::Text("Light type");
-                    {
-                        ImGui::RadioButton("Point Light", (int *) &data.lightInfo[i][0], 0);
-                        ImGui::RadioButton("Directional", (int *) &data.lightInfo[i][0], 1);
-                        ImGui::RadioButton("Spot Light", (int *) &data.lightInfo[i][0], 2);
-                    }
-                    ImGui::DragFloat("Spotlight fall off", &data.lightInfo[i][1]);
-                    ImGui::SameLine();
-                    ImGui::DragFloat("Theta", &data.lightInfo[i][2]);
-                    ImGui::SameLine();
-                    ImGui::DragFloat("Phi", &data.lightInfo[i][3]);
-                    ImGui::TreePop();
-                }
-            }
             ImGui::Text("Global values");
+
             ImGui::ColorEdit4("Fog Color",
                               (glm::value_ptr(data.fogColor)));
             ImGui::ColorEdit4("Global Ambient Color",
-                             (glm::value_ptr(data.globalAmbientColor)));
+                              (glm::value_ptr(data.globalAmbientColor)));
             ImGui::SliderFloat3("Light coefficients",glm::value_ptr(data.coEfficients), 0.0f, 1.0f);
             ImGui::SliderFloat("c1", &data.c1, 0, 1.0);
             ImGui::SliderFloat("c2", &data.c2, 0, 1.0);
             ImGui::SliderFloat("c3", &data.c3, 0, 1.0);
+            for(int i = 0; i < MAX_LIGHT; ++i)
+            {
+                ImGui::PushID(i);
+                std::string id = std::string(1, (char)('0' + i));
+                if(ImGui::TreeNode(id.c_str(), "Lights %i", i)) {
+                    ImGui::ColorEdit4("Light Diffuse Color",
+                                      (float *) (glm::value_ptr(data.lightDiffuseColor[i])));
+                    ImGui::ColorEdit4("Light Ambient Color",
+                                      (float *) (glm::value_ptr(data.lightAmbientColor[i])));
+                    ImGui::ColorEdit4("Light Specular Color",
+                                      (float *) (glm::value_ptr(data.lightSpecularColor[i])));
+                    ImGui::Text("Light type");
+                    {
+                        static int tempint = 0;
+                        tempint = (int)data.lightInfo[i][0];
+                        ImGui::RadioButton("Point Light", &tempint, 0);
+                        ImGui::RadioButton("Directional", &tempint, 1);
+                        ImGui::RadioButton("Spot Light", &tempint, 2);
+                        data.lightInfo[i][0] = (float)tempint;
+                    }
+                    ImGui::Columns(3);
+                    ImGui::SliderFloat("Spotlight fall off", &data.lightInfo[i].y, 0.1f, 2 * PI);
+                    ImGui::NextColumn();
+                    ImGui::SliderFloat("Theta", &data.lightInfo[i].z, 0.01f, 1.0f);
+                    ImGui::NextColumn();
+                    ImGui::SliderFloat("Phi", &data.lightInfo[i].w, 0.01f, 1.0f);
+                    ImGui::Columns(1);
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+            }
         }
         if(ImGui::CollapsingHeader("Shader Library"))
         {
@@ -455,6 +707,64 @@ void SimpleScene_Quad::DrawObject(
     pipeline->GetShader(ProgramPipeline::ShaderType::Vertex)->SetUniform(uniformModel, obj->GetModelMatrix());
     glDrawElements(GL_TRIANGLES, vao->GetIndexSize(), GL_UNSIGNED_INT, nullptr);
 
+}
+void SimpleScene_Quad::EditTransform(const Camera& camera, glm::mat4& matrix)
+{
+    static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+    if (ImGui::IsKeyPressed(90))
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(69))
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(82)) // r Key
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(matrix), matrixTranslation, matrixRotation, matrixScale);
+    ImGui::InputFloat3("Tr", matrixTranslation, 3);
+    ImGui::InputFloat3("Rt", matrixRotation, 3);
+    ImGui::InputFloat3("Sc", matrixScale, 3);
+    ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(matrix));
+
+    if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+    {
+        if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+            mCurrentGizmoMode = ImGuizmo::LOCAL;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+            mCurrentGizmoMode = ImGuizmo::WORLD;
+    }
+    static bool useSnap(false);
+    if (ImGui::IsKeyPressed(83))
+        useSnap = !useSnap;
+    ImGui::Checkbox("", &useSnap);
+    ImGui::SameLine();
+    glm::vec3 snap;
+    switch (mCurrentGizmoOperation)
+    {
+        case ImGuizmo::TRANSLATE:
+            snap = glm::vec3(5.0f, 0.0, 0.0);
+            ImGui::InputFloat3("Snap", &snap.x);
+            break;
+        case ImGuizmo::ROTATE:
+            snap = glm::vec3(0.10f, 0.0, 0.0);
+            ImGui::InputFloat("Angle Snap", &snap.x);
+            break;
+        case ImGuizmo::SCALE:
+            snap = glm::vec3(1.0f, 0.0, 0.0);
+            ImGui::InputFloat("Scale Snap", &snap.x);
+            break;
+    }
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    ImGuizmo::Manipulate(glm::value_ptr(camera.GetViewMatrixGLM()), glm::value_ptr(camera.GetPerspectiveGLM()), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(matrix), NULL, useSnap ? &snap.x : NULL);
 }
 
 void ImGui_DisplayPipeline(SharedPtr<ProgramPipeline>& currentPipe)
@@ -497,6 +807,12 @@ void ImGui_ShaderLibrary(SimpleScene_Quad& scene)
         }
         if(ImGui::CollapsingHeader("Phong Shading")) {
             ImGui_DisplayPipeline(scene.PhongShading);
+        }
+        if(ImGui::CollapsingHeader("Blinn-Phong Shading")) {
+            ImGui_DisplayPipeline(scene.BlinnShading);
+        }
+        if(ImGui::CollapsingHeader("Phong Diffuse Shading")) {
+            ImGui_DisplayPipeline(scene.PhongDiffuse);
         }
         ImGui::TreePop();
     }

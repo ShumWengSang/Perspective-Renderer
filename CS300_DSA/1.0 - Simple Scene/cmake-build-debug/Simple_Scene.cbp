@@ -29,6 +29,8 @@
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGui/examples"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGui"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/stb-master"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master"/>
 					<Add directory="C:/vcpkg-2020.07/installed/x86-windows/include"/>
 					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.25.28610\include"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
@@ -57,6 +59,8 @@
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGui/examples"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGui"/>
 					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/stb-master"/>
+					<Add directory="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master"/>
 					<Add directory="C:/vcpkg-2020.07/installed/x86-windows/include"/>
 					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.25.28610\include"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
@@ -134,6 +138,30 @@
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGui/imgui_widgets.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImCurveEdit.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImCurveEdit.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImGradient.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImGradient.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImGuizmo.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImGuizmo.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImSequencer.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/ImGuizmo-master/ImSequencer.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/MyUBO.cpp">

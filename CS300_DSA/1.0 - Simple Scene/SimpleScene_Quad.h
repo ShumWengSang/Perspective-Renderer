@@ -47,6 +47,9 @@ private:
 
     std::vector<GLfloat>    geometryBuffer;
     GLfloat                 angleOfRotation{};
+    // Meshes
+    UniquePtr<Mesh> quadMesh;
+    UniquePtr<Mesh> mesh;
 
     // Objects
     SharedPtr<Object> meshObj;
@@ -58,13 +61,17 @@ private:
     SharedPtr<VertexArray> planeArray;
     SharedPtr<VertexArray> sphereArray;
 
+    // VBO attribute buffers (used for regenerating)
+    GLuint VBOplaneMesh;
+    GLuint VBOmesh;
+
     // Program Pipelines
     SharedPtr<ProgramPipeline> defaultPipeline;
     SharedPtr<ProgramPipeline> PhongDiffuse;
     SharedPtr<ProgramPipeline> NormalLineGeoPipeline;
     SharedPtr<ProgramPipeline> PhongLighting;
     SharedPtr<ProgramPipeline> PhongShading;
-
+    SharedPtr<ProgramPipeline> BlinnShading;
     // UBO
     SharedPtr<UniformBuffer<MyUBO>> uniformBuffer;
     SharedPtr<UniformBuffer<LightUBO>> lightUBO;
@@ -79,7 +86,6 @@ private:
     // ImGUI changable settings
     // Light
     glm::vec3 lightDirection = glm::vec3(0.7f, 0.7f, 0.7f);;
-    glm::vec3 lightColor = glm::vec3(0.5f,0.3f, 0.5f);
     glm::vec4 lineColor = glm::vec4(0.5f,0.7f,0.3f, 1.0f);
 
     glm::vec3 meshPosition = glm::vec3(0);
@@ -99,6 +105,7 @@ private:
     int showNormals = 0;
     glm::vec3 AmbientColor = glm::vec3(0.1f,0.1f,0.1f);
     glm::vec3 EmissiveColor = glm::vec3(0.0f, 0, 0);
+    bool SphereUpdate = true;
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     UniquePtr<Camera> mainCamera;
@@ -122,6 +129,7 @@ private:
     static constexpr auto DiffuseBinding = 0;
     static constexpr auto SpecularBinding = 1;
 
+    void EditTransform(const Camera& camera, glm::mat4& matrix);
     friend void ImGui_ShaderLibrary(SimpleScene_Quad& scene);
 };
 

@@ -113,6 +113,23 @@ SharedPtr<ShaderObject> ProgramPipeline::ReloadShader(const SharedPtr<ShaderObje
 }
 
 void ProgramPipeline::PushShader(const SharedPtr<ShaderObject> &shaderObject, ProgramPipeline::ShaderType type) {
+    GLuint bit;
+    switch(type)
+    {
+        case ShaderType::Vertex:
+            bit = GL_VERTEX_SHADER_BIT;
+            break;
+        case ShaderType::Fragment:
+            bit = GL_FRAGMENT_SHADER_BIT;
+            break;
+        case ShaderType::Geometry:
+            bit = GL_GEOMETRY_SHADER_BIT;
+            break;
+        default:
+            bit = 0;
+            break;
+    }
+    glUseProgramStages(pipelineID, bit, shaderObject->GetID());
     ShaderObjects[(unsigned)type] = shaderObject;
 }
 

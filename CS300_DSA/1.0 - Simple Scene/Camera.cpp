@@ -112,12 +112,12 @@ glm::mat4 Camera::perspective(const Camera& cam)
 	return res;
 }
 
-glm::mat4 Camera::GetPerspectiveGLM() {
+glm::mat4 Camera::GetPerspectiveGLM() const{
 
     return glm::perspective(glm::radians(fov) , vp_width/ vp_height, near_distance, far_distance);
 }
 
-glm::mat4 Camera::GetViewMatrixGLM() {
+glm::mat4 Camera::GetViewMatrixGLM() const {
     return glm::lookAt(glm::vec3(eye_point), glm::vec3(eye_point) + glm::vec3(0.0,0.0,-1.0), glm::vec3(up()));
 }
 
