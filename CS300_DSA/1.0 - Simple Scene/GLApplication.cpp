@@ -17,7 +17,7 @@ Scene  *scene;
 std::string GLOBAL_OBJFILE = std::string();
 int texture_mode = 0;
 
-int windowWidth = 1024;
+int windowWidth = 1324;
 int windowHeight = 768;
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -33,11 +33,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if(argc > 2)
+    if(argc > 1)
     {
         GLOBAL_OBJFILE = std::string(argv[1]);
     }
-    if(argc > 3)
+    if(argc > 2)
     {
         texture_mode = int(argv[2] - 'A');
         std::cout << "Texture mode: " << texture_mode << std::endl;

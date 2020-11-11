@@ -5,7 +5,6 @@ layout(location = 0)in v_in
 {
     vec4 worldPosition;
     vec3 fragNormal;
-    vec3 objectColor;
 } i;
 
 layout(location = 0) uniform vec3 lightColor;
@@ -24,6 +23,6 @@ void main()
 
     // Final Color
     vec4 finalLightColor = ambient + diffuse;
-    fragColor = finalLightColor * vec4(i.objectColor, 1.0);
+    fragColor = finalLightColor;
 
 }

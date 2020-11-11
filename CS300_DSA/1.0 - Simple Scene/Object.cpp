@@ -23,3 +23,7 @@ void Object::SetModelMatrix(const glm::mat4 &model) {
     ModelMatrix = model;
 }
 
+glm::mat4 &Object::GetModelMatrixRef() {
+    return ModelMatrix;
+}
+

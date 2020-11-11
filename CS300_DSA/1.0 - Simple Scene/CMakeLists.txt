@@ -17,7 +17,7 @@ find_package( glm REQUIRED)
 set( TARGET_NAME SimpleScene_OGL4 )
 
 include_directories(ImGui/examples/example_glfw_opengl3 ImGui/examples ImGui ${CMAKE_SOURCE_DIR})
-include_directories(stb-master/)
+include_directories(stb-master/ ImGuizmo-master/)
 #include_directories( ../Common/Scene.h ../Common/shader.hpp)
 #set( CMAKE_CXX_FLAGS "-Wall -g " )
 
@@ -39,7 +39,11 @@ add_executable( ${TARGET_NAME}
         ImGui/imgui_demo.cpp
         ImGui/examples/imgui_impl_glfw.cpp
         ImGui/examples/imgui_impl_opengl3.cpp Object.cpp Object.h
-        Scene.cpp Scene.h Shader.cpp Shader.h Vertex.cpp Vertex.h VertexArray.cpp VertexArray.h ProgramPipeline.cpp ProgramPipeline.h UniformBuffer.cpp UniformBuffer.h MyUBO.cpp MyUBO.h Texture.cpp Texture.h)
+        Scene.cpp Scene.h Shader.cpp Shader.h Vertex.cpp Vertex.h VertexArray.cpp VertexArray.h ProgramPipeline.cpp ProgramPipeline.h UniformBuffer.cpp UniformBuffer.h MyUBO.cpp MyUBO.h Texture.cpp Texture.h
+        ImGuizmo-master/ImCurveEdit.cpp ImGuizmo-master/ImCurveEdit.h ImGuizmo-master/ImGradient.h
+        ImGuizmo-master/ImGradient.cpp
+        ImGuizmo-master/ImGuizmo.h ImGuizmo-master/ImGuizmo.cpp ImGuizmo-master/ImSequencer.h
+        ImGuizmo-master/ImSequencer.cpp)
 
 # Set target properties
 target_link_libraries( ${TARGET_NAME} PUBLIC ${OPENGL_opengl_LIBRARY} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} )
