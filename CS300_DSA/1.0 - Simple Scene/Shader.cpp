@@ -91,7 +91,7 @@ Shader::CreateProgram(
 std::string Shader::ReadFile(std::string_view fileName) {
     std::cout << "Reading file " << fileName << std::endl;
     std::string result;
-    std::ifstream in(fileName, std::ios::in | std::ios::binary);
+    std::ifstream in(std::string(fileName), std::ios::in | std::ios::binary);
     if(in)
     {
         in.seekg(0, std::ios::end);
