@@ -93,3 +93,7 @@ void Texture::Bind()
 {
     glBindTextureUnit(bindingPort, textureID);
 }
+
+GLuint Texture::GetID() const {
+    return this->textureID;
+}
