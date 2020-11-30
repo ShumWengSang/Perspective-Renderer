@@ -37,6 +37,9 @@ public:
 
     Camera &roll(float angle);
 
+    glm::vec4 GetEye() const;
+    void SetEye(glm::vec4 newPos);
+
     // The next three functions will be implemented in a later assignment.
     // DO NOT implement them in assignment #3.
     glm::mat4 static model(const Camera& cam);

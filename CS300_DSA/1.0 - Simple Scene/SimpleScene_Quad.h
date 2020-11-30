@@ -17,6 +17,7 @@ class Object;
 class MyUBO;
 class LightUBO;
 class Texture;
+class Framebuffer;
 template <typename T>
 class UniformBuffer;
 
@@ -42,8 +43,8 @@ private:
     static void DrawObject(SharedPtr<VertexArray> const & vao, SharedPtr<ProgramPipeline> const & pipeline, SharedPtr<Object> const & obj);
     // member functions
     void initMembers();
-
     void SetupBuffers();
+    void RenderSceneReal();
 
     std::vector<GLfloat>    geometryBuffer;
     GLfloat                 angleOfRotation{};
@@ -83,6 +84,9 @@ private:
     SharedPtr<Texture> DiffuseTexture;
     SharedPtr<Texture> SpecularTexture;
 
+    // FBO Environment Mapping Dynamic Textures
+    SharedPtr<Texture> CameraTextureCapture[6];
+    SharedPtr<Framebuffer> FramebufferEnvironmentMappingCapture[6];
 private:
     float cubeAngle = 0.0f;
 

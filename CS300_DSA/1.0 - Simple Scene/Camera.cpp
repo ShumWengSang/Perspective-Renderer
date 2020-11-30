@@ -118,7 +118,16 @@ glm::mat4 Camera::GetPerspectiveGLM() const{
 }
 
 glm::mat4 Camera::GetViewMatrixGLM() const {
-    return glm::lookAt(glm::vec3(eye_point), glm::vec3(eye_point) + glm::vec3(0.0,0.0,-1.0), glm::vec3(up()));
+    return glm::lookAt(glm::vec3(eye_point), glm::vec3(eye_point) + glm::normalize(glm::vec3(back_vector) * -1.0f), glm::vec3(up_vector));
+    //return glm::lookAt(glm::vec3(eye_point), glm::vec3(eye_point) + glm::vec3(0,0,-1), glm::vec3(up()));
+}
+
+glm::vec4 Camera::GetEye() const {
+    return eye_point;
+}
+
+void Camera::SetEye(glm::vec4 newPos) {
+    eye_point = newPos;
 }
 
 

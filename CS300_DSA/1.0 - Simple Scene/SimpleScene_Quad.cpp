@@ -25,14 +25,14 @@
 #include "MyUBO.h"
 #include "Texture.h"
 #include "ImGuizmo.h"
-
+#include "Framebuffer.h"
 
 static const glm::vec4 O  = Math::point(0,0,0),
                        EX = Math::vector(1,0,0),
                        EY = Math::vector(0,1,0),
                        EZ = Math::vector(0,0,1);
 
-static const glm::vec4 LookAt = glm::normalize(-EZ + glm::vec4(0, -0.5f, 0, 0.0f));
+static const glm::vec4 LookAt = glm::normalize(-EZ );
 
 static char ModelPath[] = "../../Common/models/";
 static char TexturePath[] = "../../Common/textures/";
@@ -237,8 +237,30 @@ void SimpleScene_Quad::SetupBuffers()
         SpecularTexture->Bind();
     }
 
+    // Assign the meshes
     this->quadMesh = std::move(planeMesh.value());
     this->mesh = std::move(mesh.value());
+
+    // Create textures for environment mapping
+    for(int i = 0; i < 6; i++)
+    {
+        CameraTextureCapture[i] = CreateSharedPtr<Texture>(Texture::CreateTexture2D(GL_RGB8, GL_RGB, this->_windowWidth, this->_windowHeight,
+                                                                    nullptr, GL_NEAREST), i);
+    }
+
+    // Create 6 FBOs, one for each side of camera
+    for(int i = 0; i < 6; i++)
+    {
+        FramebufferEnvironmentMappingCapture[i] = CreateSharedPtr<Framebuffer>(Framebuffer::CreateFrameBuffer({CameraTextureCapture[i]->GetID()}));
+
+        unsigned int rbo;
+        glGenRenderbuffers(1, &rbo);
+        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->_windowWidth, this->_windowHeight); // use a single renderbuffer object for both a depth AND stencil buffer.
+        glNamedFramebufferRenderbuffer(FramebufferEnvironmentMappingCapture[i]->GetID(), GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    }
+
+
 }
 
 //////////////////////////////////////////////////////
@@ -251,14 +273,6 @@ int SimpleScene_Quad::Init()
     meshObj->SetModelMatrix(glm::translate( glm::vec3(0.0f) ) *
                             glm::rotate(cubeAngle, glm::vec3(0.0f, 1.0f, 0.0f)) *
                             glm::scale( glm::vec3(1.0f) ));
-//    meshObj->SetUpdate([&](Object& obj)
-//                       {
-//                           glm::vec3 scaleVector = glm::vec3(1.0f);
-//                           glm::vec3 centroid = meshPosition;
-//                           obj.SetModelMatrix(glm::translate( centroid ) *
-//                                      glm::rotate(cubeAngle, glm::vec3(0.0f, 1.0f, 0.0f)) *
-//                                      glm::scale( scaleVector ));
-//                       }); // angleOfRotation
 
     planeObj = CreateSharedPtr<Object>();
     planeObj->SetUpdate([&](Object& obj)
@@ -306,71 +320,56 @@ int SimpleScene_Quad::Init()
 //////////////////////////////////////////////////////
 int SimpleScene_Quad::Render()
 {
-    // Update light UBO
-    LightUBO& lightUbo = lightUBO->GetUniformData();
-    for(int i = 0; i < MAX_LIGHT; i++)
+    // Clear framebuffers
+    for(auto& fbo : FramebufferEnvironmentMappingCapture)
     {
-        // Update light position and direction
-        lightUbo.lightPos[i] = glm::column(sphereObj[i]->GetModelMatrix(), 3);
-        lightUbo.lightDir[i] = glm::normalize(glm::column(meshObj->GetModelMatrixRef(),3) - lightUbo.lightPos[i]);
-    }
-    lightUbo.cameraPosition = mainCamera->eye();
-    lightUBO->SendData();
-
-
-    // Draw mesh for diffuse shader
-    {
-        if(useShader == 0) {
-            PhongLighting->Bind();
-            auto vertexProgram = PhongLighting->GetShader(ProgramPipeline::ShaderType::Vertex);
-            vertexProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-            vertexProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-            DrawObject(meshArray, PhongLighting, meshObj);
-            DrawObject(planeArray, PhongLighting, planeObj);
-        }
-        else if(useShader == 1) {
-            PhongShading->Bind();
-            auto fragmentProgram = PhongShading->GetShader(ProgramPipeline::ShaderType::Fragment);
-            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-            DrawObject(meshArray, PhongShading, meshObj);
-            DrawObject(planeArray, PhongShading, planeObj);
-        }
-        else if(useShader == 2)
-        {
-            BlinnShading->Bind();
-            auto fragmentProgram = BlinnShading->GetShader(ProgramPipeline::ShaderType::Fragment);
-            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-            DrawObject(meshArray, BlinnShading, meshObj);
-            DrawObject(planeArray, BlinnShading, planeObj);
-        }
+        fbo->Clear(GL_COLOR, 0, glm::value_ptr(backgroundColor));
+        float clear_depth = 1.0f;
+        fbo->Clear(GL_DEPTH, 0, &clear_depth);
     }
 
+    // Capture the environment from POV of object in middle
+    glm::vec3 position = glm::column(meshObj->GetModelMatrix(), 3);
+    glm::vec4 originalPos = mainCamera->GetEye(); // Record position
 
+    // Set position to object
+    mainCamera->SetEye(glm::vec4(position, 1.0f));
+
+    // Turn it around 90 degree each time
+    for(int i = 0; i < 4; i++)
     {
-        PhongDiffuse->Bind();
-        auto vertexProgram = PhongDiffuse->GetShader(ProgramPipeline::ShaderType::Vertex);
-        auto fragProgram = PhongDiffuse->GetShader(ProgramPipeline::ShaderType::Fragment);
-        // Render the diffuse only pass.
+        FramebufferEnvironmentMappingCapture[i]->Bind();
+        // Capture to framebuffer
+        RenderSceneReal();
+        mainCamera->yaw(90.0f);
 
-
-        // Draw spheres
-        for (int i = 0; i < (int)lightUBO->GetUniformData().numOfLight; i++) {
-            fragProgram->SetUniform(uniformlightColor, glm::vec3(lightUBO->GetUniformData().lightDiffuseColor[i]));
-            fragProgram->SetUniform(uniformLightDirection, glm::vec3(lightUBO->GetUniformData().lightDir[i]));
-            DrawObject(sphereArray, PhongDiffuse, sphereObj[i]);
-        }
     }
 
-    // Swap pipeline to default pipeline
-    {
-        defaultPipeline->Bind();
+    FramebufferEnvironmentMappingCapture[4]->Bind();
+    mainCamera->pitch(90);
+    RenderSceneReal();
 
-        // Draw plane
-//        DrawObject(planeArray, defaultPipeline, planeObj);
-    }
+    FramebufferEnvironmentMappingCapture[5]->Bind();
 
+    mainCamera->pitch(180);
+    RenderSceneReal();
+
+    // Reset camera
+    mainCamera->SetEye(originalPos);
+    mainCamera->pitch(90);
+    // Reset framebuffer
+    Framebuffer::Unbind();
+
+    // Now render the scene as normally
+    RenderSceneReal();
+
+    return 0;
+}
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+int SimpleScene_Quad::postRender()
+{
     // Swap the pipeline to draw the normals for the cube
     {
         NormalLineGeoPipeline->Bind();
@@ -386,13 +385,6 @@ int SimpleScene_Quad::Render()
         glDrawElements(GL_LINES, sphereLine->GetIndexSize(), GL_UNSIGNED_INT, nullptr);
     }
 
-    return 0;
-}
-
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-int SimpleScene_Quad::postRender()
-{
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     if(SphereUpdate) {
         angleOfRotation += 0.01f;
@@ -410,12 +402,17 @@ int SimpleScene_Quad::preRender() {
         sphereObj[i]->Update();
     }
 
-    // Update view Projection UBO
-    uniformBuffer->GetUniformData().Projection =  mainCamera->GetPerspectiveGLM();
-    uniformBuffer->GetUniformData().View =  mainCamera->GetViewMatrixGLM();
-    uniformBuffer->GetUniformData().NearFar.x = mainCamera->near();
-    uniformBuffer->GetUniformData().NearFar.y = mainCamera->far();
-    uniformBuffer->SendData();
+
+    // Update light UBO
+    LightUBO& lightUbo = lightUBO->GetUniformData();
+    for(int i = 0; i < MAX_LIGHT; i++)
+    {
+        // Update light position and direction
+        lightUbo.lightPos[i] = glm::column(sphereObj[i]->GetModelMatrix(), 3);
+        lightUbo.lightDir[i] = glm::normalize(glm::column(meshObj->GetModelMatrixRef(),3) - lightUbo.lightPos[i]);
+    }
+    lightUbo.cameraPosition = mainCamera->eye();
+    lightUBO->SendData();
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -719,6 +716,8 @@ int SimpleScene_Quad::preRender() {
     }
     ImGui::End();
     ImGui::Render();
+
+
     return Scene::preRender();
 }
 
@@ -841,5 +840,53 @@ void ImGui_ShaderLibrary(SimpleScene_Quad& scene)
             ImGui_DisplayPipeline(scene.PhongDiffuse);
         }
         ImGui::TreePop();
+    }
+}
+
+void SimpleScene_Quad::RenderSceneReal() {
+    // Update view Projection UBO
+    uniformBuffer->GetUniformData().Projection =  mainCamera->GetPerspectiveGLM();
+    uniformBuffer->GetUniformData().View =  mainCamera->GetViewMatrixGLM();
+    uniformBuffer->GetUniformData().NearFar.x = mainCamera->near();
+    uniformBuffer->GetUniformData().NearFar.y = mainCamera->far();
+    uniformBuffer->SendData();
+    {
+        if(useShader == 0) {
+            PhongLighting->Bind();
+            auto vertexProgram = PhongLighting->GetShader(ProgramPipeline::ShaderType::Vertex);
+            vertexProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
+            vertexProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
+            DrawObject(meshArray, PhongLighting, meshObj);
+        }
+        else if(useShader == 1) {
+            PhongShading->Bind();
+            auto fragmentProgram = PhongShading->GetShader(ProgramPipeline::ShaderType::Fragment);
+            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
+            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
+            DrawObject(meshArray, PhongShading, meshObj);
+        }
+        else if(useShader == 2)
+        {
+            BlinnShading->Bind();
+            auto fragmentProgram = BlinnShading->GetShader(ProgramPipeline::ShaderType::Fragment);
+            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
+            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
+            DrawObject(meshArray, BlinnShading, meshObj);
+        }
+    }
+
+    {
+        PhongDiffuse->Bind();
+        auto vertexProgram = PhongDiffuse->GetShader(ProgramPipeline::ShaderType::Vertex);
+        auto fragProgram = PhongDiffuse->GetShader(ProgramPipeline::ShaderType::Fragment);
+        // Render the diffuse only pass.
+
+
+        // Draw spheres
+        for (int i = 0; i < (int)lightUBO->GetUniformData().numOfLight; i++) {
+            fragProgram->SetUniform(uniformlightColor, glm::vec3(lightUBO->GetUniformData().lightDiffuseColor[i]));
+            fragProgram->SetUniform(uniformLightDirection, glm::vec3(lightUBO->GetUniformData().lightDir[i]));
+            DrawObject(sphereArray, PhongDiffuse, sphereObj[i]);
+        }
     }
 }

@@ -43,7 +43,7 @@ add_executable( ${TARGET_NAME}
         ImGuizmo-master/ImCurveEdit.cpp ImGuizmo-master/ImCurveEdit.h ImGuizmo-master/ImGradient.h
         ImGuizmo-master/ImGradient.cpp
         ImGuizmo-master/ImGuizmo.h ImGuizmo-master/ImGuizmo.cpp ImGuizmo-master/ImSequencer.h
-        ImGuizmo-master/ImSequencer.cpp)
+        ImGuizmo-master/ImSequencer.cpp Framebuffer.cpp Framebuffer.h)
 
 # Set target properties
 target_link_libraries( ${TARGET_NAME} PUBLIC ${OPENGL_opengl_LIBRARY} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} )

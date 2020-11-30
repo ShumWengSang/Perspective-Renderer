@@ -48,6 +48,8 @@ public:
 
     void Destroy();
     void Bind();
+
+    GLuint GetID() const;
 private:
     GLuint textureID;
     GLuint bindingPort;

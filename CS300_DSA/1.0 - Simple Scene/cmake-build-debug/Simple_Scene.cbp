@@ -110,6 +110,12 @@
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/Camera.h">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/Framebuffer.cpp">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
+		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/Framebuffer.h">
+			<Option target="SimpleScene_OGL4"/>
+		</Unit>
 		<Unit filename="C:/Users/user/Documents/git/CS300/CS300_DSA/1.0 - Simple Scene/GLApplication.cpp">
 			<Option target="SimpleScene_OGL4"/>
 		</Unit>
