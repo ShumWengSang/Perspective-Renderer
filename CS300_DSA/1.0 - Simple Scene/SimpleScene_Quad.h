@@ -57,12 +57,14 @@ private:
     SharedPtr<Object> planeObj;
     SharedPtr<Object> sphereObj[MAX_LIGHT];
     SharedPtr<Object> sphereLineObj;
+    SharedPtr<Object> skyBoxObj;
 
     // VAO
     SharedPtr<VertexArray> meshArray;
     SharedPtr<VertexArray> planeArray;
     SharedPtr<VertexArray> sphereArray;
     SharedPtr<VertexArray> sphereLine;
+    SharedPtr<VertexArray> skyBoxArray;
 
     // VBO attribute buffers (used for regenerating)
     GLuint VBOplaneMesh;
@@ -75,6 +77,8 @@ private:
     SharedPtr<ProgramPipeline> PhongLighting;
     SharedPtr<ProgramPipeline> PhongShading;
     SharedPtr<ProgramPipeline> BlinnShading;
+    SharedPtr<ProgramPipeline> EnvironmentShading;
+    SharedPtr<ProgramPipeline> SkyboxShading;
 
     // UBO
     SharedPtr<UniformBuffer<MyUBO>> uniformBuffer;
@@ -84,11 +88,15 @@ private:
     SharedPtr<Texture> DiffuseTexture;
     SharedPtr<Texture> SpecularTexture;
 
+    // Textures for skybox;
+    SharedPtr<Texture> SkyboxTex[6];
+
     // FBO Environment Mapping Dynamic Textures
     SharedPtr<Texture> CameraTextureCapture[6];
     SharedPtr<Framebuffer> FramebufferEnvironmentMappingCapture[6];
 private:
     float cubeAngle = 0.0f;
+    float refractiveIndex = 1.33f;
 
     // ImGUI changable settings
     // Light
@@ -127,6 +135,15 @@ private:
     static constexpr auto uniformLineColor = 0;
     static constexpr auto uniformAmbientColor = 1;
     static constexpr auto uniformEmissiveColor = 2;
+    static constexpr auto LightMixRatio = 4;
+    static constexpr auto ModeBind = 5;
+    static constexpr auto toMixLight = 6;
+
+    // Environement mapping uniforms
+    int environemtnMappingMode = 0;
+    float lightmixRatio_cpu = 0.5f;
+    bool b_toMixLight = false;
+
 
     // Phong Diffuse
     static constexpr auto uniformlightColor = 0;
@@ -135,6 +152,10 @@ private:
     // Texture binding points
     static constexpr auto DiffuseBinding = 0;
     static constexpr auto SpecularBinding = 1;
+    static constexpr auto CubeMappingBinding = 2;
+
+    // Index for refraction
+    static constexpr auto RefractiveIndexBinding = 3;
 
     void EditTransform(const Camera& camera, glm::mat4& matrix);
     friend void ImGui_ShaderLibrary(SimpleScene_Quad& scene);

@@ -118,7 +118,7 @@ glm::mat4 Camera::GetPerspectiveGLM() const{
 }
 
 glm::mat4 Camera::GetViewMatrixGLM() const {
-    return glm::lookAt(glm::vec3(eye_point), glm::vec3(eye_point) + glm::normalize(glm::vec3(back_vector) * -1.0f), glm::vec3(up_vector));
+    return glm::lookAt(glm::vec3(eye_point), glm::vec3(eye_point) + glm::normalize(glm::vec3(back_vector) * -1.0f), glm::normalize(glm::vec3(up_vector)));
     //return glm::lookAt(glm::vec3(eye_point), glm::vec3(eye_point) + glm::vec3(0,0,-1), glm::vec3(up()));
 }
 
@@ -128,6 +128,16 @@ glm::vec4 Camera::GetEye() const {
 
 void Camera::SetEye(glm::vec4 newPos) {
     eye_point = newPos;
+}
+
+void Camera::ChangeViewPort(float newfov, float newaspect) {
+    fov = newfov;
+    Degrees const FOV = fov;
+    float aspectRatio = newaspect;
+
+    Radians radian = glm::radians(FOV / 2);
+    vp_width = tanf(radian) * vp_distance * 2;
+    vp_height = vp_width / aspectRatio;
 }
 
 

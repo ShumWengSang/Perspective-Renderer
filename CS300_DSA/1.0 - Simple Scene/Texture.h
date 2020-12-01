@@ -39,12 +39,12 @@ public:
 
     Texture(GLuint textureID, GLuint bindingPort);
     ~Texture();
-
+    using stb_comp_t = STBI_COMP_TYPE;
     static GLuint CreateTexture2D(GLenum internalFormat, GLenum format, GLsizei  width, GLsizei  height,
                                   void* data = nullptr, GLenum filter = GL_LINEAR, GLenum repeat = GL_REPEAT);
-
-    using stb_comp_t = STBI_COMP_TYPE;
+    static GLuint CreateTextureCube(std::array<std::string_view, 6> const & filepath, stb_comp_t comp = STBI_rgb_alpha);
     static GLuint CreateTexture2DFromFile(std::string_view filepath, stb_comp_t comp = STBI_rgb_alpha);
+    static std::tuple<GLint,GLint,GLint,GLint,GLint,GLint> CreateTextureCubeCustom(std::vector<std::string> const & str);
 
     void Destroy();
     void Bind();

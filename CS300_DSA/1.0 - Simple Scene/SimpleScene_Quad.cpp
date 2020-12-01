@@ -26,11 +26,57 @@
 #include "Texture.h"
 #include "ImGuizmo.h"
 #include "Framebuffer.h"
+#include <numeric>
 
 static const glm::vec4 O  = Math::point(0,0,0),
                        EX = Math::vector(1,0,0),
                        EY = Math::vector(0,1,0),
                        EZ = Math::vector(0,0,1);
+
+static std::vector<float> skyboxVertices = {
+        // positions
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+        1.0f,  1.0f, -1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+        1.0f, -1.0f,  1.0f
+};
 
 static const glm::vec4 LookAt = glm::normalize(-EZ );
 
@@ -80,6 +126,7 @@ void SimpleScene_Quad::SetupBuffers()
 {
     // Load the obj file
     std::string obj;
+    const std::string texturePath = TexturePath;
 
     // Load cube2.obj if obj not provided
     if(GLOBAL_OBJFILE.empty())
@@ -92,6 +139,8 @@ void SimpleScene_Quad::SetupBuffers()
     auto planeMesh = ObjLoader::LoadObj(ModelPath + std::string("quad.obj"));
     auto sphereMesh = ObjLoader::CreateSphere(0.3f, 8);
     auto sphereLineMesh = ObjLoader::CreateCircularLine(1.0f, 30);
+    auto skyboxMesh = ObjLoader::LoadObj(ModelPath + std::string("cube.obj"));
+
     // Check if mesh was loaded
     if(!mesh)
     {
@@ -106,6 +155,18 @@ void SimpleScene_Quad::SetupBuffers()
     // We need to generate the normals and the colors
     mesh->get()->GenerateVertexNormals().GenerateColors({0.4f, 0.3f, 0.1f}).GenerateTexCoords(texture_mode, false);
     sphereMesh->get()->GenerateColors({0.3f, 0.7f, 0.9f}).GenerateTexCoords(texture_mode, false);
+
+    std::vector<attribFormat> const vertexFormat1 =
+            {
+                    createAttribFormat<glm::vec3>(0, offsetof(Vertex, position)),
+            };
+    {
+        // Skybox
+        auto const[vao_mesh, vbo_mesh, ibo_mesh] = createGeometry(skyboxMesh->get()->Vertices, skyboxMesh->get()->Index, vertexFormat1);
+        skyBoxArray = CreateSharedPtr<VertexArray>(vao_mesh);
+        skyBoxArray->PushBuffer({vbo_mesh, ibo_mesh});
+        skyBoxArray->SetIndexSize(skyboxMesh->get()->Index.size());
+    }
 
     // Create the format of the vertex
     /* vertex formatting information */
@@ -186,7 +247,7 @@ void SimpleScene_Quad::SetupBuffers()
     // Phong lighting shaders
     {
         auto const[default_pr, default_vert_shader, default_geo_shader, default_frag_shader] = Shader::CreateProgram(
-                ShaderPath + "Assignment2/PhongLighting.vert", "", ShaderPath + "Assignment2/PhongLighting.frag");
+                ShaderPath + "Assignment3/PhongLighting.vert", "", ShaderPath + "Assignment3/PhongLighting.frag");
 
         PhongLighting = CreateSharedPtr<ProgramPipeline>(default_pr, "Phong Diffuse Shader");
         PhongLighting->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
@@ -195,7 +256,7 @@ void SimpleScene_Quad::SetupBuffers()
     // Phong Shading shader
     {
         auto const[default_pr, default_vert_shader, default_geo_shader, default_frag_shader] = Shader::CreateProgram(
-                ShaderPath + "Assignment2/PhongShading.vert", "", ShaderPath + "Assignment2/PhongShading.frag");
+                ShaderPath + "Assignment3/PhongShading.vert", "", ShaderPath + "Assignment3/PhongShading.frag");
 
         PhongShading = CreateSharedPtr<ProgramPipeline>(default_pr, "Phong Diffuse Shader");
         PhongShading->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
@@ -204,12 +265,21 @@ void SimpleScene_Quad::SetupBuffers()
     {
         // Blinn Phong
         auto const[default_pr, default_vert_shader, default_geo_shader, default_frag_shader] = Shader::CreateProgram(
-                ShaderPath + "Assignment2/BlinnPhong.vert", "" "", ShaderPath + "Assignment2/BlinnPhong.frag");
+                ShaderPath + "Assignment3/BlinnPhong.vert", "" "", ShaderPath + "Assignment3/BlinnPhong.frag");
 
         BlinnShading = CreateSharedPtr<ProgramPipeline>(default_pr, "Blinn-Phong Shader");
         // BlinnShading->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
         BlinnShading->PushShader(PhongShading->GetShader(ProgramPipeline::ShaderType::Vertex), ProgramPipeline::ShaderType::Vertex);
         BlinnShading->PushShader(default_frag_shader, ProgramPipeline::ShaderType::Fragment);
+    }
+    {
+        // Environment Mapping Shader
+        auto const[default_pr, default_vert_shader, default_geo_shader, default_frag_shader] = Shader::CreateProgram(
+                ShaderPath + "Assignment3/EnvironmentMapping.vert", "" "", ShaderPath + "Assignment3/EnvironmentMapping.frag");
+
+        EnvironmentShading = CreateSharedPtr<ProgramPipeline>(default_pr, "Environment Shader");
+        EnvironmentShading->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
+        EnvironmentShading->PushShader(default_frag_shader, ProgramPipeline::ShaderType::Fragment);
     }
 
     // Create UBO
@@ -227,7 +297,6 @@ void SimpleScene_Quad::SetupBuffers()
 
     // Load some textures
     {
-        const std::string texturePath = TexturePath;
         auto const DiffuseID = Texture::CreateTexture2DFromFile(texturePath + "metal_roof_diff_512x512.png", Texture::STBI_rgb);
         auto const SpecularID = Texture::CreateTexture2DFromFile(texturePath + "metal_roof_spec_512x512.png", Texture::STBI_rgb);
         DiffuseTexture = CreateSharedPtr<Texture>(DiffuseID, DiffuseBinding);
@@ -245,7 +314,7 @@ void SimpleScene_Quad::SetupBuffers()
     for(int i = 0; i < 6; i++)
     {
         CameraTextureCapture[i] = CreateSharedPtr<Texture>(Texture::CreateTexture2D(GL_RGB8, GL_RGB, this->_windowWidth, this->_windowHeight,
-                                                                    nullptr, GL_NEAREST), i);
+                                                                    nullptr, GL_NEAREST, GL_CLAMP_TO_EDGE), CubeMappingBinding + i);
     }
 
     // Create 6 FBOs, one for each side of camera
@@ -258,6 +327,37 @@ void SimpleScene_Quad::SetupBuffers()
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->_windowWidth, this->_windowHeight); // use a single renderbuffer object for both a depth AND stencil buffer.
         glNamedFramebufferRenderbuffer(FramebufferEnvironmentMappingCapture[i]->GetID(), GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    }
+
+    // Create skybox textures from files
+    {
+        std::vector<std::string> faces
+                {
+                        texturePath + "right.jpg",
+                        texturePath + "left.jpg",
+                        texturePath + "top.jpg",
+                        texturePath + "bottom.jpg",
+                        texturePath + "front.jpg",
+                        texturePath + "back.jpg"
+                };
+        auto [a,b,c,d,e,f] = Texture::CreateTextureCubeCustom(faces);
+        // Assign to textures
+        SkyboxTex[0] = CreateSharedPtr<Texture>(a, 0);
+        SkyboxTex[1] = CreateSharedPtr<Texture>(b, 1);
+        SkyboxTex[2] = CreateSharedPtr<Texture>(c, 2);
+        SkyboxTex[3] = CreateSharedPtr<Texture>(d, 3);
+        SkyboxTex[4] = CreateSharedPtr<Texture>(e, 4);
+        SkyboxTex[5] = CreateSharedPtr<Texture>(f, 5);
+    }
+
+    // Create skybox shader
+    {
+        auto const[default_pr, default_vert_shader, default_geo_shader, default_frag_shader] = Shader::CreateProgram(
+                ShaderPath + "SkyboxShader.vert", "" "", ShaderPath + "SkyboxShader.frag");
+
+        SkyboxShading = CreateSharedPtr<ProgramPipeline>(default_pr, "Environment Shader");
+        SkyboxShading->PushShader(default_vert_shader, ProgramPipeline::ShaderType::Vertex);
+        SkyboxShading->PushShader(default_frag_shader, ProgramPipeline::ShaderType::Fragment);
     }
 
 
@@ -303,6 +403,9 @@ int SimpleScene_Quad::Init()
                                   glm::rotate(angleOfRotation, glm::vec3(0.0f, 1.0f, 0.0f)) *
                                           glm::scale(spherePathScale));
 
+    skyBoxObj = CreateSharedPtr<Object>();
+
+
     // Setup light colors and light UBO settings...
     LightUBO& lightUbo = lightUBO->GetUniformData();
     for(int i = 1 ; i < 16; i++)
@@ -332,35 +435,40 @@ int SimpleScene_Quad::Render()
     glm::vec3 position = glm::column(meshObj->GetModelMatrix(), 3);
     glm::vec4 originalPos = mainCamera->GetEye(); // Record position
 
-    // Set position to object
-    mainCamera->SetEye(glm::vec4(position, 1.0f));
 
-    // Turn it around 90 degree each time
-    for(int i = 0; i < 4; i++)
+    static glm::vec3 directionLookup [] =
+            {
+                    {1.f, 0.f, 0.f},  // +x
+                    {-1.f, 0.f, 0.f}, // -x
+                    {0.f, 1.0f, 0.f}, // +y
+                    {0.f, -1.0f, 0.f},// -y
+                    {0.f, 0.f, 1.0f}, // +z
+                    {0.f, 0.f, -1.0f} // -z
+            };
+    static glm::vec3 upLookup [] =
+            {
+                    {0.f, -1.0f, 0.f},   // +x
+                    {0.f, -1.0f, 0.f},   // -x
+                    {0.f, 0.0f, 1.f},  // +y
+                    {0.f, 0.0f, -1.f},   // -y
+                    {0.f, -1.0f, 0.f},   // +z
+                    {0.f, -1.0f, 0.f}    // -z
+            };
+
+    for(int i = 0; i < 6; ++i)
     {
         FramebufferEnvironmentMappingCapture[i]->Bind();
-        // Capture to framebuffer
+        uniformBuffer->GetUniformData().Projection =  glm::perspective(glm::radians(90.f), 1.0f, 0.1f, 1000.0f);
+        uniformBuffer->GetUniformData().View =  glm::lookAt(position, directionLookup[i], upLookup[i]);
         RenderSceneReal();
-        mainCamera->yaw(90.0f);
-
     }
 
-    FramebufferEnvironmentMappingCapture[4]->Bind();
-    mainCamera->pitch(90);
-    RenderSceneReal();
-
-    FramebufferEnvironmentMappingCapture[5]->Bind();
-
-    mainCamera->pitch(180);
-    RenderSceneReal();
-
-    // Reset camera
-    mainCamera->SetEye(originalPos);
-    mainCamera->pitch(90);
     // Reset framebuffer
     Framebuffer::Unbind();
 
     // Now render the scene as normally
+    uniformBuffer->GetUniformData().Projection =  mainCamera->GetPerspectiveGLM();
+    uniformBuffer->GetUniformData().View =  mainCamera->GetViewMatrixGLM();
     RenderSceneReal();
 
     return 0;
@@ -401,8 +509,10 @@ int SimpleScene_Quad::preRender() {
     {
         sphereObj[i]->Update();
     }
-
-
+    glm::vec4 cameraPos = mainCamera->GetEye();
+    skyBoxObj->SetModelMatrix(glm::translate( glm::vec3(cameraPos) ) *
+                              glm::scale(glm::vec3(20, 20, 20)));
+    skyBoxObj->Update();
     // Update light UBO
     LightUBO& lightUbo = lightUBO->GetUniformData();
     for(int i = 0; i < MAX_LIGHT; i++)
@@ -414,6 +524,15 @@ int SimpleScene_Quad::preRender() {
     lightUbo.cameraPosition = mainCamera->eye();
     lightUBO->SendData();
 
+    EnvironmentShading->GetShader(ProgramPipeline::ShaderType::Fragment)->
+        SetUniform(RefractiveIndexBinding, refractiveIndex);
+    EnvironmentShading->GetShader(ProgramPipeline::ShaderType::Fragment)->
+            SetUniform(LightMixRatio, lightmixRatio_cpu);
+    EnvironmentShading->GetShader(ProgramPipeline::ShaderType::Fragment)->
+            SetUniform(ModeBind, environemtnMappingMode);
+    EnvironmentShading->GetShader(ProgramPipeline::ShaderType::Fragment)->
+            SetUniform(toMixLight, b_toMixLight);
+
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -423,7 +542,7 @@ int SimpleScene_Quad::preRender() {
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
 
-    if (ImGui::Begin("Assignment 2"))
+    if (ImGui::Begin("Assignment 3"))
     {
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
@@ -432,111 +551,7 @@ int SimpleScene_Quad::preRender() {
         numOfLight = (int)lightUBO->GetUniformData().numOfLight;
         ImGui::SliderInt("Number of lights", &numOfLight, 1, 16);
         lightUBO->GetUniformData().numOfLight = (float)numOfLight;
-        ImGui::Columns(3);
-        if(ImGui::Button("One Point light"))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 1.0f;
-            data.lightInfo[0].x = 0.0f;
-            data.lightDiffuseColor[0] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-        }
-        ImGui::NextColumn();
-        if(ImGui::Button("One Directional light"))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 1.0f;
-            data.lightInfo[0].x = 1.0f;
-            data.lightDiffuseColor[0] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-        }
-        ImGui::NextColumn();
-        if(ImGui::Button("One Spotlight light"))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 1.0f;
-            data.lightInfo[0].x = 2.0f;
-            data.lightDiffuseColor[0] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        ImGui::NextColumn();
-
-        if(ImGui::Button("Scenario 1 - Point light"))
-        {
-            useShader = 2;
-            // All lights of same type and parameter
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 16.0f;
-            for(int i = 0; i < 16; ++i)
-            {
-                data.lightInfo[i].x = 0.0f;
-                data.lightDiffuseColor[i] = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
-            }
-        }
-        ImGui::NextColumn();
-        if(ImGui::Button("Scenario 1 - Spotlight"))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 16.0f;
-            for(int i = 0; i < 16; ++i)
-            {
-                data.lightInfo[i].x = 2.0f;
-                data.lightDiffuseColor[i] = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
-            }
-        }
-        ImGui::NextColumn();
-        if(ImGui::Button("Scenario 1 - Directional "))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 16.0f;
-            for(int i = 0; i < 16; ++i)
-            {
-                data.lightInfo[i].x = 1.0f;
-                data.lightDiffuseColor[i] = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
-            }
-        }
-        ImGui::NextColumn();
-        // New column
-        if(ImGui::Button("Scenario 2 - Point "))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 16.0f;
-            for(int i = 0; i < 16; ++i)
-            {
-                data.lightInfo[i].x = 0.0f;
-                data.lightDiffuseColor[i] = glm::vec4((rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f);
-            }
-        }
-        ImGui::NextColumn();
-        if(ImGui::Button("Scenario 2 - Directional "))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 16.0f;
-            for(int i = 0; i < 16; ++i)
-            {
-                data.lightInfo[i].x = 1.0f;
-                data.lightDiffuseColor[i] = glm::vec4((rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f);
-            }
-        }
-        ImGui::NextColumn();
-        if(ImGui::Button("Scenario 2 - Spotlight "))
-        {
-            useShader = 2;
-            LightUBO& data = lightUBO->GetUniformData();
-            data.numOfLight = 16.0f;
-            for(int i = 0; i < 16; ++i)
-            {
-                data.lightInfo[i].x = 2.0f;
-                data.lightDiffuseColor[i] = glm::vec4((rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f, (rand() % 255) / 255.0f);
-            }
-        }
-        ImGui::Columns(1);
         if(ImGui::Button("Scenario 3"))
         {
             int i = 0;
@@ -562,6 +577,23 @@ int SimpleScene_Quad::preRender() {
             }
             data.lightInfo[13].x = 2.0f;
         }
+
+        ImGui::SliderFloat("Refractive Index ",&refractiveIndex, 1.0f, 100.0f);
+        ImGui::Columns(3);
+        ImGui::RadioButton("Reflection", &this->environemtnMappingMode, 0);
+        ImGui::NextColumn();
+        ImGui::RadioButton("Refraction", &this->environemtnMappingMode, 1);
+        ImGui::NextColumn();
+        ImGui::RadioButton("Mixed Mode", &this->environemtnMappingMode, 2);
+        ImGui::NextColumn();
+        ImGui::Columns(1);
+        ImGui::Checkbox("Mix light?", &this->b_toMixLight);
+
+        if(b_toMixLight)
+        {
+            ImGui::SliderFloat("Light mix ratio", &lightmixRatio_cpu, 0.f, 1.f);
+        }
+
         if (ImGui::CollapsingHeader("Background color")) {
             ImGui::ColorEdit3("Background Color",
                               (float *) (&(this->backgroundColor)));
@@ -570,18 +602,6 @@ int SimpleScene_Quad::preRender() {
         {
             EditTransform(*mainCamera.get(), meshObj->GetModelMatrixRef());
         }
-        if(ImGui::CollapsingHeader("Plane Transformation"))
-        {
-            EditTransform(*mainCamera.get(), sphereLineObj->GetModelMatrixRef());
-        }
-        if(ImGui::CollapsingHeader("Plane pos"))
-        {
-            ImGui::DragFloat3("Vec3 Pos ",
-                              (float *) (&(this->planePosition)));
-            ImGui::DragFloat3("Vec3 Scale",
-                              (float *) (&(this->planeScale)));
-
-        }
         if (ImGui::CollapsingHeader("Display Normals?")) {
             ImGui::RadioButton("Don't Show", &showNormals, 0);
             ImGui::RadioButton("Show Face Normals", &showNormals, 1);
@@ -589,71 +609,6 @@ int SimpleScene_Quad::preRender() {
 
             NormalLineGeoPipeline->GetShader(ProgramPipeline::ShaderType::Geometry)->SetUniform(uniformFaceMode, showNormals);
             NormalLineGeoPipeline->GetShader(ProgramPipeline::ShaderType::Fragment)->SetUniform(uniformLineColor, this->lineColor);
-        }
-        if(ImGui::CollapsingHeader("UV Generation Mode?"))
-        {
-            static bool CPU_Generate = false;
-            static bool GPU_Generate = false;
-            static bool UseNormals = false;
-            ImGui::Text("Press buttons to generate for CPU.");
-            ImGui::Checkbox("CPU Generate?", &CPU_Generate);
-            ImGui::Checkbox("GPU Generate?", &GPU_Generate);
-            ImGui::Checkbox("Use Normals", &UseNormals);
-            if(!GPU_Generate)
-            {
-                uniformBuffer->GetUniformData().modes.x = 0;
-            }
-
-            if (ImGui::CollapsingHeader("CPU UV Generation", &CPU_Generate))
-            {
-                ImGui::Text("Planar Mapping"); ImGui::SameLine();
-                if(ImGui::Button("Generate Plane"))
-                {
-                    int mode = 0;
-                    mesh->GenerateTexCoords(mode, UseNormals);
-                    quadMesh->GenerateTexCoords(mode, UseNormals);
-                    auto vertices = Mesh::CreateVertexFromMesh(*mesh);
-                    glNamedBufferSubData(VBOmesh, 0, vertices.size() * sizeof(vertices[0]), vertices.data());
-                    auto verticesQuad = Mesh::CreateVertexFromMesh(*quadMesh);
-                    glNamedBufferSubData(VBOplaneMesh, 0, verticesQuad.size() * sizeof(verticesQuad[0]), verticesQuad.data());
-                }
-                ImGui::Text("Cylinder Mapping"); ImGui::SameLine();
-                if(ImGui::Button("Generate Cylinder"))
-                {
-                    int mode = 1;
-                    mesh->GenerateTexCoords(mode, UseNormals);
-                    quadMesh->GenerateTexCoords(mode, UseNormals);
-                    auto vertices = Mesh::CreateVertexFromMesh(*mesh);
-                    glNamedBufferSubData(VBOmesh, 0, vertices.size() * sizeof(vertices[0]), vertices.data());
-                    auto verticesQuad = Mesh::CreateVertexFromMesh(*quadMesh);
-                    glNamedBufferSubData(VBOplaneMesh, 0, verticesQuad.size() * sizeof(verticesQuad[0]), verticesQuad.data());
-                }
-                ImGui::Text("Spherical Mapping"); ImGui::SameLine();
-                if(ImGui::Button("Generate Sphere"))
-                {
-                    int mode = 2;
-                    mesh->GenerateTexCoords(mode, UseNormals);
-                    quadMesh->GenerateTexCoords(mode, UseNormals);
-                    auto vertices = Mesh::CreateVertexFromMesh(*mesh);
-                    glNamedBufferSubData(VBOmesh, 0, vertices.size() * sizeof(vertices[0]), vertices.data());
-                    auto verticesQuad = Mesh::CreateVertexFromMesh(*quadMesh);
-                    glNamedBufferSubData(VBOplaneMesh, 0, verticesQuad.size() * sizeof(verticesQuad[0]), verticesQuad.data());
-                }
-            }
-            if (ImGui::CollapsingHeader("GPU UV Generate", &GPU_Generate))
-            {
-                int& GPUmode = uniformBuffer->GetUniformData().modes.x;
-                uniformBuffer->GetUniformData().modes.y = (int)UseNormals;
-                ImGui::RadioButton("Planer Mapping", &GPUmode, 1);
-                ImGui::RadioButton("Cylindrical Mapping",&GPUmode, 2);
-                ImGui::RadioButton("Spherical Mapping", &GPUmode, 3);
-            }
-
-        }
-        if (ImGui::CollapsingHeader("Shader to use?")) {
-            ImGui::RadioButton("Phong Lighting (Vertex)", &useShader, 0);
-            ImGui::RadioButton("Phong Shading (Fragment)", &useShader, 1);
-            ImGui::RadioButton("Blinn-Phong", &useShader, 2);
         }
         if(ImGui::CollapsingHeader("Mesh Materials"))
         {
@@ -839,48 +794,42 @@ void ImGui_ShaderLibrary(SimpleScene_Quad& scene)
         if(ImGui::CollapsingHeader("Phong Diffuse Shading")) {
             ImGui_DisplayPipeline(scene.PhongDiffuse);
         }
+        if(ImGui::CollapsingHeader("Environment Shading")) {
+            ImGui_DisplayPipeline(scene.EnvironmentShading);
+        }
+        if(ImGui::CollapsingHeader("Skybox Shading")) {
+            ImGui_DisplayPipeline(scene.SkyboxShading);
+        }
         ImGui::TreePop();
     }
 }
 
 void SimpleScene_Quad::RenderSceneReal() {
     // Update view Projection UBO
-    uniformBuffer->GetUniformData().Projection =  mainCamera->GetPerspectiveGLM();
-    uniformBuffer->GetUniformData().View =  mainCamera->GetViewMatrixGLM();
     uniformBuffer->GetUniformData().NearFar.x = mainCamera->near();
     uniformBuffer->GetUniformData().NearFar.y = mainCamera->far();
     uniformBuffer->SendData();
-    {
-        if(useShader == 0) {
-            PhongLighting->Bind();
-            auto vertexProgram = PhongLighting->GetShader(ProgramPipeline::ShaderType::Vertex);
-            vertexProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-            vertexProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-            DrawObject(meshArray, PhongLighting, meshObj);
-        }
-        else if(useShader == 1) {
-            PhongShading->Bind();
-            auto fragmentProgram = PhongShading->GetShader(ProgramPipeline::ShaderType::Fragment);
-            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-            DrawObject(meshArray, PhongShading, meshObj);
-        }
-        else if(useShader == 2)
-        {
-            BlinnShading->Bind();
-            auto fragmentProgram = BlinnShading->GetShader(ProgramPipeline::ShaderType::Fragment);
-            fragmentProgram->SetUniform(uniformAmbientColor, this->AmbientColor);
-            fragmentProgram->SetUniform(uniformEmissiveColor, this->EmissiveColor);
-            DrawObject(meshArray, BlinnShading, meshObj);
-        }
-    }
 
+
+    DiffuseTexture->Bind();
+    SpecularTexture->Bind();
+    {
+        // Bind the textures of the environment mapping
+        for(int i = 0; i < 6; i++)
+        {
+            CameraTextureCapture[i]->Bind();
+        }
+        EnvironmentShading->Bind();
+        auto fragProg = EnvironmentShading->GetShader(ProgramPipeline::ShaderType::Fragment);
+        fragProg->SetUniform(uniformAmbientColor, this->AmbientColor);
+        fragProg->SetUniform(uniformEmissiveColor, this->EmissiveColor);
+        DrawObject(meshArray, EnvironmentShading, meshObj);
+
+    }
     {
         PhongDiffuse->Bind();
         auto vertexProgram = PhongDiffuse->GetShader(ProgramPipeline::ShaderType::Vertex);
         auto fragProgram = PhongDiffuse->GetShader(ProgramPipeline::ShaderType::Fragment);
-        // Render the diffuse only pass.
-
 
         // Draw spheres
         for (int i = 0; i < (int)lightUBO->GetUniformData().numOfLight; i++) {
@@ -888,5 +837,32 @@ void SimpleScene_Quad::RenderSceneReal() {
             fragProgram->SetUniform(uniformLightDirection, glm::vec3(lightUBO->GetUniformData().lightDir[i]));
             DrawObject(sphereArray, PhongDiffuse, sphereObj[i]);
         }
+    }
+    // Draw circular line
+    {
+        defaultPipeline->Bind();
+        sphereLine->Bind();
+        defaultPipeline->GetShader(ProgramPipeline::ShaderType::Vertex)->SetUniform(uniformModel, sphereLineObj->GetModelMatrix());
+        glDrawElements(GL_LINES, sphereLine->GetIndexSize(), GL_UNSIGNED_INT, nullptr);
+    }
+
+
+    {
+        // Rendering skybox
+        SkyboxShading->Bind();
+
+        // Turn off Z test
+        glDepthFunc(GL_LEQUAL);
+
+        skyBoxArray->Bind();
+        // Bind textures
+        for(int i = 0; i < 6; ++i)
+        {
+            SkyboxTex[i]->Bind();
+        }
+
+        DrawObject(skyBoxArray, SkyboxShading, skyBoxObj);
+
+        glDepthFunc(GL_LESS);
     }
 }

@@ -13,6 +13,8 @@ public:
     Camera(const glm::vec4 &E, const glm::vec4 &look, const glm::vec4 &rel,
            float fov, float aspect, float N, float F);
 
+    void ChangeViewPort(float fov, float aspect);
+
     glm::vec4 eye(void) const { return eye_point; }
 
     glm::vec4 right(void) const { return right_vector; }
