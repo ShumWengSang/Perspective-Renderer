@@ -3,7 +3,7 @@
  * Reproduction or disclosure of this file or its contents without the prior
  * written consent of DigiPen Institute of Technology is prohibited.
  * File Name: README.txt
- * Purpose: README of CS300 Assigment 2
+ * Purpose: README of CS300 Assigment 3
  * Language: C++, G++
  * Platform: Linux:
  *              g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M, 
@@ -16,44 +16,37 @@
  *              OpenGL version: 4.6 NVIDIA 451.67
  * Project: RolandShum_CS300_2
  * Author: Roland Shum, roland.shum@digipen.edu
- * Creation date: 11th November 2020
+ * Creation date: 30th November 2020
  * End Header --------------------------------------------------------*/
 
 
  Parts completed 
    -- All parts of assignment completed
-    -- Texture loading
-      -- Texture.cpp line52, Texture::CreateTexture2DFromFile()
-      -- Uses STB image library
-      -- Loads PNG converted from given PPM using Paint.NET (thus artifacts may be seen on texture)
-   -- Shaders
-     -- Uses UBOs to transfer light data to shaders
-     -- Phong Lighting
-        -- Shaders/Assignment2/PhongLighting vert/frag
-     -- Phong Shader
-        -- Shaders/Assignment2/PhongShader
-     -- BlinnPhong
-        -- Shaders/Assignment2/BlinnPhong frag (vert uses the same as PhongShader.vert)
-     -- Reload of shaders done under ImGui->Shader Library->Pipelines->#SHADERNAME#->Reload
-     -- You can specify which shader to be using to render the mesh in realtime using ImGui
-        -- ImGui -> Shader to use? -> (Toggle between shaders)
-     -- Implemented multiple lights.
-        -- ImGui -> Light Settings
-   -- UV Mapping
-        -- CPU and GPU
-        -- Both normal and positional generation.
-        -- ImGui -> UV Generation Mode (if CPU, you have to click the reload buttons)
-            -- "Use Normals" means to use normals or position to generate UV.
-            -- CPU Generate -> (New header shows up for CPU)
-            -- GPU Generate -> (New header shows up for GPU)
+    -- Constructing textures for real time capture
+        -- One FBO, 6 textures.
+        -- Renders the scene 6 times (no extra credit done)
+    -- Environment Mapping
+        -- Use custom reflection and refraction matrix to display 
+        -- Used custom cube map algorithm
+        -- Fresnal mix and color split done.
+    -- Skybox
+        -- Loaded using 6 2D textures
         
    -- Gui Features implemented
-        -- Number of lights (at top of ImGui interface)
-        -- Light Type (light settings -> light %number -> toggle
-        -- Pause/start light rotation
-        -- Multiple scenarios for quick grading.
+        -- Scenario 3
+           -- Taken from last assignment, gives multiple lights
+        -- Refrective Index
+           -- Determines the ratio of the refractive index of air against of whatever index.
+        -- Mode
+           -- Reflection - Only Reflection
+           -- Refraction - Only Refraction
+           -- Mixed Mode - Mixes both Reflection and Refraction based on the refractive index.
+        -- Mix Light?
+           -- Allows lights to hit the object and show (along with the texture).
        
     -- Compile warnings are attempt to surpress warnings from different compilers.
+    
+    -- No extra credit
 
     
 Computers developed: 
@@ -113,7 +106,7 @@ Windows:
               
 
 
-Hours Spent: 48 hours
+Hours Spent: 24 hours
 Additional Information: Used geometry shader for line rendering. Used OpenGL 4.6 DSA paradigm.
 Please use Linux and install glfw3, glm, and glew
 

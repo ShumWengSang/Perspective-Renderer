@@ -288,6 +288,7 @@ vec3 RefractionEnvironment(vec3 EyePosition, float ratio)
 
     //    R.y = -R.y;
     Red.x = -Red.x, Green.x = -Green.x, Blue.x = -Blue.x;
+    Red.y = -Red.y, Green.y = -Green.y, Blue.y = -Blue.y;
     //R.z = -R.z;
 
     R.r = SampleColorsCubeMap(Red).r;

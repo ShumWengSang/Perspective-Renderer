@@ -23,7 +23,7 @@ GLuint Framebuffer::CreateFrameBuffer(const std::vector<GLuint> &cols, GLuint de
     glCreateFramebuffers(1, &fbo);
 
     // Attach each color to FBO
-    for (auto i = 0; i < cols.size(); i++)
+    for (unsigned i = 0; i < cols.size(); i++)
     {
         glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0 + i, cols[i], 0);
     }

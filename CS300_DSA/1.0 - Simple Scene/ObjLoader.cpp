@@ -506,7 +506,7 @@ Mesh &Mesh::GenerateTexCoords(int mode, int toggleNormal) {
     }
     else
     {
-        for(int i = 0; i < VertexNormals.size(); ++i)
+        for(unsigned i = 0; i < VertexNormals.size(); ++i)
             VertexNormals[i] = glm::normalize(VertexNormals[i]);
         GenerateUV(mode, 1.0f, 0.0f, this->TexCoords, this->VertexNormals);
     }
