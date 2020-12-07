@@ -39,7 +39,8 @@ Shader::CreateProgram(
         std::string_view vertFilePath, std::string_view geoFilePath
         , std::string_view fragFilePath
                      ) {
-    GLuint vert = -1u, frag = -1u, geo = -1u;
+    auto maxUnsigned = std::numeric_limits<GLuint>::max();
+    GLuint vert = maxUnsigned, frag = maxUnsigned, geo = maxUnsigned;
     if(!vertFilePath.empty())
     {
         auto const vertSrc = ReadFile(vertFilePath);
@@ -69,23 +70,23 @@ Shader::CreateProgram(
     GLuint pipeline = 0;
 
     glCreateProgramPipelines(1, &pipeline);
-    if(vert != -1u )
+    if(vert != maxUnsigned )
     {
         glUseProgramStages(pipeline, GL_VERTEX_SHADER_BIT, vert);
     }
-    if(geo != -1u)
+    if(geo != maxUnsigned)
     {
         glUseProgramStages(pipeline, GL_GEOMETRY_SHADER_BIT, geo);
     }
-    if(frag != -1u)
+    if(frag != maxUnsigned)
     {
         glUseProgramStages(pipeline, GL_FRAGMENT_SHADER_BIT, frag);
     }
 
     return std::make_tuple(pipeline,
-                           vert != -1u ? CreateSharedPtr<ShaderObject>(vert, vertFilePath) : nullptr,
-                           geo != -1u ? CreateSharedPtr<ShaderObject>(geo, geoFilePath) : nullptr,
-                           frag != -1u ? CreateSharedPtr<ShaderObject>(frag, fragFilePath) : nullptr);
+                           vert != maxUnsigned ? CreateSharedPtr<ShaderObject>(vert, vertFilePath) : nullptr,
+                           geo != maxUnsigned ? CreateSharedPtr<ShaderObject>(geo, geoFilePath) : nullptr,
+                           frag != maxUnsigned ? CreateSharedPtr<ShaderObject>(frag, fragFilePath) : nullptr);
 }
 
 std::string Shader::ReadFile(std::string_view fileName) {
