@@ -29,6 +29,7 @@
 #include "LightPass.h"
 #include "DirectionalLight.h"
 #include "TransformSystem.h"
+#include "FinalPass.h"
 
 /////////////////////////////////////////////
 // Private data
@@ -41,6 +42,8 @@ namespace {
 
     GeometryPass geometryPass;
     LightPass lightPass;
+
+    FinalPass<AssignmentOne> finalPass;
 }
 
 App::Settings AssignmentOne::Setup() {
@@ -61,13 +64,16 @@ void AssignmentOne::Init() {
         scene.models.emplace_back(model);
         Log("Loading of Bunny is a success!");
     });
+    DirectionalLight sunLight {};
+    sunLight.worldDirection = glm::vec4(-0.2, -1.0, -0.2, 0);
+    sunLight.color = glm::vec4(1.0, 0.9, 0.9, 0.1);
+    scene.directionalLights.push_back(sunLight);
 
     scene.mainCamera = std::make_unique<FpsCamera>();
 }
 
 void AssignmentOne::Resize(int width, int height) {
     scene.mainCamera->Resize(width, height);
-
     gBuffer.RecreateGpuResources(width, height);
     lightBuffer.RecreateGpuResources(width, height, gBuffer);
 }
@@ -89,6 +95,10 @@ void AssignmentOne::Draw(const Input &input, float deltaTime, float runningTime)
         }
         transformSystem.UpdateMatrices(testQuad.transformID);
     }
+
+    geometryPass.Draw(gBuffer, scene);
+    lightPass.Draw(lightBuffer, gBuffer, scene);
+    finalPass.Draw(lightBuffer, scene);
 }
 
 AssignmentOne::AssignmentOne() :transformSystem(TransformSystem::getInstance()){

@@ -83,6 +83,4 @@ void LightPass::ProgramLoaded(GLuint program) {
     glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_material), 1);
     glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_norm), 2);
     glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_depth), 3);
-
-    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_shadow_map), 10);
 }
