@@ -77,13 +77,9 @@
 #define TYPE_SceneUniformBlock SceneUniforms
 #define BINDING_SceneUniformBlock 1
 
-#define BINDING_ShadowMapSegmentBlock 2
-
 #define TYPE_DirectionalLightBlock DirectionalLight
 #define BINDING_DirectionalLightBlock 3
 
-#define TYPE_SSAODataBlock SSAOData
-#define BINDING_SSAODataBlock 4
 
 #define BINDING_SphereSampleBuffer 10
 #endif //OPENGLFRAMEWORK_SHADERLOCATIONS_H
