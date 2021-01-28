@@ -16,8 +16,9 @@
  * Creation date: 1/26/2021
  * End Header --------------------------------------------------------*/
 #include "stdafx.h"
-#include "CameraBase.h"
 #include "ShaderLocations.h"
+#include "CameraBase.h"
+
 
 void CameraBase::DrawEditorGui() {
 
@@ -32,7 +33,7 @@ void CameraBase::CommitToGpu() {
         once = true;
     }
     cameraBuffer.memory.ViewFromWorldMatrix = viewFromWorld;
-    cameraBuffer.memory.ProjectFromWorldMatrix = projectionFromView;
+    cameraBuffer.memory.ProjectFromViewMatrix = projectionFromView;
 
     float projA = zFar / (zFar - zNear);
     float projB = (-zFar * zNear) / (zFar - zNear);
@@ -41,6 +42,7 @@ void CameraBase::CommitToGpu() {
 
     cameraBuffer.UpdateGpuBuffer();
 }
+
 
 void CameraBase::LookAt(const glm::vec3 &position, const glm::vec3 &target, const glm::vec3 &up) {
     this->position = position;

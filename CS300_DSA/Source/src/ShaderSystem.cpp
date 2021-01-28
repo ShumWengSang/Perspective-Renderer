@@ -37,12 +37,17 @@ uint64_t ShaderSystem::GetTimestamp(const GlslFile& file) const
     namespace fs = std::filesystem;
     auto filename = shaderDirectory + file.filename;
     uint64_t timestamp = 0;
+#ifdef C11
     if(!fs::path(filename).empty())
     {
         timestamp = fs::last_write_time(fs::path(filename)).time_since_epoch().count();
     }
-/*  uint64_t timestamp = 0;
-#ifdef _WIN32
+    else
+    {
+        LogError("hmm... can't file %s for timestamp.\n", file.filename.c_str());
+    }
+#elif _WIN32
+
     struct __stat64 stFileInfo;
     if (_stat64(filename.c_str(), &stFileInfo) == 0)
     {
@@ -69,7 +74,7 @@ void ShaderSystem::ReadFileWithIncludes(const std::string& filename, const Progr
 
     auto path = shaderDirectory + filename;
     std::ifstream ifs(path);
-    if (!ifs.good())
+    if (!ifs.good() || ifs.fail())
     {
         Log("Could not read shader file '%s'.\n", filename.c_str());
     }
@@ -273,7 +278,7 @@ void ShaderSystem::Update() {
     // Now update GUI
     auto GuiFunc = [&]() -> void
     {
-        auto reports = ShaderSystem::GetShaderErrorReports();
+        auto reports = ShaderSystem::getInstance().GetShaderErrorReports();
         for (auto& report : reports)
         {
             ImGui::Begin(("Shader error report for '" + report.shaderName + "'").c_str());
@@ -308,7 +313,7 @@ std::vector<ShaderErrorReport> ShaderSystem::GetShaderErrorReports() {
     std::vector<ShaderErrorReport> reports;
     for (auto& pair : nonCompilingShaders)
     {
-        reports.push_back(pair.second);
+        reports.emplace_back(pair.second);
     }
 
     return reports;

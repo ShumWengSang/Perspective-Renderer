@@ -20,7 +20,11 @@
 #ifndef OPENGLFRAMEWORK_CAMERABASE_H
 #define OPENGLFRAMEWORK_CAMERABASE_H
 #include "BufferObject.hpp"
-#include "CameraUniforms.h"
+
+namespace {
+    using namespace glm;
+    #include "CameraUniforms.h"
+}
 
 class Input;
 

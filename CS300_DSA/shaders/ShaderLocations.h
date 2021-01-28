@@ -38,8 +38,6 @@
 
 #define PredefinedImageBinding(name) IMG_LOC_##name
 
-#define PredefinedNoiseImage(var) layout(binding = IMG_LOC_BlueNoiseImage, r8) \
-                                    restrict readonly uniform image2DArray var
 
 ////////////////////////////////////////////////////////////
 // Uniform Locations

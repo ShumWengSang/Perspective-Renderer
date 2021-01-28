@@ -33,7 +33,7 @@ public:
 
     void UpdateUniformIfNeeded(GLuint program);
 
-
+    inline void SetUniform(GLuint program, GLint location, T const & value);
 
     GLint location = 0;
     T value = std::numeric_limits<T>::max();
@@ -61,11 +61,34 @@ void Uniform<T>::UpdateUniformIfNeeded(GLuint program) {
 
     if (value != lastValue || program != lastProgram)
     {
-        prospect::internal::PerformUniformUpdate(program, location, value);
+        SetUniform(program, location, value);
         lastValue = value;
     }
 
     lastProgram = program;
+}
+
+template<typename T>
+void Uniform<T>::SetUniform(GLuint program, GLint location, const T &value) {
+    if		constexpr(std::is_same_v<T, GLint>)		glProgramUniform1i(program, location, value);
+    else if constexpr(std::is_same_v<T, GLuint>)	glProgramUniform1ui(program, location, value);
+    else if constexpr(std::is_same_v<T, bool>)		glProgramUniform1ui(program, location, value);
+    else if constexpr(std::is_same_v<T, GLfloat>)	glProgramUniform1f(program, location, value);
+    else if constexpr(std::is_same_v<T, GLdouble>)	glProgramUniform1d(program, location, value);
+    else if constexpr(std::is_same_v<T, glm::vec2>) glProgramUniform2fv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::vec3>) glProgramUniform3fv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::vec4>) glProgramUniform4fv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::ivec2>)glProgramUniform2iv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::ivec3>)glProgramUniform3iv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::ivec4>)glProgramUniform4iv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::uvec2>)glProgramUniform2uiv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::uvec3>)glProgramUniform3uiv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::uvec4>)glProgramUniform4uiv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::quat>) glProgramUniform4fv(program, location, 1, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::mat3>) glProgramUniformMatrix3fv(program, location, 1, GL_FALSE, glm::value_ptr(value));
+    else if constexpr(std::is_same_v<T, glm::mat4>) glProgramUniformMatrix4fv(program, location, 1, GL_FALSE, glm::value_ptr(value));
+    else throw std::runtime_error("unsupported type");
+
 }
 
 

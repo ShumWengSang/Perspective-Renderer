@@ -24,6 +24,7 @@
 #include "Model.h"
 #include "Material.h"
 #include "TransformSystem.h"
+#include "ShaderLocations.h"
 
 #pragma region InternalFunctions
 static int ModelCompareFunc(const void *a, const void *b)
@@ -43,6 +44,7 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
     // Frustum data
     std::array<glm::vec4, 6> frustumPlanes{};
     Shapes::ExtractFrustumPlanes(scene.mainCamera->GetViewProjectionMatrix(), frustumPlanes);
+    TransformSystem& transformSystem = TransformSystem::getInstance();
 
     static std::vector<Model> geometryToRender{};
     geometryToRender.reserve(scene.models.size());
@@ -53,6 +55,19 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
     glClearTexImage(gBuffer.albedoTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
     glClearTexImage(gBuffer.materialTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
 */
+    for (const Model& model : scene.models)
+    {
+        if(!model.material) continue;
+        if (!model.material->opaque) continue;
+
+        auto transform = transformSystem.Get(model.transformID);
+        Shapes::BoundingSphere worldSpaceBounds = model.bounds;
+        worldSpaceBounds.center += transform.position;
+        worldSpaceBounds.radius *= Shapes::VectorMaxComponent(transform.scale); // TODO: We can't use max-component, rather we would need the largest singular value!
+        if (!InsideFrustum(frustumPlanes, worldSpaceBounds)) continue;
+
+        geometryToRender.emplace_back(model);
+    }
 
     const float clear[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     glClearTexImage(gBuffer.normalTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, clear);
@@ -80,7 +95,7 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
     int numDrawCalls = 0;
     int numTriangles = 0;
 
-    TransformSystem& transformSystem = TransformSystem::getInstance();
+
 
     GLuint lastProgram = UINT_MAX;
     for (const Model& model : geometryToRender)
