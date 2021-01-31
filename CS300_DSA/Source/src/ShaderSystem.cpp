@@ -22,6 +22,18 @@
 #include "GuiSystem.h"
 
 #pragma region Internal API
+
+#ifndef _WIN32
+template <typename TP>
+std::time_t to_time_t(TP tp)
+{
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
+                                                        + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
+#endif
+
 void ShaderSystem::AddManagedFile(const std::string& filename, const Program& dependableProgram)
 {
     if (managedFiles.find(filename) == managedFiles.end())
@@ -46,7 +58,7 @@ std::time_t ShaderSystem::GetTimestamp(const GlslFile& file) const
     return stFileInfo.st_mtime;
 #else
     auto fsTime = std::filesystem::last_write_time ( filename );
-    return decltype ( fsTime )::clock::to_time_t ( fsTime );
+    return to_time_t ( fsTime );
 #endif
 
 }
