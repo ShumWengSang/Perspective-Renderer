@@ -34,6 +34,18 @@ public:
 
     void Draw() const;
     int TriangleCount() const;
+    std::string name;
+
+    struct Debug
+    {
+        GLuint normalVao = 0;
+        GLuint normalIndexCount;
+        GLenum normalIndexType;
+
+        GLuint faceVao = 0;
+        GLuint faceIndexCount;
+        GLenum faceIndexType;
+    } debugInfo;
 };
 
 

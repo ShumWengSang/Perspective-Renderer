@@ -21,6 +21,8 @@
 // Tiny obj loader
 #include <tiny_obj_loader.h>
 
+#include <stb_image.h>
+
 // STL libs
 #include <string>
 #include <fstream>
@@ -41,7 +43,9 @@
 #include <cstdint>
 #include <unordered_map>
 #include <thread>
+#include <iostream>
 #include <mutex>
+#include <istream>
 
 // Macros for defining platform
 #if defined(unix) || defined(__unix__) || defined (__unix)

@@ -28,16 +28,16 @@ public:
 
     GLuint frameBuffer;
 
-    //RGBA8: RGB = Diffuse
-    GLuint albedoTexture = 0;
-
-    // RGBA8: RGB - Specular, A = Shininess
-    GLuint materialTexture = 0;
-
-    // RGBA8: RGB - normal,
+    //GL_RGB16F: RGB = Diffuse
+    GLuint diffuseTexture = 0;
+    GLuint ambientTexture = 0;
+    //GL_RGBA16F
+    GLuint specularTexture = 0; // Alpha = Shininess
+    //GL_RGB16F:
+    GLuint viewSpacePositionTexture = 0;
+    // GL_RGB16F: RGB - normal,
     GLuint normalTexture = 0;
-
-    // R24f: projected non-linear depth
+    // GL_DEPTH_COMPONENT32: projected non-linear depth
     GLuint depthTexture = 0;
 
     // Create or recreate the g-buffer textures with the given dimensions

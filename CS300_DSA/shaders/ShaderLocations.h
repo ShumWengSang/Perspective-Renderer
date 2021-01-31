@@ -29,9 +29,11 @@
 // (for all "normal" color outputs)
 #define TARGET_o_color 0
 
-#define TARGET_o_g_buffer_albedo   0
-#define TARGET_o_g_buffer_material 1
-#define TARGET_o_g_buffer_norm 2
+#define TARGET_o_g_buffer_diffuse   0
+#define TARGET_o_g_buffer_ambient 1
+#define TARGET_o_g_buffer_specular 2
+#define TARGET_o_g_buffer_viewPos 3
+#define TARGET_o_g_buffer_normal 4
 
 ////////////////////////////////////////////////////////////
 // Image locations
@@ -44,16 +46,19 @@
 #define PredefinedUniformLocation(name) LOC_##name
 #define PredefinedUniform(type, name) layout(location = PredefinedUniformLocation(name)) uniform type name
 //
-#define LOC_u_g_buffer_albedo   20
-#define LOC_u_g_buffer_material 21
-#define LOC_u_g_buffer_norm 22
-#define LOC_u_g_buffer_depth    23
+#define LOC_u_g_buffer_diffuse   20
+#define LOC_u_g_buffer_ambient 21
+#define LOC_u_g_buffer_specular 22
+#define LOC_u_g_buffer_viewPos 23
+#define LOC_u_g_buffer_normal 24
+#define LOC_u_g_buffer_depth 25
 
 #define LOC_u_gui_projection 40
 #define LOC_u_gui_texture    41
 
 #define LOC_u_texture    0
 #define LOC_u_shadow_map 1
+#define LOC_u_textureCube 2
 
 #define LOC_u_world_from_local      101
 #define LOC_u_projection_from_world 102

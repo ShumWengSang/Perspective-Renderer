@@ -24,6 +24,7 @@
 
 class Transform {
 public:
+    static const int NoParent = -1;
     Transform() = default;
     ~Transform() = default;
 
@@ -35,10 +36,12 @@ public:
     glm::mat4 inverseMatrix{ 1.0f };
     glm::mat3 normalMatrix{ 1.0f };
 
-    Transform& SetPosition(float x, float y, float z);
-    Transform& SetScale(float s);
-    Transform& SetScale(float x, float y, float z);
-    Transform& SetDirection(float x, float y, float z);
+    Transform& SetLocalPosition(float x, float y, float z);
+    Transform& SetLocalScale(float s);
+    Transform& SetLocalScale(float x, float y, float z);
+    Transform& SetLocalDirection(float x, float y, float z);
+
+    int parentTransformID = NoParent;
 };
 
 class TransformSystem {

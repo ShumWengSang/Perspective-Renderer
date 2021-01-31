@@ -20,10 +20,10 @@
 #include "Logger.h"
 
 // STBI
-#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
 
-#include <stb_image.h>
+
 
 #pragma region InternalFunctions
 static GLuint CreateEmptyTextureObject()
@@ -262,4 +262,40 @@ GLuint TextureSystem::LoadDataTexture(const std::string &filename, GLenum intern
     }
 
     return dsc.texture;
+}
+
+GLuint TextureSystem::LoadCubeMap(const std::array<std::string, 6> &fileNames, GLenum internalFormat) {
+    // Load all 6 cubes
+    std::array<stbi_uc*, 6> faces;
+    int x, y, c;
+    for(int i = 0; i < 6; ++i)
+    {
+        faces[i] = stbi_load(fileNames[i].c_str(), &x, &y, &c, STBI_rgb_alpha);
+    }
+
+    const auto name = CreateTextureCube(GL_RGBA8, GL_RGBA, x, y, faces);
+
+    for (auto face : faces)
+    {
+        stbi_image_free(face);
+    }
+    return name;
+}
+
+
+GLuint TextureSystem::CreateTextureCube(GLenum internal_format, GLenum format, GLsizei width, GLsizei height, std::array<stbi_uc*, 6> const& data)
+{
+    GLuint tex = 0;
+    glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &tex);
+    glTextureStorage2D(tex, 1, internal_format, width, height);
+
+    for (GLint i = 0; i < 6; ++i)
+    {
+        if (data[i])
+        {
+            glTextureSubImage3D(tex, 0, 0, 0, i, width, height, 1, format, GL_UNSIGNED_BYTE, data[i]);
+        }
+    }
+
+    return tex;
 }

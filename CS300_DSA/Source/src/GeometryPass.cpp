@@ -64,15 +64,18 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
         Shapes::BoundingSphere worldSpaceBounds = model.bounds;
         worldSpaceBounds.center += transform.position;
         worldSpaceBounds.radius *= Shapes::VectorMaxComponent(transform.scale); // TODO: We can't use max-component, rather we would need the largest singular value!
-        if (!InsideFrustum(frustumPlanes, worldSpaceBounds)) continue;
+        // if (!InsideFrustum(frustumPlanes, worldSpaceBounds)) continue;
 
         geometryToRender.emplace_back(model);
     }
 
     const float clear[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    glClearTexImage(gBuffer.normalTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, clear);
-    glClearTexImage(gBuffer.albedoTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, clear);
-    glClearTexImage(gBuffer.materialTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, clear);
+    // Clear the FBO
+    glClearNamedFramebufferfv(gBuffer.frameBuffer, GL_COLOR, 0, glm::value_ptr(glm::vec3(0.0f)));
+    glClearNamedFramebufferfv(gBuffer.frameBuffer, GL_COLOR, 1, glm::value_ptr(glm::vec3(0.0f)));
+    glClearNamedFramebufferfv(gBuffer.frameBuffer, GL_COLOR, 2, glm::value_ptr(glm::vec4(0.0f)));
+    glClearNamedFramebufferfv(gBuffer.frameBuffer, GL_COLOR, 3, glm::value_ptr(glm::vec3(0.0f)));
+    glClearNamedFramebufferfv(gBuffer.frameBuffer, GL_COLOR, 4, glm::value_ptr(glm::vec3(0.0f)));
 
     const float farDepth = 1.0f;
     glClearTexImage(gBuffer.depthTexture, 0, GL_DEPTH_COMPONENT, GL_FLOAT, &farDepth);

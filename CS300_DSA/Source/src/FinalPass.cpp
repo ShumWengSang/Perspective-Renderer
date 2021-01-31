@@ -21,8 +21,10 @@
 #include "ShaderLocations.h"
 #include "LightBuffer.h"
 #include "EmptyVAO.h"
+#include "Scene.h"
+#include "GBuffer.h"
 
-void FinalPass<AssignmentOne>::Draw(const LightBuffer &lightBuffer, Scene &scene) {
+void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &lightBuffer, Scene &scene) {
     static bool once = false;
     if(!once)
     {
@@ -32,6 +34,9 @@ void FinalPass<AssignmentOne>::Draw(const LightBuffer &lightBuffer, Scene &scene
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
+    glBindTextureUnit(0, lightBuffer.lightTexture);
+    glBindTextureUnit(1, scene.probe.skyCube);
+    glBindTextureUnit(2, gBuffer.depthTexture);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glViewport(0, 0, lightBuffer.width, lightBuffer.height);
 
@@ -45,8 +50,11 @@ void FinalPass<AssignmentOne>::Draw(const LightBuffer &lightBuffer, Scene &scene
 }
 
 void FinalPass<AssignmentOne>::ProgramLoaded(GLuint program) {
+    finalProgram = program;
     if(finalProgram && program == finalProgram)
     {
         glProgramUniform1i(finalProgram, PredefinedUniformLocation(u_texture), 0);
+        glProgramUniform1i(finalProgram, PredefinedUniformLocation(u_textureCube), 1);
+        glProgramUniform1i(finalProgram, PredefinedUniformLocation(u_g_buffer_depth), 2);
     }
 }

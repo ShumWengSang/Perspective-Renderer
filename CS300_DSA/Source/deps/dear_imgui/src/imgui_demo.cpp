@@ -6217,7 +6217,7 @@ static void ShowExampleMenuFile()
 
 // Demonstrate creating a simple console window, with scrolling, filtering, completion and history.
 // For the console example, we are using a more C++ like approach of declaring a class to hold both data and functions.
-struct ExampleAppConsole
+/*struct ExampleAppConsole
 {
     char                  InputBuf[256];
     ImVector<char*>       Items;
@@ -6561,12 +6561,12 @@ struct ExampleAppConsole
         }
         return 0;
     }
-};
+};*/
 
 static void ShowExampleAppConsole(bool* p_open)
 {
-    static ExampleAppConsole console;
-    console.Draw("Example: Console", p_open);
+/*    static ExampleAppConsole console;
+    console.Draw("Example: Console", p_open);*/
 }
 
 //-----------------------------------------------------------------------------

@@ -47,8 +47,6 @@ private:
 template<typename T>
 Uniform<T>::Uniform(const char *name, T initialValue) {
     this->name = name;
-
-    assert(value != initialValue);
     this->value = initialValue;
 }
 
