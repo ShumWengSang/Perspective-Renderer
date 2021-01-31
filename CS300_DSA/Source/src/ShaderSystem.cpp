@@ -32,32 +32,23 @@ void ShaderSystem::AddManagedFile(const std::string& filename, const Program& de
     managedFiles[filename].dependablePrograms.emplace(dependableProgram);
 }
 
-uint64_t ShaderSystem::GetTimestamp(const GlslFile& file) const
+std::time_t ShaderSystem::GetTimestamp(const GlslFile& file) const
 {
     namespace fs = std::filesystem;
     auto filename = shaderDirectory + file.filename;
-    uint64_t timestamp = 0;
-#ifdef C11
-    if(!fs::path(filename).empty())
-    {
-        timestamp = fs::last_write_time(fs::path(filename)).time_since_epoch().count();
-    }
-    else
-    {
-        LogError("hmm... can't file %s for timestamp.\n", file.filename.c_str());
-    }
-#elif _WIN32
 
+#if _WIN32
     struct __stat64 stFileInfo;
-    if (_stat64(filename.c_str(), &stFileInfo) == 0)
+    if (_stat64(filename.c_str(), &stFileInfo) != 0)
     {
-        timestamp = stFileInfo.st_mtime;
+        throw std::runtime_error ( "Failed to get last write time." );
     }
+    return stFileInfo.st_mtime;
 #else
-#warning "ShaderLoader doesn't currently support anything other than Windows for shader reloading!"
-#endif*/
+    auto fsTime = std::filesystem::last_write_time ( filename );
+    return decltype ( fsTime )::clock::to_time_t ( fsTime );
+#endif
 
-    return timestamp;
 }
 
 bool ShaderSystem::FileReadable(const std::string& filename) const

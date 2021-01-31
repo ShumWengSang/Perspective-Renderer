@@ -35,6 +35,8 @@
 #include "MyMath.h"
 #include "SkyProbe.h"
 #include "TextureSystem.h"
+#include "ForwardRendering.h"
+#include "GlobalVariables.h"
 
 /////////////////////////////////////////////
 // Private data
@@ -51,11 +53,13 @@ namespace {
 
 
     FinalPass<AssignmentOne> finalPass;
+
+    ForwardRendering forwardRendering;
 }
 
 App::Settings AssignmentOne::Setup() {
     Settings settings{};
-    settings.window.size = { 1920, 1080 };
+    settings.window.size = { 1920, 900 };
     settings.window.resizeable = false;
     settings.context.msaaSamples = 1;
     return settings;
@@ -67,37 +71,43 @@ void AssignmentOne::Init() {
     powerPlantMaterial->ReadMaterialFromFile("Common/PowerPlantFiles/");
     MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
 
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section1.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section2.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section3.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section4.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section5.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section6.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section7.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section8.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section9.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section10.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section11.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section12.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section13.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section14.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section15.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section16.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section17.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section18.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section19.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section20.txt", powerPlantMaterial);
-    LoadModelFromTextFile("Common/PowerPlantFiles/Section21.txt", powerPlantMaterial);
+    if(Global::loadFile.empty()) {
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section1.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section2.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section3.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section4.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section5.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section6.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section7.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section8.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section9.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section10.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section11.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section12.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section13.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section14.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section15.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section16.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section17.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section18.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section19.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section20.txt", powerPlantMaterial);
+        LoadModelFromTextFile("Common/PowerPlantFiles/Section21.txt", powerPlantMaterial);
+    }
+    else // Load the model if we have it in command line //"Common/models/sphere.obj"
+    {
+        ModelSystem::getInstance().LoadModel(Global::loadFile, [&, powerPlantMaterial](std::vector<Model> models) {
+        assert(models.size() == 1);
+        const Model& model = models[0];
+        sphere = model;
+        sphere.material = powerPlantMaterial;
+        scene.models.emplace_back(sphere);
 
-    // Load the skybox
-    scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({
-                                                                 "Common/textures/right.jpg",
-                                                                 "Common/textures/left.jpg",
-                                                                 "Common/textures/bottom.jpg",
-                                                                 "Common/textures/top.jpg",
-                                                                 "Common/textures/front.jpg",
-                                                                 "Common/textures/back.jpg"
-                                                                 });
+        Log("Loading of Sphere is a success! \n");
+        scene.debugSystem.AddDebugModel(DebugSystem::Face_Normal, model.faceNormal);
+        scene.debugSystem.AddDebugModel(DebugSystem::Vertex_Normal, model.vertexNormal);
+        });
+    }
 
 /*    ModelSystem::getInstance().LoadModel("Common/models/bunny.obj", [&,powerPlantMaterial](std::vector<Model> models) {
         assert(models.size() == 1);
@@ -108,16 +118,19 @@ void AssignmentOne::Init() {
 
         scene.models.emplace_back(testQuad);
         Log("Loading of Bunny is a success! \n");
-    });
-
-    ModelSystem::getInstance().LoadModel("Common/models/sphere.obj", [&, powerPlantMaterial](std::vector<Model> models) {
-        assert(models.size() == 1);
-        const Model& model = models[0];
-        sphere = model;
-        sphere.material = powerPlantMaterial;
-        scene.models.emplace_back(sphere);
-        Log("Loading of Sphere is a success! \n");
     });*/
+
+
+
+    // Load the skybox
+    scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({
+                                                                           "Common/textures/right.jpg",
+                                                                           "Common/textures/left.jpg",
+                                                                           "Common/textures/bottom.jpg",
+                                                                           "Common/textures/top.jpg",
+                                                                           "Common/textures/front.jpg",
+                                                                           "Common/textures/back.jpg"
+                                                                   });
     ShaderStruct::DirectionalLight sunLight {};
     sunLight.worldDirection = glm::vec4(-0.2, -1.0, -0.2, 0);
     sunLight.diffuseColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
@@ -145,46 +158,6 @@ void AssignmentOne::Draw(const Input &input, float deltaTime, float runningTime)
     {
         dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
     }
-/*    if (testQuad.vao)
-    {
-        auto& quadTransform = transformSystem.Get(testQuad.transformID);
-        {
-            quadTransform.position.x = 0;
-            quadTransform.position.z = 0;
-            quadTransform.position.y = 0;
-            quadTransform.scale = glm::vec3(30);
-            // quadTransform.orientation = glm::rotate(quadTransform.orientation, deltaTime, { 0, 1, 0 });
-        }
-        transformSystem.UpdateMatrices(testQuad.transformID);
-    }
-    if(sphere.vao)
-    {
-        auto& quadTransform = transformSystem.Get(sphere.transformID);
-        {
-            quadTransform.position.x = 30;
-            quadTransform.position.z = 0;
-            quadTransform.position.y = 0;
-            quadTransform.scale = glm::vec3(10);
-            // quadTransform.orientation = glm::rotate(quadTransform.orientation, deltaTime, { 0, 1, 0 });
-        }
-        transformSystem.UpdateMatrices(sphere.transformID);
-    }*/
-
-    // float remappedScale = MyMath::Remap(powerPlantScale, 0.000001f, 0.0005f, 0.1f, 10.0f);
-
-/*    for(int i = 0; i < scene.models.size(); i++)
-    {
-        Model& model = scene.models[i];
-        if(model.vao)
-        {
-            auto& transform = transformSystem.Get(sphere.transformID);
-            {
-                transform.SetLocalScale(powerPlantScale);
-            }
-            transformSystem.UpdateMatrices(sphere.transformID);
-        }
-    }*/
-
 
     scene.mainCamera->CommitToGpu();
     geometryPass.Draw(gBuffer, scene);
@@ -193,10 +166,17 @@ void AssignmentOne::Draw(const Input &input, float deltaTime, float runningTime)
     LightPass::RenderGui(scene.directionalLights[0], lightBuffer);
     finalPass.Draw(gBuffer, lightBuffer, scene);
 
+    // Now we do forward rendering
 
+    // Copy depth buffer
+
+    // Forward rendering
+    {
+        forwardRendering.Draw(scene);
+    }
 }
 
-AssignmentOne::AssignmentOne() :transformSystem(TransformSystem::getInstance()){
+AssignmentOne::AssignmentOne() : transformSystem(TransformSystem::getInstance()){
 }
 
 void AssignmentOne::LoadModelFromTextFile(std::string fileName, Material* mat) {
@@ -238,47 +218,10 @@ void AssignmentOne::LoadModelFromTextFile(std::string fileName, Material* mat) {
             transform.SetLocalScale(this->powerPlantScale);
             TransformSystem::getInstance().UpdateMatrices(model.transformID);
             scene.models.emplace_back(model);
+
             Log("Loading of %s is a success!", model.name.c_str());
-
-/*            static int count = 0;
-            count++;
-            if(numberOfLines == count)
-            {
-                // Call massive function to do stuff
-                Log("Now attempting to find middle point of all loaded model vertices!");
-                auto& LoadedModels = ModelSystem::getInstance().GetAllLoadedModels();
-
-                // Find the middle point of all the loaded objs
-                glm::vec3 minVertex{ INFINITY };
-                glm::vec3 maxVertex{ -INFINITY };
-
-                for(auto& pair : LoadedModels)
-                {
-                    auto& LoadedModels = pair.second;
-                    for(auto& loadedModel : LoadedModels)
-                    {
-                        for(auto& vertex: loadedModel.vertices)
-                        {
-                            const Vertex &v = vertex;
-                            {
-                                minVertex.x = fmin(minVertex.x, v.position.x);
-                                minVertex.y = fmin(minVertex.y, v.position.y);
-                                minVertex.z = fmin(minVertex.z, v.position.z);
-
-                                maxVertex.x = fmax(maxVertex.x, v.position.x);
-                                maxVertex.y = fmax(maxVertex.y, v.position.y);
-                                maxVertex.z = fmax(maxVertex.z, v.position.z);
-                            }
-                        }
-                    }
-                }
-                Log("Vertice data collected.");
-                glm::vec3 middle = (minVertex + maxVertex);
-                middle /= 2;
-                // Log("Now moving camera to middle! [%f, %f, %f]", middle.x, middle.y, middle.z);
-                // Now we set camera here
-                // scene.mainCamera->LookAt(middle, glm::vec3(0));
-            }*/
+            scene.debugSystem.AddDebugModel(DebugSystem::Face_Normal, model.faceNormal);
+            scene.debugSystem.AddDebugModel(DebugSystem::Vertex_Normal, model.vertexNormal);
         });
     }
 }

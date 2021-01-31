@@ -15,6 +15,9 @@ PredefinedUniform(sampler2D, u_g_buffer_depth);
 
 PredefinedOutput(vec4, o_color);
 
+uniform int copyDepthBuffer;
+out float gl_FragDepth;
+
 void main()
 {
     const vec3 color = texture(u_texture, v_uv).rgb;
@@ -29,4 +32,8 @@ void main()
     {
         o_color = vec4(color, 1.0);
     }
+    if(copyDepthBuffer == 1)
+        gl_FragDepth = depth;
+    else
+        gl_FragDepth = 1.0f;
 }

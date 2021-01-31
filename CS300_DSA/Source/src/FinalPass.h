@@ -20,6 +20,7 @@
 #ifndef OPENGLFRAMEWORK_FINALPASS_H
 #define OPENGLFRAMEWORK_FINALPASS_H
 #include "ShaderDependant.h"
+#include "Uniform.h"
 // This is just here to make sure people know that
 // the final pass is dependant on what assignment
 // I'm working on.
@@ -39,9 +40,11 @@ class Scene;
 template<>
 class FinalPass<AssignmentOne> : public ShaderDependant{
 public:
-    void Draw(const GBuffer &gBuffer, const LightBuffer& lightBuffer, Scene& scene);
+    void Draw(const GBuffer &gBuffer, const LightBuffer& lightBuffer, const Scene& scene);
     void ProgramLoaded(GLuint program) override;
 private:
+
+    Uniform<int> copyDepthBuffer {"copyDepthBuffer", 1};
     GLuint finalProgram;
 };
 

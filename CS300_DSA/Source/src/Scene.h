@@ -21,15 +21,17 @@
 #define OPENGLFRAMEWORK_SCENE_H
 #include "DirectionalLight.h"
 #include "SkyProbe.h"
+#include "DebugSystem.h"
 
 class CameraBase;
 class Model;
-
+class DebugModel;
 
 class Scene {
 public:
     std::unique_ptr<CameraBase> mainCamera;
     std::vector<Model> models;
+    mutable DebugSystem debugSystem;
     std::vector<DirectionalLight> directionalLights;
 
     SkyProbe probe;

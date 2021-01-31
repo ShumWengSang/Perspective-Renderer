@@ -159,7 +159,8 @@ static void ReadObjShape(LoadedModel& model, tinyobj::shape_t& shape, const std:
     std::vector<glm::vec3> bitangents{ numBitangents };
 
     // Construct tangents (if possible) and new normals (if requested)
-    for (size_t i = 0; i < model.indices.size(); i += 3)
+    uint32_t index = 0;
+    for (size_t i = 0; i < model.indices.size(); i += 3, index += 2)
     {
         uint32_t i0 = model.indices[i + 0];
         uint32_t i1 = model.indices[i + 1];
@@ -206,6 +207,36 @@ static void ReadObjShape(LoadedModel& model, tinyobj::shape_t& shape, const std:
             bitangents[i0] += tDir;
             bitangents[i1] += tDir;
             bitangents[i2] += tDir;
+        }
+
+        // Generate debug information for vertex normal lines
+        {
+            Vertex &start = v0;
+            Vertex end;
+            const float DebugLineDistance = model.bounds.radius / 2.0f;
+            end.position = start.position + (start.normal * DebugLineDistance);
+            model.debug.vertexNormalVertices.emplace_back(start);
+            model.debug.vertexNormalVertices.emplace_back(end);
+            model.debug.vertexNormalIndices.emplace_back(index);
+            model.debug.vertexNormalIndices.emplace_back(index + 1);
+        }
+
+        // Generate debug information for face normal lines
+        {
+            Vertex startFaceNormal;
+            Vertex endFaceNormal;
+            const float DebugLineDistance = model.bounds.radius / 2.0f;
+            startFaceNormal.position = v0.position + v1.position + v2.position;
+            startFaceNormal.position /= 3;
+
+            glm::vec3 normal = v0.normal + v1.normal + v2.normal;
+            normal /= 3;
+
+            endFaceNormal.position = startFaceNormal.position + (normal * DebugLineDistance);
+            model.debug.faceNormalVertices.emplace_back(startFaceNormal);
+            model.debug.faceNormalVertices.emplace_back(endFaceNormal);
+            model.debug.faceNormalIndices.emplace_back(index);
+            model.debug.faceNormalIndices.emplace_back(index + 1);
         }
     }
 
@@ -388,13 +419,132 @@ void ModelSystem::Update() {
             glVertexArrayAttribFormat(vao, PredefinedAttributeLocation(a_tangent), 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, tangent));
             glVertexArrayAttribBinding(vao, PredefinedAttributeLocation(a_tangent), vertexArrayBindingIndex);
 
+            DebugModel vertexNormalDebug;
+            // Debug Stuff
+            {
+                // Vertex Normals
+                {
+                    GLuint vertexNormalIndexBuffer;
+                    GLsizei vertexNormalIndexCount;
+                    GLenum vertexNormalIndexType;
+                    {
+                        glCreateBuffers(1, &vertexNormalIndexBuffer);
+
+                        const auto &data = loadedModel.debug.vertexNormalIndices;
+
+                        vertexNormalIndexCount = static_cast<GLsizei>(data.size());
+                        vertexNormalIndexType = GL_UNSIGNED_INT;
+
+                        size_t size = sizeof(uint32_t) * vertexNormalIndexCount;
+
+                        GLbitfield flags = GL_DYNAMIC_STORAGE_BIT; // TODO: Consider these! Good default?
+                        glNamedBufferStorage(vertexNormalIndexBuffer, size, data.data(), flags);
+                    }
+
+                    GLuint vertexNormalBuffer;
+                    {
+                        glCreateBuffers(1, &vertexNormalBuffer);
+
+                        const auto &data = loadedModel.debug.vertexNormalVertices;
+                        size_t size = sizeof(Vertex) * data.size();
+                        GLbitfield flags = GL_DYNAMIC_STORAGE_BIT; // TODO: Consider these! Good default?
+                        glNamedBufferStorage(vertexNormalBuffer, size, data.data(), flags);
+                    }
+
+                    GLuint vertexNormalVao;
+                    {
+                        glCreateVertexArrays(1, &vertexNormalVao);
+
+                        // Specify the element buffer for this vertex array
+                        glVertexArrayElementBuffer(vertexNormalVao, vertexNormalIndexBuffer);
+
+                        // Bind the vertex array to a specific binding index and specify it stride, etc.
+                        GLuint vertexArrayBindingIndex = 0;
+                        glVertexArrayVertexBuffer(vertexNormalVao, vertexArrayBindingIndex, vertexNormalBuffer, 0,
+                                                  sizeof(Vertex));
+
+                        // Enable the attribute, specify its format, and connect the vertex array (at its
+                        // binding index) to to this specific attribute for this vertex array
+                        glEnableVertexArrayAttrib(vertexNormalVao, PredefinedAttributeLocation(a_position));
+                        glVertexArrayAttribFormat(vertexNormalVao, PredefinedAttributeLocation(a_position), 3, GL_FLOAT,
+                                                  GL_FALSE,
+                                                  offsetof(Vertex, position));
+                        glVertexArrayAttribBinding(vertexNormalVao, PredefinedAttributeLocation(a_position),
+                                                   vertexArrayBindingIndex);
+                    }
+                    vertexNormalDebug.vao = vertexNormalVao;
+                    vertexNormalDebug.indexCount = vertexNormalIndexCount;
+                    vertexNormalDebug.indexType = vertexNormalIndexType;
+                }
+            }
+            DebugModel faceNormalDebug;
+            {
+                // Face Normals
+                {
+                    GLuint facerNormalIndexBuffer;
+                    GLsizei faceNormalIndexCount;
+                    GLenum  faceNormalIndexType;
+                    {
+                        glCreateBuffers(1, &facerNormalIndexBuffer);
+
+                        const auto& data = loadedModel.debug.faceNormalIndices;
+
+                        faceNormalIndexCount = static_cast<GLsizei>(data.size());
+                        faceNormalIndexType = GL_UNSIGNED_INT;
+
+                        size_t size = sizeof(uint32_t) * faceNormalIndexCount;
+
+                        GLbitfield flags = GL_DYNAMIC_STORAGE_BIT; // TODO: Consider these! Good default?
+                        glNamedBufferStorage(facerNormalIndexBuffer, size, data.data(), flags);
+                    }
+
+                    GLuint faceNormalVertexBuffer;
+                    {
+                        glCreateBuffers(1, &faceNormalVertexBuffer);
+
+                        const auto& data = loadedModel.debug.faceNormalVertices;
+                        size_t size = sizeof(Vertex) * data.size();
+                        GLbitfield flags = GL_DYNAMIC_STORAGE_BIT; // TODO: Consider these! Good default?
+                        glNamedBufferStorage(faceNormalVertexBuffer, size, data.data(), flags);
+                    }
+
+                    GLuint faceNormalVao;
+                    {
+                        glCreateVertexArrays(1, &faceNormalVao);
+
+                        // Specify the element buffer for this vertex array
+                        glVertexArrayElementBuffer(faceNormalVao, facerNormalIndexBuffer);
+
+                        // Bind the vertex array to a specific binding index and specify it stride, etc.
+                        GLuint vertexArrayBindingIndex = 0;
+                        glVertexArrayVertexBuffer(faceNormalVao, vertexArrayBindingIndex, faceNormalVertexBuffer, 0, sizeof(Vertex));
+
+                        // Enable the attribute, specify its format, and connect the vertex array (at its
+                        // binding index) to to this specific attribute for this vertex array
+                        glEnableVertexArrayAttrib(faceNormalVao, PredefinedAttributeLocation(a_position));
+                        glVertexArrayAttribFormat(faceNormalVao, PredefinedAttributeLocation(a_position), 3, GL_FLOAT, GL_FALSE,
+                                                  offsetof(Vertex, position));
+                        glVertexArrayAttribBinding(faceNormalVao, PredefinedAttributeLocation(a_position),
+                                                   vertexArrayBindingIndex);
+                    }
+                    faceNormalDebug.vao = faceNormalVao;
+                    faceNormalDebug.indexCount = faceNormalIndexCount;
+                    faceNormalDebug.indexType = faceNormalIndexType;
+                }
+            }
+
             Model model;
             model.vao = vao;
             model.indexCount = indexCount;
             model.indexType = indexType;
 
+            model.faceNormal = faceNormalDebug;
+            model.vertexNormal = vertexNormalDebug;
+
             model.bounds = loadedModel.bounds;
             model.transformID = TransformSystem::getInstance().Create();
+            model.faceNormal.transformID = model.transformID;
+            model.vertexNormal.transformID = model.transformID;
 
             // Register/create material (must be done here on the main thread!)
             if (loadedModel.materialDefined)
@@ -402,6 +552,7 @@ void ModelSystem::Update() {
                 model.material = MaterialSystem::getInstance().CreateMaterial(loadedModel.materialDescription, loadedModel.baseDirectory);
             }
             model.name = loadedModel.filename;
+
             models.emplace_back(model);
         }
 

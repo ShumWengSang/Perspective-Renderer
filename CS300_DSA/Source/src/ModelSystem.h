@@ -42,6 +42,15 @@ struct LoadedModel
     bool materialDefined;
     std::string baseDirectory;
     tinyobj::material_t materialDescription;
+
+    struct Debug
+    {
+        std::vector<uint32_t> vertexNormalIndices;
+        std::vector<Vertex> vertexNormalVertices;
+
+        std::vector<uint32_t> faceNormalIndices;
+        std::vector<Vertex> faceNormalVertices;
+    } debug;
 };
 #pragma endregion
 
