@@ -112,7 +112,7 @@ public:
 
 private:
     void AddManagedFile(const std::string& filename, const Program& dependableProgram);
-    uint64_t GetTimestamp(const GlslFile& file) const;
+    std::time_t GetTimestamp(const GlslFile& file) const;
     bool FileReadable(const std::string& filename) const;
     void ReadFileWithIncludes(const std::string& filename, const Program& dependableProgram, std::stringstream& sourceBuffer);
     void ReadFileWithIncludesTMP(const std::string& filename, std::stringstream& sourceBuffer);

@@ -46,6 +46,7 @@
 #include <iostream>
 #include <mutex>
 #include <istream>
+#include <type_traits>
 
 // Macros for defining platform
 #if defined(unix) || defined(__unix__) || defined (__unix)

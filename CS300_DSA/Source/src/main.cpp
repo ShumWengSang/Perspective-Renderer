@@ -7,6 +7,7 @@
 #include "ModelSystem.h"
 #include "ShaderSystem.h"
 #include "GuiSystem.h"
+#include "GlobalVariables.h"
 
 static std::unique_ptr<App> app;
 static bool renderUI = true;
@@ -18,8 +19,14 @@ void glfwResizeCallback(GLFWwindow *window, int width, int height)
     app->Resize(width, height);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    // Set global from argv
+    if(argc >= 2)
+    {
+        Global::loadFile = argv[1];
+    }
+
     // Setup basic GLFW and context settings
     glfwSetErrorCallback(glfwErrorCallback);
     if (!glfwInit())

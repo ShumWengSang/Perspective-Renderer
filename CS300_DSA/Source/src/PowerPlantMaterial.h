@@ -40,7 +40,7 @@ public:
     // "Commons/PowerPlantFiles/"
     void ReadMaterialFromFile(std::string const & directory);
 private:
-    std::string fileName = "Sample_MTL_File.mtl";
+    inline const static std::string fileName = "Sample_MTL_File.mtl";
     GLint modelMatrixLocation = 0;
 };
 

@@ -24,7 +24,7 @@
 #include "Scene.h"
 #include "GBuffer.h"
 
-void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &lightBuffer, Scene &scene) {
+void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &lightBuffer, const Scene &scene) {
     static bool once = false;
     if(!once)
     {
@@ -32,7 +32,7 @@ void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &l
         once = true;
     }
     glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
 
     glBindTextureUnit(0, lightBuffer.lightTexture);
     glBindTextureUnit(1, scene.probe.skyCube);
@@ -40,13 +40,20 @@ void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &l
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glViewport(0, 0, lightBuffer.width, lightBuffer.height);
 
+    glDepthFunc(GL_ALWAYS);
     glUseProgram(finalProgram);
     {
+        this->copyDepthBuffer.UpdateUniformIfNeeded(finalProgram);
         EmptyVAO::Draw();
     }
-
-    glEnable(GL_DEPTH_TEST);
-
+    glDepthFunc(GL_LEQUAL);
+    //glEnable(GL_DEPTH_TEST);
+    ImGui::Checkbox("Copy Depth Buffer", (bool*)(&copyDepthBuffer.value));
+/*    if(copyDepthBuffer.value)
+    {
+        glBlitNamedFramebuffer(gBuffer.frameBuffer, 0, 0, 0, gBuffer.width, gBuffer.height, 0, 0, gBuffer.width, gBuffer.height,
+                               GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    }*/
 }
 
 void FinalPass<AssignmentOne>::ProgramLoaded(GLuint program) {
