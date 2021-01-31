@@ -1,13 +1,15 @@
 #pragma once
 
-// Glad, GLFW, and OpenGL
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 // Imgui
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
+// Glad, GLFW, and OpenGL
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+
 
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL
@@ -47,6 +49,7 @@
 #include <mutex>
 #include <istream>
 #include <type_traits>
+#include <condition_variable>
 
 // Macros for defining platform
 #if defined(unix) || defined(__unix__) || defined (__unix)

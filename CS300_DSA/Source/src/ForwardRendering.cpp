@@ -15,7 +15,6 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/30/2021
  * End Header --------------------------------------------------------*/
-#include <ObjIdlbase.h>
 #include "stdafx.h"
 #include "ForwardRendering.h"
 #include "ShaderSystem.h"
