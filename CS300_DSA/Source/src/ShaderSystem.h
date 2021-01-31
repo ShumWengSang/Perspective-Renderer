@@ -59,7 +59,7 @@ struct std::hash<Program>
 struct GlslFile
 {
     std::string filename;
-    uint64_t timestamp = 0;
+    std::time_t timestamp = 0;
     std::unordered_set<Program> dependablePrograms{};
 
     GlslFile() {}

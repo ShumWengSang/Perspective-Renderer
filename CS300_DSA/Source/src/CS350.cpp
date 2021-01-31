@@ -59,7 +59,7 @@ namespace {
 
 App::Settings AssignmentOne::Setup() {
     Settings settings{};
-    settings.window.size = { 1920, 900 };
+    settings.window.size = { 1600, 900 };
     settings.window.resizeable = false;
     settings.context.msaaSamples = 1;
     return settings;
