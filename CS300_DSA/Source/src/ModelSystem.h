@@ -70,6 +70,8 @@ public:
     using ModelLoadCallback = std::function<void(std::vector<Model> models)>;
     void LoadModel(const std::string& filename, const ModelLoadCallback& callback);
 
+    const std::unordered_map<std::string,std::vector<LoadedModel>>& GetAllLoadedModels() const;
+
 private:
     Queue<std::string> pendingFiles{};
     Queue<std::string> finishedFiles{};

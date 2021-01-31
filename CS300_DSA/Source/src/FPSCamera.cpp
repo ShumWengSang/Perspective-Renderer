@@ -122,7 +122,7 @@ void FpsCamera::Update(const Input &input, float dt) {
     auto up = rotate(bankingOrientation, preAdjustedUp);
 
     vec3 lookAt = position + forward;
-    viewFromWorld = lookAtLH(position, lookAt, up);
+    viewFromWorld = glm::lookAtLH(position, lookAt, up);
 
     // Create the projection matrix
 

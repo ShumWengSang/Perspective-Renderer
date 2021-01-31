@@ -43,4 +43,13 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+vec2 sphericalUvFromDirection(vec3 direction)
+{
+    float phi = atan(direction.z, direction.x);
+    float theta = acos(clamp(direction.y, -1.0, +1.0));
+
+    if (phi < 0.0) phi += TWO_PI;
+    return vec2(phi / TWO_PI, theta / PI);
+}
+
 #endif // COMMON_GLSL

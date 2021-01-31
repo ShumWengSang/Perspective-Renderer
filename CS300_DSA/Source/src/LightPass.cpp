@@ -24,7 +24,6 @@
 #include "ShaderLocations.h"
 #include "CameraBase.h"
 #include "EmptyVAO.h"
-#include "DirectionalLight.h"
 #include "GuiSystem.h"
 
 void LightPass::Draw(const LightBuffer &lightBuffer, const GBuffer &gBuffer, Scene &scene) {
@@ -41,46 +40,54 @@ void LightPass::Draw(const LightBuffer &lightBuffer, const GBuffer &gBuffer, Sce
     }
 
     // Bind the g-buffer
-    glBindTextureUnit(0, gBuffer.albedoTexture);
-    glBindTextureUnit(1, gBuffer.materialTexture);
-    glBindTextureUnit(2, gBuffer.normalTexture);
-    glBindTextureUnit(3, gBuffer.depthTexture);
+    glBindTextureUnit(0, gBuffer.ambientTexture);
+    glBindTextureUnit(1, gBuffer.diffuseTexture);
+    glBindTextureUnit(2, gBuffer.specularTexture);
+    glBindTextureUnit(3, gBuffer.viewSpacePositionTexture);
+    glBindTextureUnit(4, gBuffer.normalTexture);
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, lightBuffer.frameBuffer);
     glViewport(0, 0, lightBuffer.width, lightBuffer.height);
+
+    glClearNamedFramebufferfv(lightBuffer.frameBuffer, GL_COLOR, 0, glm::value_ptr(glm::vec4(0.0f)));
+
 
     glUseProgram(directionalLightProgram);
     {
         assert(scene.directionalLights.size() == 1);
         auto &dirLight = scene.directionalLights[0];
 
-        dirLight.viewDirection = scene.mainCamera->GetViewMatrix() * dirLight.worldDirection;
+        dirLight.viewDirection = glm::normalize(scene.mainCamera->GetViewMatrix() * dirLight.worldDirection);
         glNamedBufferSubData(directionalLightUniformBuffer, 0, sizeof(DirectionalLight), &dirLight);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation(GL_FUNC_ADD);
 
-        glDisable(GL_DEPTH_TEST);
-
         EmptyVAO::Draw();
 
-        glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
 
-    }
-    if (ImGui::CollapsingHeader("Light pass"))
-    {
-        ImGui::SliderFloat("Sun intensity", &scene.directionalLights[0].color.a, 0.0f, 1.0f);
-        GuiSystem::getInstance().Texture(lightBuffer.lightTexture);
     }
 }
 
 void LightPass::ProgramLoaded(GLuint program) {
     directionalLightProgram = program;
 
-    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_albedo), 0);
-    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_material), 1);
-    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_norm), 2);
-    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_depth), 3);
+    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_diffuse), 0);
+    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_ambient), 1);
+    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_specular), 2);
+    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_viewPos), 3);
+    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_normal), 4);
+    glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_depth), 5);
+}
+
+void LightPass::RenderGui(DirectionalLight& light, LightBuffer const & lightBuffer) {
+    if (ImGui::CollapsingHeader("LightPass - "))
+    {
+        ImGui::ColorEdit3("Light Diffuse Color", glm::value_ptr(light.diffuseColor));
+        ImGui::ColorEdit3("Light Ambient Color", glm::value_ptr(light.ambientColor));
+        ImGui::ColorEdit3("Light Specular Color", glm::value_ptr(light.specularColor));
+        GuiSystem::getInstance().Texture(lightBuffer.lightTexture);
+    }
 }

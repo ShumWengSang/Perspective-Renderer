@@ -29,7 +29,7 @@ public:
 
     GLuint frameBuffer;
 
-    // RGB - Accumulated light
+    // GL_RGB8 - Accumulated light
     GLuint lightTexture = 0;
 
     void RecreateGpuResources(int width, int height, GBuffer const & gBuffer);

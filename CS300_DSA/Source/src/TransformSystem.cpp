@@ -26,19 +26,19 @@ static bool IdenticalTransformProperties(const Transform& a, const Transform& b)
            && a.scale == b.scale;
 }
 
-Transform &Transform::SetPosition(float x, float y, float z) {
+Transform &Transform::SetLocalPosition(float x, float y, float z) {
     position.x = x;
     position.y = y;
     position.z = z;
     return *this;
 }
 
-Transform &Transform::SetScale(float s) {
-    SetScale(s,s,s);
+Transform &Transform::SetLocalScale(float s) {
+    SetLocalScale(s, s, s);
     return *this;
 }
 
-Transform &Transform::SetScale(float x, float y, float z) {
+Transform &Transform::SetLocalScale(float x, float y, float z) {
     scale.x = x;
     scale.y = y;
     scale.z = z;
@@ -46,7 +46,7 @@ Transform &Transform::SetScale(float x, float y, float z) {
 }
 
 
-Transform &Transform::SetDirection(float x, float y, float z) {
+Transform &Transform::SetLocalDirection(float x, float y, float z) {
     // From: https://gamedev.stackexchange.com/questions/149006/direction-vector-to-quaternion
 
     // Switch x and z if 90� off!
@@ -106,6 +106,7 @@ void TransformSystem::UpdateMatrices(int transformID) {
         auto rotation    = glm::toMat4(glm::normalize(curr.orientation));
 
         curr.matrix = translation * rotation * scale;
+
         curr.inverseMatrix = glm::inverse(curr.matrix);
         curr.normalMatrix = glm::transpose(glm::inverse(glm::mat3{ curr.matrix }));
     }

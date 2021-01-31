@@ -40,7 +40,7 @@ void LightBuffer::RecreateGpuResources(int width, int height, const GBuffer &gBu
     glNamedFramebufferTexture(frameBuffer, PredefinedOutputLocation(o_color), lightTexture, 0);
 
     // Use the g-buffer depth as the depth in the light pass (for reading only)
-    glNamedFramebufferTexture(frameBuffer, GL_DEPTH_ATTACHMENT, gBuffer.depthTexture, 0);
+    // glNamedFramebufferTexture(frameBuffer, GL_DEPTH_ATTACHMENT, gBuffer.depthTexture, 0);
 
     GLenum status = glCheckNamedFramebufferStatus(frameBuffer, GL_DRAW_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)

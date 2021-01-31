@@ -38,6 +38,7 @@ struct LoadedImage
 };
 #pragma endregion
 
+
 class TextureSystem {
     // Singleton stuff
 public:
@@ -68,6 +69,11 @@ public:
             GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR, GLenum magFilter = GL_LINEAR, bool useMips = true);
     GLuint LoadDataTexture(const std::string& filename, GLenum internalFormat = GL_RGBA8);
 
+    // We handle cubes differently, we assume user is smart.
+    static GLuint LoadCubeMap(const  std::array<std::string, 6>& fileNames, GLenum internalFormat = GL_RGBA8);
+
+private:
+
     std::unordered_map<std::string, LoadedImage> loadedImages{};
     Queue<ImageLoadDescription> pendingJobs{};
     Queue<ImageLoadDescription> finishedJobs{};
@@ -78,6 +84,11 @@ public:
     std::mutex              accessMutex;
     std::condition_variable runCondition;
     bool                    runBackgroundLoop;
+
+private:
+    static GLuint CreateTextureCube(GLenum internal_format, GLenum format, GLsizei width, GLsizei height,
+                               std::array<stbi_uc*, 6> const& data);
+
 };
 
 

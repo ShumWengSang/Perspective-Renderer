@@ -22,6 +22,8 @@
 #include "App.h"
 
 class TransformSystem;
+class Material;
+
 class AssignmentOne : public App{
 public:
 
@@ -35,6 +37,11 @@ public:
     void Draw(Input const & input, float deltaTime, float runningTime) override;
 
     TransformSystem& transformSystem;
+
+private:
+    void LoadModelFromTextFile(std::string fileName, Material* = nullptr);
+    float powerPlantScale = 1.0f / 16000;
+    float imGuiPowerPlantScale = 1.0f;
 };
 
 

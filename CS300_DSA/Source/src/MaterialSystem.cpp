@@ -21,6 +21,42 @@
 #include "TextureSystem.h"
 #include "BasicMaterial.h"
 
+#pragma region Internal API
+
+typedef struct {
+    std::vector<float> vertices;
+    std::vector<float> normals;
+    std::vector<float> texcoords;
+    std::vector<int> v_indices;
+    std::vector<int> vn_indices;
+    std::vector<int> vt_indices;
+
+    std::vector<tinyobj::material_t> materials;
+
+} MyMesh;
+
+static void usemtl_cb(void *user_data, const char *name, int material_idx) {
+
+    MyMesh *mesh = reinterpret_cast<MyMesh *>(user_data);
+    if ((material_idx > -1) && (material_idx < mesh->materials.size())) {
+        printf("usemtl. material id = %d(name = %s)\n", material_idx,
+               mesh->materials[material_idx].name.c_str());
+    } else {
+        printf("usemtl. name = %s\n", name);
+    }
+}
+
+static void mtllib_cb(void *user_data, const tinyobj::material_t *materials,
+        int num_materials) {
+//    MyMesh *mesh = reinterpret_cast<MyMesh *>(user_data);
+    printf("mtllib. # of materials = %d\n", num_materials);
+
+//    for (int i = 0; i < num_materials; i++) {
+//        mesh->materials.push_back(materials[i]);
+//    }
+}
+#pragma endregion
+
 Material *
 MaterialSystem::CreateMaterial(const tinyobj::material_t &materialDescription, const std::string &baseDirectory) {
     //
@@ -82,4 +118,11 @@ void MaterialSystem::Destroy() {
     {
         delete material;
     }
+}
+
+const tinyobj::material_t& MaterialSystem::CreateMaterial(const std::string &fileDirectory) {
+    std::ifstream ifs(fileDirectory);
+    std::string err;
+    tinyobj::LoadMtl(&materialMap, &materials, &ifs, &err);
+    return materials.back();
 }

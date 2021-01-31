@@ -401,7 +401,7 @@ void ModelSystem::Update() {
             {
                 model.material = MaterialSystem::getInstance().CreateMaterial(loadedModel.materialDescription, loadedModel.baseDirectory);
             }
-
+            model.name = loadedModel.filename;
             models.emplace_back(model);
         }
 
@@ -439,4 +439,8 @@ void ModelSystem::LoadModel(const std::string &filename, const ModelSystem::Mode
 
         runCondition.notify_all();
     }
+}
+
+const std::unordered_map<std::string,std::vector<LoadedModel>> &ModelSystem::GetAllLoadedModels() const {
+    return this->loadedData;
 }

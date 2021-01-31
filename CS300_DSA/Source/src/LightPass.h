@@ -20,6 +20,8 @@
 #ifndef OPENGLFRAMEWORK_LIGHTPASS_H
 #define OPENGLFRAMEWORK_LIGHTPASS_H
 #include "ShaderDependant.h"
+#include "DirectionalLight.h"
+
 class LightBuffer;
 class GBuffer;
 class Scene;
@@ -28,7 +30,7 @@ class LightPass : public ShaderDependant {
 public:
     void Draw(const LightBuffer& lightBuffer, const GBuffer& gBuffer, Scene& scene);
     void ProgramLoaded(GLuint program) override;
-
+    static void RenderGui(DirectionalLight& light, LightBuffer const & lightBuffer);
 private:
 
     GLuint directionalLightProgram{ 0 };

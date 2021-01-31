@@ -18,6 +18,7 @@
 #include "stdafx.h"
 #include "ShaderLocations.h"
 #include "CameraBase.h"
+#include "App.h"
 
 
 void CameraBase::DrawEditorGui() {
@@ -34,10 +35,11 @@ void CameraBase::CommitToGpu() {
     }
     cameraBuffer.memory.ViewFromWorldMatrix = viewFromWorld;
     cameraBuffer.memory.ProjectFromViewMatrix = projectionFromView;
+    cameraBuffer.memory.camPos = glm::vec4(this->position,1.0);
+    float width = App::GetApp().windowWidth;
+    float height = App::GetApp().windowHeight;
 
-    float projA = zFar / (zFar - zNear);
-    float projB = (-zFar * zNear) / (zFar - zNear);
-    glm::vec4 nearFar = glm::vec4(zNear, zFar, projA, projB);
+    glm::vec4 nearFar = glm::vec4(zNear, zFar, fieldOfView, width/ height);
     cameraBuffer.memory.nearFar = nearFar;
 
     cameraBuffer.UpdateGpuBuffer();
