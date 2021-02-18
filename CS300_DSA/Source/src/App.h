@@ -35,7 +35,7 @@ public:
 
         struct
         {
-            std::string title{ "Prospect Renderer" };
+            std::string title{ "OpenGL Renderer" };
 
             struct { int width; int height; } size;
             bool fullscreen = false;

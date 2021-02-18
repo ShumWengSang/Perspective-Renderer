@@ -15,6 +15,7 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/25/2021
  * End Header --------------------------------------------------------*/
+#include <imgui_internal.h>
 #include "stdafx.h"
 #include "GuiSystem.h"
 
@@ -376,6 +377,8 @@ void GuiSystem::Init(GLFWwindow *window) {
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
 
+
+
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -404,8 +407,8 @@ void GuiSystem::NewFrame() {
     ImGui::NewFrame();
 
     // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-/*    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);*/
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
 
     console.Draw("Console", &this->showConsole);
 
@@ -474,5 +477,32 @@ bool GuiSystem::IsUsingMouse()  {
 
 bool GuiSystem::IsUsingKeyboard()  {
     return ImGui::GetIO().WantCaptureKeyboard;
+}
+
+void GuiSystem::DockspaceBegin() {
+    //ImGuiViewport* viewport = ImGui::GetMainViewport();
+    //ImGui::DockSpaceOverViewport(viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+   /* ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::SetNextWindowBgAlpha(0.0f);
+
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("DockSpace Demo", mainDockspace, window_flags);
+    ImGui::PopStyleVar(3);*/
+
+/*    ImGuiID dockspace_id = ImGui::GetID("MyDockspace");
+    ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);*/
+}
+
+void GuiSystem::DockspaceEnd() {
+     // ImGui::End();
 }
 
