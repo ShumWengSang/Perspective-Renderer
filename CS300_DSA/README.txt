@@ -3,7 +3,7 @@
  * Reproduction or disclosure of this file or its contents without the prior
  * written consent of DigiPen Institute of Technology is prohibited.
  * File Name: README.txt
- * Purpose: README of CS300 Assigment 3
+ * Purpose: README of CS350 Assigment 1
  * Language: C++, G++
  * Platform: Linux:
  *              g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M, 
@@ -14,39 +14,89 @@
  *              CPU: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
  *              GPU: Intel(R) UHD Graphics 630 NVIDIA GeForce GTX 1060
  *              OpenGL version: 4.6 NVIDIA 451.67
- * Project: RolandShum_CS300_2
+ * Project: OpenGLFramework
  * Author: Roland Shum, roland.shum@digipen.edu
- * Creation date: 30th November 2020
+ * Creation date: 31 January 2021
  * End Header --------------------------------------------------------*/
 
 
- Parts completed 
-   -- All parts of assignment completed
-    -- Constructing textures for real time capture
-        -- One FBO, 6 textures.
-        -- Renders the scene 6 times (no extra credit done)
-    -- Environment Mapping
-        -- Use custom reflection and refraction matrix to display 
-        -- Used custom cube map algorithm
-        -- Fresnal mix and color split done.
-    -- Skybox
-        -- Loaded using 6 2D textures
+Parts completed (100%)
+    -- All Parts Completed
+    -- Hybrid Rendering Pipeline
+        -- Deferred Rendering 
+        -- Forward Rendering
+    -- Copy depth buffer GUI toggle
+    -- Deferred Phong Lighting
+    -- Load Power Plant
+    -- Gui Toggle show debug
+        -- Face Normal Lines
+        -- Vertex Normal Lines
+    -- Camera
+        -- WASD
+        -- Visualizing render targets
         
-   -- Gui Features implemented
-        -- Scenario 3
-           -- Taken from last assignment, gives multiple lights
-        -- Refrective Index
-           -- Determines the ratio of the refractive index of air against of whatever index.
-        -- Mode
-           -- Reflection - Only Reflection
-           -- Refraction - Only Refraction
-           -- Mixed Mode - Mixes both Reflection and Refraction based on the refractive index.
-        -- Mix Light?
-           -- Allows lights to hit the object and show (along with the texture).
-       
-    -- Compile warnings are attempt to surpress warnings from different compilers.
+To Compile:
+    -- All libraries come with the source code
+    -- Use CMake 3.16 or above.
+    -- Tested with MSVC Cmake on Windows,
+    -- Tested with Pop_OS g++
+    -- There is non-crossplatform code that may fail on other distros of Linux, but works on PopOS at least.
+    -- Just load the cmake file and build.
+
+[IMPORTANT] To Execute :
+    -- Accepts command line args of the path of a model.
+        -- For example, suppose sphere.obj exists in Common/models/sphere.obj
+        -- You would pass OpenGLFramework.exe Common/models/sphere.obj
+    -- No arguments make it load all sections of powerplant 
+        -- Expects the directory to be structured as below
+        -- Relevant code at CS350.cpp line 74
+            -- Reads the SectionX.txt files,
+                -- Assumes base directory at SectionX.txt files, read the corresponding obj.
+                -- Loaded on another thread, so no need to wait.
+                
+When Running Application:
+    WASD to move camera
+        -- If camera not moving, make sure to focus on application (You're probably focused on the ImGui)
+    Drag right mouse click to rotate camera
+    Models are loaded on another thread, so TAs don't have to worry about changing source code or command line args to test.
     
-    -- No extra credit
+    [NOTE] The ImGui docking windows are probably right on top of each other.
+        -- To view the GBuffer, open up the GBuffer in ImGui.
+        -- Recommended to move Console / Log to bottom
+    
+    [IMPORTANT]
+    -- Directory it expects
+        * CMake Project
+        |
+        |
+        |---- Source
+        |
+        |
+        |---- shaders
+        |
+        |
+        |---- Common
+           |
+           |
+           |----- models
+           |
+           |----- textures
+           |
+           |----- PowerPlantFiles 
+               |
+               |
+               |-- Sample_MTL_File.mtl
+               |
+               |-- Section1.txt
+               |
+               |--- ppsection 1
+                  |
+                  |--- part_a
+                    |
+                    | -- g0.obj
+                    etc
+              etc
+
 
     
 Computers developed: 
@@ -106,11 +156,8 @@ Windows:
               
 
 
-Hours Spent: 24 hours
-Additional Information: Used geometry shader for line rendering. Used OpenGL 4.6 DSA paradigm.
-Please use Linux and install glfw3, glm, and glew
+Hours Spent: 35 hours
 
-sudo apt-get install libglfw3-dev libglm-dev libglew-dev
 
 Further information below.
 
@@ -119,65 +166,12 @@ Further information below.
  
  Summary:
    The entire framework was rewritten to use OpenGL 4.6 DSA methods, as well as having a low abstraction
-   paradigm. So most things can be seen in the Quad_Scene::SetupBuffers() function.
+   paradigm. The ideas behind each abstraction was to keep locality of variables.
    The paradigm modelled here is that the user controls the creation of opengl objects, but do not have
    to worry about destruction of opengl objects.
    
-   Heavily inspired by: https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions
+   Heavily inspired by: 
+    - https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions
+    - https://github.com/Shimmen/Prospect
     
-   The project was developed in Linux, G++. Also tested and usable in Windows with CLion
-   and vcpkg, using MSVC compiler.
-    
-Instructions:
-  The project is compiled with Cmake. To compile, go to Build and input "cmake .." and then 
-  call the generated make file. This should generate an exe called "SimpleScene_OGL4" 
-  in the Build folder. Feel free to use any other supported IDE for CMake.
-  
-  To run the project, just run the exe. This will load the default sphere.obj.
-  To facilitate grading, you may pass a c-string from the command line to the exe and 
-  it will load that obj file.
-    IE: SimpleScene_OGL4 cube2.obj
 
-  If using MSVC on Windows, the CMake is coded so that it works with vcpkg. You have to link
-  the vcpkg to the Cmake with -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg-2020.07/scripts/buildsystems/vcpkg.cmake"
-  This was used with Clion. Settings->Build,Execution,Deployment -> CMake -> CMake options:
-  
-  Use the scenarios for quick preview of lights that are setup already.
-    
-Useful Information:
-  You can view SimpleScene_Quad::SetupBuffers() is where most of the work is done.
-  We are reusing the PhongShader.vert as our blinn-phong vertex shader.
-  This is all done with the OpenGL Pipeline binding.
-  
-  Shaders support geometry shader! This is used in generating the face vertex lines and the 
-  vertex normal lines!
-
-  
-Simple Directory Diagram:
-
-root
-    |
-    |-- README.txt
-    |
-    Common
-    |
-    |-- Models
-    |
-    |
-    1.0 Simple Scene
-    |
-    |-- Build - Use CMake here (all the build dumbs are here)
-    |
-    |-- ImGui - All ImGui files
-    |
-    |-- OpenGL - All Opengl related code are abstracted here.
-    |     |
-    |     |- Take note that the Vertex Array class is bundled with the Vertex Buffer class.
-    |
-    |-- Renderer - Base classes that abstract rendering code lives here.
-    |
-    |-- Shaders - All the shaders used live here
-    |
-    |----- Scene files and misc files
-    
-  
