@@ -28,6 +28,7 @@ Currently, the renderer features an easy way of adding new passes for rendering.
 
 ## Some pictures
 A nice console so that anything I print can be seen in the gui.
+
 ![Powerplant](/images/console.png)
 
 This is the power plant model that I use for seeing large amount of vertices and models for loading
@@ -41,6 +42,7 @@ The geometry pass stores the view-position, depth, diffuse, and normals. Here is
 
 There is a light pass where I take the GBuffer contents and do Phong lighting on it. This is a visualization of the 
 light pass.
+
 ![Powerplant](/images/Powerplant_lightpass.png)
 
 This is a cool system inspired by Prospect, where the shader gets auto-reloaded and we can use #include<> with it. ImGui can also
