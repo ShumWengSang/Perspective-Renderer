@@ -28,7 +28,14 @@ Currently, the renderer features an easy way of adding new passes for rendering.
 
 ## Some pictures
 
+# To Build
 
+Use CMake to build. It should work out of the box as all the libraries are packaged together and built from source.
+
+# To Execute
+
+The default args attempt to load a bunch of factory models available in my own files (they're not uploaded because it would be over 1 GB).
+However, passing an argument to the command will cause it to load the obj.
 
 # Credits
 * DigiPen Institute of Technology Professor Pushpak Karnick for providing the slides and maths
