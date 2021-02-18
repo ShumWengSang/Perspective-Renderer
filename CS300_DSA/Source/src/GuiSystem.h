@@ -106,7 +106,10 @@ private:
     std::vector<std::pair<std::string, std::function<void(void)>>> GuiFunctions;
 
     bool showConsole = true;
-
+    bool mainDockspace = true;
+public:
+    void DockspaceBegin();
+    void DockspaceEnd();
 
 };
 

@@ -19,6 +19,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 // Tiny obj loader
 #include <tiny_obj_loader.h>
@@ -50,6 +51,7 @@
 #include <istream>
 #include <type_traits>
 #include <condition_variable>
+
 
 // Macros for defining platform
 #if defined(unix) || defined(__unix__) || defined (__unix)
