@@ -22,7 +22,7 @@ uniform float u_mat_shininess;
 PredefinedOutput(vec3, o_g_buffer_diffuse);
 PredefinedOutput(vec3, o_g_buffer_ambient);
 PredefinedOutput(vec4, o_g_buffer_specular);
-PredefinedOutput(vec3, o_g_buffer_viewPos)
+PredefinedOutput(vec3, o_g_buffer_viewPos);
 PredefinedOutput(vec3, o_g_buffer_normal);
 
 void main()
