@@ -39,7 +39,8 @@ The geometry pass stores the view-position, depth, diffuse, and normals. Here is
 
 ![Powerplant](/images/Powerplant_gbuffer.png)
 
-There is a light pass where I take the GBuffer contents and do Phong lighting on it. This is a visualization of the light pass.
+There is a light pass where I take the GBuffer contents and do Phong lighting on it. This is a visualization of the 
+light pass.
 ![Powerplant](/images/Powerplant_lightpass.png)
 
 This is a cool system inspired by Prospect, where the shader gets auto-reloaded and we can use #include<> with it. ImGui can also
@@ -149,18 +150,23 @@ void main()
 }
 ```
 We can get a nice error message telling us where it went wrong, as well as the final output post all the #includes<>!
+
 ![Powerplant](/images/Powerplant_shader.png)
 
 This here is a sphere model I've loaded in
+
 ![Powerplant](/images/sphere.png)
 
 And we can see its faces normals for debug purposes
+
 ![Powerplant](/images/sphere_facedebug.png)
 
 And vertex normals as well!
+
 ![Powerplant](/images/sphere_vertexdebug.png)
 
 Here is another picture of the light pass on the sphere. We can see the ImGui on the left showing us what the lightpass output is.
+
 ![Powerplant](/images/sphere_lightpass.png)
 
 # To Build
