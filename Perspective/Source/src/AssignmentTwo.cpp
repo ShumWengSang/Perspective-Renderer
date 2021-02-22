@@ -1,22 +1,22 @@
 //
-// Created by user on 1/24/2021.
+// Created by user on 2/20/2021.
 //
 
 /* Start Header -------------------------------------------------------
  * Copyright (C) 2020 DigiPen Institute of Technology.
  * Reproduction or disclosure of this file or its contents without the prior
  * written consent of DigiPen Institute of Technology is prohibited.
- * File Name: CS350.cpp
+ * File Name: AssignmentTwo.cpp
  * Purpose: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
  * Language: C++, G++
  * Platform: g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M,
  *           OpenGL version string: 4.6.0 NVIDIA 390.138
- * Project: OpenGLFramework
+ * Project: Perspective
  * Author: Roland Shum, roland.shum@digipen.edu
- * Creation date: 1/24/2021
+ * Creation date: 2/20/2021
  * End Header --------------------------------------------------------*/
 #include "stdafx.h"
-#include "CS350.h"
+#include "AssignmentTwo.h"
 #include "ModelSystem.h"
 #include "Scene.h"
 #include "Model.h"
@@ -37,7 +37,7 @@
 #include "TextureSystem.h"
 #include "ForwardRendering.h"
 #include "GlobalVariables.h"
-
+#include "Shapes.h"
 /////////////////////////////////////////////
 // Private data
 namespace {
@@ -57,7 +57,7 @@ namespace {
     ForwardRendering forwardRendering;
 }
 
-App::Settings AssignmentOne::Setup() {
+App::Settings AssignmentTwo::Setup() {
     Settings settings{};
     settings.window.size = { 1600, 900 };
     settings.window.resizeable = false;
@@ -65,7 +65,7 @@ App::Settings AssignmentOne::Setup() {
     return settings;
 }
 
-void AssignmentOne::Init() {
+void AssignmentTwo::Init() {
     // Load power plant material
     PowerPlantMaterial *powerPlantMaterial = new PowerPlantMaterial();
     powerPlantMaterial->ReadMaterialFromFile("Common/PowerPlantFiles/");
@@ -97,29 +97,17 @@ void AssignmentOne::Init() {
     else // Load the model if we have it in command line //"Common/models/sphere.obj"
     {
         ModelSystem::getInstance().LoadModel(Global::loadFile, [&, powerPlantMaterial](std::vector<Model> models) {
-        assert(models.size() == 1);
-        const Model& model = models[0];
-        sphere = model;
-        sphere.material = powerPlantMaterial;
-        scene.models.emplace_back(sphere);
+            assert(models.size() == 1);
+            const Model& model = models[0];
+            sphere = model;
+            sphere.material = powerPlantMaterial;
+            scene.models.emplace_back(sphere);
 
-        Log("Loading of BoundingSphere is a success! \n");
-        scene.debugSystem.AddDebugModel(DebugSystem::Face_Normal, model.faceNormal);
-        scene.debugSystem.AddDebugModel(DebugSystem::Vertex_Normal, model.vertexNormal);
+            Log("Loading of BoundingSphere is a success! \n");
+            scene.debugSystem.AddDebugModel(DebugSystem::Face_Normal, model.faceNormal);
+            scene.debugSystem.AddDebugModel(DebugSystem::Vertex_Normal, model.vertexNormal);
         });
     }
-
-/*    ModelSystem::getInstance().LoadModel("Common/models/bunny.obj", [&,powerPlantMaterial](std::vector<Model> models) {
-        assert(models.size() == 1);
-        const Model& model = models[0];
-
-        testQuad = model;
-        testQuad.material = powerPlantMaterial;
-
-        scene.models.emplace_back(testQuad);
-        Log("Loading of Bunny is a success! \n");
-    });*/
-
 
 
     // Load the skybox
@@ -141,9 +129,10 @@ void AssignmentOne::Init() {
     scene.mainCamera = std::make_unique<FpsCamera>();
 
     scene.mainCamera->LookAt({ 0, 0, -20 }, { 0, 0, 0 });
+
 }
 
-void AssignmentOne::Resize(int width, int height) {
+void AssignmentTwo::Resize(int width, int height) {
     if(width == 0 || height == 0)
         return;
 
@@ -152,8 +141,8 @@ void AssignmentOne::Resize(int width, int height) {
     lightBuffer.RecreateGpuResources(width, height, gBuffer);
 }
 
-void AssignmentOne::Draw(const Input &input, float deltaTime, float runningTime) {
-    scene.mainCamera->Update(input, deltaTime);
+void AssignmentTwo::Draw(const Input &input, float deltaTime, float runningTime) {
+    Update(input, deltaTime);
     for (auto& dirLight : scene.directionalLights)
     {
         dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
@@ -176,10 +165,11 @@ void AssignmentOne::Draw(const Input &input, float deltaTime, float runningTime)
     }
 }
 
-AssignmentOne::AssignmentOne() : transformSystem(TransformSystem::getInstance()){
+AssignmentTwo::AssignmentTwo() : transformSystem(TransformSystem::getInstance()){
+    RunTestCases();
 }
 
-void AssignmentOne::LoadModelFromTextFile(std::string fileName, Material* mat) {
+void AssignmentTwo::LoadModelFromTextFile(std::string fileName, Material* mat) {
     std::ifstream ifstream(fileName);
     if(!ifstream.is_open() || ifstream.fail())
     {
@@ -225,3 +215,38 @@ void AssignmentOne::LoadModelFromTextFile(std::string fileName, Material* mat) {
         });
     }
 }
+
+void AssignmentTwo::AddShape(std::shared_ptr<Shape> shape) {
+    Shapes.emplace_back(shape);
+}
+
+void AssignmentTwo::Update(const Input &input, float dt) {
+    scene.mainCamera->Update(input, dt);
+
+    // Broadphase Collision
+    static std::vector<
+            std::tuple<
+                std::shared_ptr<Shape>, std::shared_ptr<Shape>,Shapes::Collision>
+    > Collided;
+    Collided.reserve(1000);
+
+    for (int i = 0; i < Shapes.size(); ++i) {
+        for (int j = i + 1; j < Shapes.size(); ++j) {
+            Shapes::Collision collision;
+            if (Shapes::CheckCollision(*Shapes[i], *Shapes[j], collision)) {
+                Collided.emplace_back(std::make_tuple(Shapes[i], Shapes[j], collision));
+            }
+        }
+    }
+
+    // All collided are in Collided
+    for (int i = 0; i < Collided.size(); ++i)
+    {
+        std::shared_ptr<Shape>& a = std::get<0>(Collided[i]);
+        std::shared_ptr<Shape>& b = std::get<1>(Collided[i]);
+        Shapes::Collision& collision = std::get<2>(Collided[i]);
+        Log("%s and %s are colliding! \n", typeid(a).name(), typeid(b).name());
+    }
+    Collided.clear();
+}
+

@@ -29,6 +29,7 @@
 // STL libs
 #include <string>
 #include <fstream>
+#include <utility>
 #include <sstream>
 #include <iomanip>
 #include <unordered_set>
@@ -51,6 +52,8 @@
 #include <istream>
 #include <type_traits>
 #include <condition_variable>
+#include <tuple>
+#include <type_traits>
 
 
 // Macros for defining platform
