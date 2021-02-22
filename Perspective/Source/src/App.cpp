@@ -18,11 +18,11 @@
 #include "stdafx.h"
 #include "App.h"
 #include "CS350.h"
-
+#include "AssignmentTwo.h"
 
 
 std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<AssignmentOne>();
+    auto app = std::make_unique<AssignmentTwo>();
     App::CurrApp = app.get();
     return app;
 }

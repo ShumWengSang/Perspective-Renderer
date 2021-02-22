@@ -18,7 +18,7 @@ file(GLOB SHADER_CROSS_SOURCES "shaders/*.h")
 
 message("Sources ${SOURCES}")
 
-add_executable(Perspective ${SOURCES} ${SHADER_CROSS_SOURCES} ${EXT_SOURCES})
+add_executable(Perspective ${SOURCES} ${SHADER_CROSS_SOURCES} ${EXT_SOURCES} )
 
 source_group("Source" FILES ${SOURCES})
 source_group("Cross Shaders" FILES ${SHADER_CROSS_SOURCES})

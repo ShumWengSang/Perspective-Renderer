@@ -46,6 +46,11 @@ public:
     const bool operator& (option_type t) const{
         return mask_ & mask_value(t);
     }
+
+    bool operator== (Bitmask<option_type> const & other) const
+    {
+        return mask_ == other.mask_;
+    }
 private:
     underlyingType mask_ = 0;
 };
