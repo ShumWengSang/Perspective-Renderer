@@ -10,7 +10,7 @@ file(GLOB SOURCES "Source/src/*.c" "Source/src/*.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/Source/src/stdafx.cpp")
 
 # Glob the imple for imgui
-file(GLOB EXT_SOURCES "Source/externalSrc/*.c" "Source/externalSrc/*.cpp")
+file(GLOB EXT_SOURCES "Source/externalSrc/*.c" "Source/externalSrc/*.cpp" "Source/externalSrc/*.hpp")
 
 # We sometimes want to compile files as both C++ and GLASL.
 # This allows us to access files from the shader directory.
@@ -18,7 +18,7 @@ file(GLOB SHADER_CROSS_SOURCES "shaders/*.h")
 
 message("Sources ${SOURCES}")
 
-add_executable(Perspective ${SOURCES} ${SHADER_CROSS_SOURCES} ${EXT_SOURCES} )
+add_executable(Perspective ${SOURCES} ${SHADER_CROSS_SOURCES} ${EXT_SOURCES} Source/src/jsonSerializer.cpp Source/src/jsonSerializer.h)
 
 source_group("Source" FILES ${SOURCES})
 source_group("Cross Shaders" FILES ${SHADER_CROSS_SOURCES})
@@ -44,3 +44,7 @@ add_custom_command(TARGET Perspective POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders/
         $<TARGET_FILE_DIR:Perspective>/shaders
         )
+
+if(MSVC)
+    target_link_options(Perspective  PUBLIC /incremental PUBLIC /debug:fastlink)
+endif()

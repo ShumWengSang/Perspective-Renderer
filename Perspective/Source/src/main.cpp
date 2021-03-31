@@ -8,9 +8,122 @@
 #include "ShaderSystem.h"
 #include "GuiSystem.h"
 #include "GlobalVariables.h"
+#include "DebugDraw.h"
 
 static std::unique_ptr<App> app;
 static bool renderUI = true;
+
+static void MidTerm()
+{
+
+    using namespace glm;
+    std::vector<vec3> points = {
+            {0.2113249,0.5608486,0.3076091},
+            {0.7560439,0.6623569,0.9329616},
+            {0.0002211,0.7263507,0.2146008},
+            {0.3303271,0.1985144,0.312642 },
+            {0.6653811,0.5442573,0.3616361},
+            {0.6283918,0.2320748,0.2922267},
+            {0.8497452,0.2312237,0.5664249},
+            {0.685731 ,0.2164633,0.4826472},
+            {0.8782165,0.8833888,0.3321719},
+            {0.068374 ,0.6525135,0.5935095}};
+    printf("MIDTERM =========== \n");
+
+
+    vec3 mininum = vec3(0.0002211, 0.1985144, 0.2146008);
+    vec3 maximum = vec3(0.8782165, 0.8833888,0.9329616);
+
+    vec3 midPoint = (mininum + maximum) / 2.0f;
+    std::cout << glm::to_string(midPoint) << std::endl;
+
+    float maxDistance = -9999999;
+    glm::vec3 maxPointAway;
+    for(int i = 0; i < points.size(); i++)
+    {
+        float distance = glm::distance(midPoint, points[i]);
+        if(std::abs(distance) > maxDistance)
+        {
+            maxDistance = std::abs(distance);
+            maxPointAway = points[i];
+        }
+    }
+
+    printf("Max point away is %s, with a distance of %f\n", glm::to_string(maxPointAway).c_str(), maxDistance);
+
+    std::vector<vec3> Dictionary = {{1,1,0}, {1,-1,0}, {1,0,1},{1,0,-1},{0,1,1},
+                                    {0,1,-1},{0,-1,2}};
+    std::vector<std::pair<vec3, vec3>> ExternalPoints;
+    for(int j = 0; j < Dictionary.size(); ++j)
+    {
+        vec3 min = {999,999,999};
+        vec3 max = {-999,-999,-999};
+        float dotMin = std::numeric_limits<float>::max();
+        float dotMax = std::numeric_limits<float>::min();
+
+        for(int i = 0; i < points.size(); ++i)
+        {
+            float dot = glm::dot(points[i], Dictionary[j]);
+
+            if(dot > dotMax)
+            {
+                max = points[i];
+                dotMax = dot;
+            }
+            if(dot < dotMin)
+            {
+                min = points[i];
+                dotMin = dot;
+            }
+        }
+
+        printf("Min Max of normal %s are %s, %s \n",
+               glm::to_string(Dictionary[j]).c_str(), glm::to_string(min).c_str(), glm::to_string(max).c_str());
+        ExternalPoints.emplace_back(std::make_pair(min, max));
+    }
+    // Find extreme point. Find central point of sphere points
+    std::pair<vec3,vec3> Extreme;
+    float oldRadius;
+    vec3 oldCenter = vec3(0);
+    {
+        float maxDistance = std::numeric_limits<float>::min();
+        for (int i = 0; i < ExternalPoints.size(); ++i) {
+            float distance = std::abs(glm::distance(ExternalPoints[i].first, ExternalPoints[i].second));
+            if(distance > maxDistance)
+            {
+                maxDistance = distance;
+                Extreme = ExternalPoints[i];
+            }
+            oldCenter += ExternalPoints[i].first;
+            oldCenter += ExternalPoints[i].second;
+        }
+        oldCenter = (Extreme.first + Extreme.second) / 2.0f;
+        oldRadius = maxDistance / 2;
+    }
+
+    {
+        // See if we need to resize going through every point
+        for(int i = 0; i < points.size(); ++i)
+        {
+            float d = glm::distance(oldCenter, points[i]);
+            if(std::abs(d) > oldRadius)
+            {
+                float oldR = oldRadius;
+                // We need to resize to fit the new point
+                oldRadius = (oldRadius + std::abs(d)) / 2.0f;
+                oldCenter = oldCenter + (oldRadius - oldR) * glm::normalize(points[i] - oldCenter);
+            }
+        }
+        // Final results
+        printf("Circle - Center of %s with radius of %f\n", glm::to_string(oldCenter).c_str(), oldRadius);
+    }
+
+    for(int i = 0; i < points.size(); i++)
+    {
+        vec3 newPoint = points[i] * vec3(1.5,2.0,2.0);
+        printf("%s\n", glm::to_string(newPoint).c_str());
+    }
+}
 
 void glfwResizeCallback(GLFWwindow *window, int width, int height)
 {
@@ -98,10 +211,12 @@ int main(int argc, char *argv[])
     ModelSystem& modelSystem = ModelSystem::getInstance();
     ShaderSystem& shaderSystem = ShaderSystem::getInstance();
     GuiSystem& guiSystem = GuiSystem::getInstance();
+    DebugDrawSystem& debugSystem = DebugDrawSystem::getInstance();
 
     transformSystem.Init();
     textureSystem.Init();
     modelSystem.Init();
+    debugSystem.Init();
     guiSystem.Init(window);
 
     app->Init();
@@ -119,114 +234,6 @@ int main(int argc, char *argv[])
     glfwSetTime(0.0);
     double lastTime = glfwGetTime();
     float accumulatedTime = 0.0;
-
-    using namespace glm;
-    std::vector<vec3> points = {
-            {0.2113249,0.5608486,0.3076091},
-            {0.7560439,0.6623569,0.9329616},
-            {0.0002211,0.7263507,0.2146008},
-            {0.3303271,0.1985144,0.312642 },
-            {0.6653811,0.5442573,0.3616361},
-            {0.6283918,0.2320748,0.2922267},
-            {0.8497452,0.2312237,0.5664249},
-            {0.685731 ,0.2164633,0.4826472},
-            {0.8782165,0.8833888,0.3321719},
-            {0.068374 ,0.6525135,0.5935095}};
-    printf("MIDTERM =========== \n");
-
-
-    vec3 mininum = vec3(0.0002211, 0.1985144, 0.2146008);
-    vec3 maximum = vec3(0.8782165, 0.8833888,0.9329616);
-
-    vec3 midPoint = (mininum + maximum) / 2.0f;
-    std::cout << glm::to_string(midPoint) << std::endl;
-
-    float maxDistance = -9999999;
-    glm::vec3 maxPointAway;
-    for(int i = 0; i < points.size(); i++)
-    {
-        float distance = glm::distance(midPoint, points[i]);
-        if(std::abs(distance) > maxDistance)
-        {
-            maxDistance = std::abs(distance);
-            maxPointAway = points[i];
-        }
-    }
-
-    printf("Max point away is %s, with a distance of %f\n", glm::to_string(maxPointAway).c_str(), maxDistance);
-
-    std::vector<vec3> Dictionary = {{1,1,0}, {1,-1,0}, {1,0,1},{1,0,-1},{0,1,1},
-                         {0,1,-1},{0,-1,2}};
-    std::vector<std::pair<vec3, vec3>> ExternalPoints;
-    for(int j = 0; j < Dictionary.size(); ++j)
-    {
-        vec3 min = {999,999,999};
-        vec3 max = {-999,-999,-999};
-        float dotMin = std::numeric_limits<float>::max();
-        float dotMax = std::numeric_limits<float>::min();
-
-        for(int i = 0; i < points.size(); ++i)
-        {
-            float dot = glm::dot(points[i], Dictionary[j]);
-
-            if(dot > dotMax)
-            {
-                max = points[i];
-                dotMax = dot;
-            }
-            if(dot < dotMin)
-            {
-                min = points[i];
-                dotMin = dot;
-            }
-        }
-
-        printf("Min Max of normal %s are %s, %s \n",
-               glm::to_string(Dictionary[j]).c_str(), glm::to_string(min).c_str(), glm::to_string(max).c_str());
-        ExternalPoints.emplace_back(std::make_pair(min, max));
-    }
-    // Find extreme point. Find central point of sphere points
-    std::pair<vec3,vec3> Extreme;
-    float oldRadius;
-    vec3 oldCenter = vec3(0);
-    {
-        float maxDistance = std::numeric_limits<float>::min();
-        for (int i = 0; i < ExternalPoints.size(); ++i) {
-            float distance = std::abs(glm::distance(ExternalPoints[i].first, ExternalPoints[i].second));
-            if(distance > maxDistance)
-            {
-                maxDistance = distance;
-                Extreme = ExternalPoints[i];
-            }
-            oldCenter += ExternalPoints[i].first;
-            oldCenter += ExternalPoints[i].second;
-        }
-        oldCenter = (Extreme.first + Extreme.second) / 2.0f;
-        oldRadius = maxDistance / 2;
-    }
-
-    {
-        // See if we need to resize going through every point
-        for(int i = 0; i < points.size(); ++i)
-        {
-            float d = glm::distance(oldCenter, points[i]);
-            if(std::abs(d) > oldRadius)
-            {
-                float oldR = oldRadius;
-                // We need to resize to fit the new point
-                oldRadius = (oldRadius + std::abs(d)) / 2.0f;
-                oldCenter = oldCenter + (oldRadius - oldR) * glm::normalize(points[i] - oldCenter);
-            }
-        }
-        // Final results
-        printf("Circle - Center of %s with radius of %f\n", glm::to_string(oldCenter).c_str(), oldRadius);
-    }
-
-    for(int i = 0; i < points.size(); i++)
-    {
-        vec3 newPoint = points[i] * vec3(1.5,2.0,2.0);
-        printf("%s\n", glm::to_string(newPoint).c_str());
-    }
 
     while (!glfwWindowShouldClose(window))
     {
@@ -258,7 +265,7 @@ int main(int argc, char *argv[])
         {
             ImGui::EndFrame();
         }
-
+        debugSystem.Render();
 
         glfwSwapBuffers(window);
     }
@@ -266,6 +273,7 @@ int main(int argc, char *argv[])
     modelSystem.Destroy();
     textureSystem.Destroy();
     transformSystem.Destroy();
+    debugSystem.Destroy();
 
 
     glfwDestroyWindow(window);

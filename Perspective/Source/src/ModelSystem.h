@@ -38,6 +38,7 @@ struct LoadedModel
     std::vector<Vertex> vertices;
 
     Shapes::BoundingSphere bounds;
+    Shapes::AABB boundingBox;
 
     bool materialDefined;
     std::string baseDirectory;
@@ -78,7 +79,7 @@ public:
     bool IsIdle();
     using ModelLoadCallback = std::function<void(std::vector<Model> models)>;
     void LoadModel(const std::string& filename, const ModelLoadCallback& callback);
-
+    Model RegisterModel(const LoadedModel& loadedModel);
     const std::unordered_map<std::string,std::vector<LoadedModel>>& GetAllLoadedModels() const;
 
 private:

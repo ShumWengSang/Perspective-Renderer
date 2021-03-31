@@ -1,4 +1,5 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 
 // Imgui
 #include <imgui.h>
@@ -10,7 +11,6 @@
 #include <GLFW/glfw3.h>
 
 
-
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -20,11 +20,15 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/hash.hpp>
 
 // Tiny obj loader
 #include <tiny_obj_loader.h>
 
 #include <stb_image.h>
+
+// Todo fix this
+#include "../deps/rapidjson/include/rapidjson/rapidjson.h"
 
 // STL libs
 #include <string>
@@ -55,6 +59,7 @@
 #include <tuple>
 #include <type_traits>
 
+#include <debug_draw.hpp>
 
 // Macros for defining platform
 #if defined(unix) || defined(__unix__) || defined (__unix)

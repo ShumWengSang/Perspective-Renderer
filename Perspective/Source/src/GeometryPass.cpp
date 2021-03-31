@@ -101,37 +101,43 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 
 
     GLuint lastProgram = UINT_MAX;
-    for (const Model& model : geometryToRender)
-    {
-        GLuint program = model.material->program;
+    if(drawObject) {
+        for (const Model &model : geometryToRender) {
+            GLuint program = model.material->program;
 
-        if (program == 0)
-        {
-            continue;
+            if (program == 0) {
+                continue;
+            }
+
+            if (program != lastProgram) {
+                glUseProgram(program);
+                lastProgram = program;
+            }
+
+            Transform &transform = transformSystem.Get(model.transformID);
+            const Transform &prevTransform = transformSystem.GetPrevious(model.transformID);
+            model.material->BindUniforms(transform, prevTransform);
+
+            if (model.material->cullBackface) glEnable(GL_CULL_FACE);
+            else
+                glDisable(GL_CULL_FACE);
+
+            model.Draw();
+
+            numDrawCalls += 1;
+            numTriangles += model.TriangleCount();
         }
-
-        if (program != lastProgram)
-        {
-            glUseProgram(program);
-            lastProgram = program;
-        }
-
-        Transform& transform = transformSystem.Get(model.transformID);
-        const Transform& prevTransform = transformSystem.GetPrevious(model.transformID);
-        model.material->BindUniforms(transform, prevTransform);
-
-        if (model.material->cullBackface) glEnable(GL_CULL_FACE);
-        else glDisable(GL_CULL_FACE);
-
-        model.Draw();
-
-        numDrawCalls += 1;
-        numTriangles += model.TriangleCount();
     }
+
+    glDepthMask(true);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     if(ImGui::CollapsingHeader("Geometry Pass"))
     {
         ImGui::Checkbox("Draw wireframes", &wireframeRendering);
+        ImGui::Checkbox("Draw Obj", &drawObject);
         ImGui::Text("Draw calls: %d", numDrawCalls);
         ImGui::Text("Triangles:  %d", numTriangles);
     }

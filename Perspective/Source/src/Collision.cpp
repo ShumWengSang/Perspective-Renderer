@@ -6,6 +6,8 @@
 #include "Shapes.h"
 #include "Collision.h"
 #include "Logger.h"
+#include "ModelSystem.h"
+#include "TransformSystem.h"
 
 namespace Shapes {
 
@@ -38,7 +40,7 @@ namespace Shapes {
         Log("Passed in a %s and a %s\n", typeid(a).name(), typeid(b).name());
         const auto[SphereA, Box] = FixOrdering<BoundingSphere, AABB>(a, b);
 
-        const auto[max , min] = Box.GetMinMax();
+        const auto[min, max] = Box.GetMinMax();
 
         // Get closest point to sphere center
         glm::vec3 point = glm::max(min, glm::min(SphereA.center, max));
@@ -54,8 +56,8 @@ namespace Shapes {
         Log("Passed in a %s and a %s\n", typeid(a).name(), typeid(b).name());
         const auto[BoxA, BoxB] = FixOrdering<AABB, AABB>(a, b);
 
-        const auto[maxA , minA] = BoxA.GetMinMax();
-        const auto[maxB , minB] = BoxB.GetMinMax();
+        const auto[minA , maxA] = BoxA.GetMinMax();
+        const auto[minB , maxB] = BoxB.GetMinMax();
 
         for(unsigned i = 0; i < 3; ++i)
         {
@@ -79,12 +81,18 @@ namespace Shapes {
             (Shape const &a, Shape const &b, Collision &output)
     {
         const auto[Box, Point] = FixOrdering<AABB, Point3D>(a, b);
-        const auto[maxA , minA] = Box.GetMinMax();
+        const auto[minA , maxA] = Box.GetMinMax();
 
-        return (Point.coordinates.x >= minA.x && Point.coordinates.x <= maxA.x) &&
-                (Point.coordinates.y >= minA.y && Point.coordinates.y <= maxA.y) &&
-                (Point.coordinates.z >= minA.z && Point.coordinates.z <= maxA.z);
-
+        // 6 sig figs
+        glm::vec3 rounded = glm::round(Point.coordinates * 100.f) / 100.f;
+        bool ret = (rounded.x >= minA.x && rounded.x <= maxA.x) &&
+                   (rounded.y >= minA.y && rounded.y <= maxA.y) &&
+                   (rounded.z >= minA.z && rounded.z <= maxA.z);
+        if(!ret)
+        {
+            //DEBUG_BREAKPOINT();
+        }
+        return ret;
     }
 
     template<>
@@ -132,7 +140,7 @@ namespace Shapes {
             (Shape const &a, Shape const &b, Collision &output)
     {
         const auto[ray, aabb] = FixOrdering<Ray, AABB>(a, b);
-        const auto[max, min] = aabb.GetMinMax();
+        const auto[min, max] = aabb.GetMinMax();
 
         for(int i = 0; i < 3; ++i)
         {
@@ -195,6 +203,7 @@ namespace Shapes {
             // Check if point is in triangle
             return CheckCollision<Triangle, Point3D>(triangle, Point3D(innerCollision.pointA), innerinnerOutput);
         }
+        return false;
     }
 
     template<>
@@ -227,4 +236,116 @@ namespace Shapes {
         float radius2 = sphere.radius * sphere.radius;
         return glm::distance2(p_prime, sphere.center) <= radius2;
     }
+
+
+    Point3D IntersectEdgeAgainstPlane(Point3D a, Point3D b, Plane plane) {
+        glm::vec3 ab = b.coordinates - a.coordinates;
+
+        float t = (plane.Normal.w - glm::dot(glm::vec3(plane.Normal), a.coordinates)) / (glm::dot(glm::vec3(plane.Normal), ab));
+
+        if(t >= 0.0 && t <= 1.0f)
+        {
+
+        }
+        else
+        {
+            Log("Uhhh");
+        }
+        Point3D res (a.coordinates + t * ab);
+        return res;
+    }
+
+    void SuthHodgeClip(
+            const std::vector<Shapes::Point3D> &polygon, Shapes::Plane const & plane
+            , std::vector<Shapes::Point3D> &backFace, std::vector<Shapes::Point3D> &frontFace
+                      ) {
+
+        // Test all edges (a,b) starting with edger from last to first vertice
+        Shapes::Point3D a = polygon.back();
+        int aSide = Shapes::ClassifyPointToPlane(a, plane);
+
+        backFace.clear();
+        frontFace.clear();
+
+        // Loop over all edges given by vertex pair (n - 1, n)
+        for(int n = 0; n < polygon.size(); n++)
+        {
+            Point3D b = polygon[n];
+            int bSide = Shapes::ClassifyPointToPlane(b, plane);
+
+            if(bSide == POINT_IN_FRONT_OF_PLANE)
+            {
+                if(aSide == POINT_BEHIND_PLANE)
+                {
+                    // Edge (a,b) straddles output interaction point to both sides
+                    Point3D i = IntersectEdgeAgainstPlane(a, b, plane);
+                    //assert(ClassifyPointToPlane(i, plane) == POINT_ON_PLANE);
+                    frontFace.emplace_back(i);
+                    backFace.emplace_back(i);
+                }
+                frontFace.emplace_back(b);
+            }
+            else if(bSide == POINT_BEHIND_PLANE)
+            {
+                if(aSide == POINT_IN_FRONT_OF_PLANE)
+                {
+                    // Edge (a,b) straddles plane, output intersection point
+                    Point3D i = IntersectEdgeAgainstPlane(b, a, plane);
+                    //assert(ClassifyPointToPlane(i, plane) == POINT_ON_PLANE);
+                    frontFace.emplace_back(i);
+                    backFace.emplace_back(i);
+                }
+                else if(aSide == POINT_ON_PLANE)
+                {
+                    backFace.emplace_back(a);
+                }
+                backFace.emplace_back(b);
+            }
+            else
+            {
+                // B is on the plane, all three cases output b to front side
+                frontFace.emplace_back(b);
+                // In one case, b is also in backside
+                if(aSide == POINT_BEHIND_PLANE)
+                    backFace.emplace_back(b);
+            }
+            // Keep b as starting point of next edge
+            a = b;
+            aSide = bSide;
+        }
+    }
+
+}
+
+void CollisionMesh::AddModel(const LoadedModel &model) {
+    const auto& model_vertices = model.vertices;
+    for(int i = 0; i < model.indices.size(); i += 3)
+    {
+        int index1 = model.indices.at(i);
+        int index2 = model.indices.at(i + 1);
+        int index3 = model.indices.at(i + 2);
+        Shapes::Triangle trig(model_vertices[index1].position, model_vertices[index2].position, model_vertices[index3].position);
+        this->vertices.emplace_back(trig);
+    }
+    this->boundingBox = model.boundingBox;
+}
+
+void CollisionMesh::AddModel(const LoadedModel &model, int transformID) {
+    Transform& transform = TransformSystem::getInstance().Get(transformID);
+
+    const auto& model_vertices = model.vertices;
+
+    for(int i = 0; i < model.indices.size(); i += 3)
+    {
+        int index1 = model.indices.at(i);
+        int index2 = model.indices.at(i + 1);
+        int index3 = model.indices.at(i + 2);
+        Shapes::Triangle trig(
+                glm::vec4(model_vertices[index1].position, 1) * transform.matrix,
+                glm::vec4(model_vertices[index2].position, 1) * transform.matrix,
+                glm::vec4(model_vertices[index3].position, 1) * transform.matrix);
+
+        this->vertices.emplace_back(trig);
+    }
+    this->boundingBox = model.boundingBox;
 }

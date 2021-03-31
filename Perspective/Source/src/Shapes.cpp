@@ -21,6 +21,12 @@
 #include "Bitmask.h"
 #include "Collision.h"
 
+namespace std {
+    size_t std::hash<Shapes::Point3D>::operator()(const Shapes::Point3D &obj) const {
+        return hash<glm::vec3>()(obj.coordinates);
+    }
+}
+
 glm::vec3 Shapes::SrgbColor(float r, float g, float b) {
     glm::vec3 sRGB = glm::pow({ r, g, b }, glm::vec3(2.2f));
     return sRGB;
@@ -146,16 +152,90 @@ Shapes::Triangle::Triangle(glm::vec3 const & a, glm::vec3 const & b, glm::vec3 c
 
 }
 
-Shapes::Plane::Plane(glm::vec3 const & normal, float d) :Normal(normal, d), Shape(Type::Plane){
+// Return triangle + generated triangle (if necessary) for within bounds
+std::vector<Shapes::Triangle> Shapes::Triangle::BoundingVolumeCut(const Shapes::AABB &boundingVolume) const {
+    std::vector<Shapes::Triangle> res;
 
+    auto [Min, Max] = boundingVolume.GetMinMax();
+
+    // Generate 6 planes pointing inward into the box, run the SH algo to clip triangle against all planes
+    std::array<Shapes::Plane, 6> planes = {
+            Shapes::Plane(Max, glm::vec3(Max.x, Max.y, Min.z), glm::vec3(Max.x, Min.y, Min.z)), // Left Face
+            Shapes::Plane(Min, glm::vec3(Max.x, Min.y, Min.z), glm::vec3(Max.x, Max.y, Min.z)), // Front
+            Shapes::Plane(Min, glm::vec3(Min.x, Max.y, Min.z), glm::vec3(Min.x, Max.y, Max.z)),
+            Shapes::Plane(Max, glm::vec3(Max.x, Min.y, Max.z), glm::vec3(Min.x, Min.y, Max.z)),
+            Shapes::Plane(Max,glm::vec3(Min.x, Max.y, Max.z), glm::vec3(Min.x, Max.y, Min.z)),
+            Shapes::Plane(Min,glm::vec3(Min.x, Min.y, Max.z), glm::vec3(Max.x, Min.y, Max.z))
+    };
+
+
+    std::vector<Shapes::Point3D> polygon = {
+            Shapes::Point3D(this->v1), Shapes::Point3D(this->v2), Shapes::Point3D(this->v3)
+    };
+    std::vector<Shapes::Point3D> resultantPolygon;
+    std::vector<Shapes::Point3D> frontFace;
+    std::vector<Shapes::Point3D> backFace;
+    for(int i = 0; i < 6; ++i)
+    {
+        if(polygon.empty())
+            break;
+        // planes[i].Flip();
+        // Clip the results
+        SuthHodgeClip(polygon, planes[i], backFace, frontFace);
+        // Set the output of the clipping algo as the new polygon to cut against
+        polygon = frontFace;
+        backFace.clear();
+        frontFace.clear();
+    }
+
+    // Now from all the points we reassembly the triangles
+    for(int i = 2; i < polygon.size(); ++i)
+    {
+        res.emplace_back(Shapes::Triangle(polygon[0].coordinates,
+                                          polygon[i - 1].coordinates,
+                                          polygon[i].coordinates));
+    }
+
+    return res;
+}
+
+bool Shapes::Triangle::operator==(const Shapes::Triangle &rhs) const {
+    return this->v1 == rhs.v1 && this->v2 == rhs.v2 && this->v3 == rhs.v3;
+}
+
+Shapes::Plane::Plane(glm::vec3 const & normal, float d) : Shape(Type::Plane){
+    float mag = glm::length(normal);
+    Normal = glm::vec4(normal, d) / mag;
 }
 
 Shapes::Plane::Plane(glm::vec4 const & normal) :Normal(normal), Shape(Type::Plane){
 
 }
 
+Shapes::Plane::Plane(glm::vec3 const & pointA, glm::vec3 const & pointB, glm::vec3 const & pointC) : Shape(Type::Plane)
+{
+    glm::vec3 AB = pointB - pointA;
+    glm::vec3 AC = pointC - pointA;
+
+    glm::vec3 normal = glm::cross(AB, AC);
+    float mag = glm::length(normal);
+    float d = glm::dot(pointA, glm::cross(AB, AC));
+    Normal = glm::vec4(normal, d) / mag;
+}
+
+void Shapes::Plane::Flip() {
+    glm::vec3 norm = glm::vec3(this->Normal);
+    float d = this->Normal.w;
+    norm *= -1;
+    Normal = glm::vec4(norm, d);
+}
+
 Shapes::Point3D::Point3D(glm::vec3 const & point) : coordinates(point), Shape(Type::Point3D){
 
+}
+
+bool Shapes::Point3D::operator==(Point3D const & rhs) const{
+    return this->coordinates == rhs.coordinates;
 }
 
 Shapes::AABB::AABB(glm::vec3 const & center, glm::vec3 const & halfExtents) : center(center), halfExtents(halfExtents),
@@ -164,7 +244,7 @@ Shapes::AABB::AABB(glm::vec3 const & center, glm::vec3 const & halfExtents) : ce
 }
 
 Shapes::AABB::AABB(glm::vec3 const & lowerBound, glm::vec3 const & upperBound, int nothing) :
-    center((lowerBound.x + upperBound.x) / 2.0f, (lowerBound.y + upperBound.y) / 2.0f, (lowerBound.z + upperBound.z) / 2.0f),
+    center((lowerBound + upperBound) / 2.0f),
     halfExtents((upperBound - lowerBound) / 2.0f), Shape(Type::AABB){
     (void)nothing;
 }
@@ -172,7 +252,20 @@ Shapes::AABB::AABB(glm::vec3 const & lowerBound, glm::vec3 const & upperBound, i
 std::tuple<glm::vec3, glm::vec3> Shapes::AABB::GetMinMax() const {
     glm::vec3 max = center + halfExtents;
     glm::vec3 min = center - halfExtents;
-    return std::make_tuple(max, min);
+    return std::make_tuple(min, max);
+}
+
+std::tuple<glm::vec3, glm::vec3> Shapes::AABB::GetCenterHalfExtents() const{
+    return std::make_tuple(center, halfExtents);
+}
+
+Shapes::AABB::AABB() : Shape(Type::AABB){
+
+}
+
+void Shapes::AABB::RenderAABB(glm::vec4 const & color) const {
+    auto [Min, Max] = this->GetMinMax();
+    dd::aabb(glm::value_ptr(Min), glm::value_ptr(Max), glm::value_ptr(color));
 }
 
 Shapes::BoundingSphere::BoundingSphere(glm::vec3 const& center, float radius) :
@@ -291,4 +384,14 @@ bool Shapes::solveQuadratic(const float &a, const float &b, const float &c, floa
     if (x0 > x1) std::swap(x0, x1);
 
     return true;
+}
+
+int Shapes::ClassifyPointToPlane(Shapes::Point3D p, Shapes::Plane plane) {
+    float dist = glm::dot(glm::vec3(plane.Normal), p.coordinates) - plane.Normal.w;
+
+    if(dist > PLANE_THICKNESS_EPISLON)
+        return POINT_IN_FRONT_OF_PLANE;
+    if(dist < -PLANE_THICKNESS_EPISLON)
+        return POINT_BEHIND_PLANE;
+    return POINT_ON_PLANE;
 }

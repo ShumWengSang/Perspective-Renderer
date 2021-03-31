@@ -31,6 +31,7 @@ public:
 
     bool performDepthPrepass = false;
     bool wireframeRendering = false;
+    bool drawObject = true;
 private:
     GLuint depthOnlyProgram = 0;
     GLint modelMatrixLocation;

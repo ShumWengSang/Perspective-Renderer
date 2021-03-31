@@ -32,6 +32,7 @@ public:
     int transformID = 0;
     Material *material = nullptr;
     Shapes::BoundingSphere bounds = {{0, 0, 0}, 9999.0f };
+    Shapes::AABB boundingBox;
 
     void Draw() const;
     int TriangleCount() const;

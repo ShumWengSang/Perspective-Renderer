@@ -20,6 +20,21 @@
 #ifndef OPENGLFRAMEWORK_SHAPES_H
 #define OPENGLFRAMEWORK_SHAPES_H
 
+
+template <typename Writer>
+inline void SerializeVec3(Writer& writer, glm::vec3 const & vector)
+{
+    writer.StartObject();
+    writer.String(("x"));
+    writer.Double(vector.x);
+    writer.String(("y"));
+    writer.Double(vector.y);
+    writer.String(("z"));
+    writer.Double(vector.z);
+    writer.EndObject();
+}
+
+
 namespace Shapes
 {
     enum class Type
@@ -45,13 +60,39 @@ namespace Shapes
         glm::vec3 coordinates;
         explicit Point3D(glm::vec3 const & point);
 
+        bool operator== (Point3D const & rhs) const;
     };
     struct Plane : public Shape
     {
         // (n.x, n.y, n.z, d)
         glm::vec4 Normal;
         Plane(glm::vec3 const & normal, float d);
+        Plane(glm::vec3 const & pointA, glm::vec3 const & pointB, glm::vec3 const & pointC);
+        void Flip();
         explicit Plane(glm::vec4 const & normal);
+    };
+    struct AABB : public Shape
+    {
+        glm::vec3 center = glm::vec3(0);
+        glm::vec3 halfExtents  = glm::vec3(0);
+        AABB(glm::vec3 const & center, glm::vec3 const & halfExtents);
+        AABB(glm::vec3 const & lowerBound, glm::vec3 const & upperBound, int empty);
+        AABB();
+        std::tuple<glm::vec3, glm::vec3> GetMinMax() const;
+        std::tuple<glm::vec3, glm::vec3> GetCenterHalfExtents() const;
+        void RenderAABB(glm::vec4 const & color) const;
+
+        template<typename Writer>
+        inline void Serialize(Writer& writer) const
+        {
+            writer.StartObject();
+            writer.String(("center"));
+            SerializeVec3(writer, glm::vec3(this->center));
+            writer.String(("halfExtents"));
+            SerializeVec3(writer, glm::vec3(this->halfExtents));
+            writer.EndObject();
+        }
+
     };
     struct Triangle : public Shape
     {
@@ -59,6 +100,21 @@ namespace Shapes
         glm::vec3 v2;
         glm::vec3 v3;
         Triangle(glm::vec3 const & a, glm::vec3 const & b, glm::vec3 const & c);
+        bool operator== (Triangle const & rhs) const;
+        std::vector<Shapes::Triangle> BoundingVolumeCut(AABB const & boundingVolume) const;
+
+        template<typename Writer>
+        inline void Serialize(Writer& writer) const
+        {
+            writer.StartObject();
+            writer.String(("v1"));
+            SerializeVec3(writer, glm::vec3(this->v1));
+            writer.String(("v2"));
+            SerializeVec3(writer, glm::vec3(this->v2));
+            writer.String(("v3"));
+            SerializeVec3(writer, glm::vec3(this->v3));
+            writer.EndObject();
+        }
     };
     struct BoundingSphere : public Shape
     {
@@ -68,14 +124,7 @@ namespace Shapes
         BoundingSphere();
     };
 
-    struct AABB : public Shape
-    {
-        glm::vec3 center;
-        glm::vec3 halfExtents;
-        AABB(glm::vec3 const & center, glm::vec3 const & halfExtents);
-        AABB(glm::vec3 const & lowerBound, glm::vec3 const & upperBound, int empty);
-        std::tuple<glm::vec3, glm::vec3> GetMinMax() const;
-    };
+
     struct Ray : public Shape
     {
         glm::vec3 origin;
@@ -110,7 +159,23 @@ namespace Shapes
     bool InsideFrustum(std::array<glm::vec4, 6>& planes, const BoundingSphere& boundingSphere);
 
     glm::vec2 HaltonSequence(int index, int baseX, int baseY);
-}
 
+    inline const static int POINT_IN_FRONT_OF_PLANE = 1;
+    inline const static int POINT_BEHIND_PLANE = -1;
+    inline const static int POINT_ON_PLANE = 0;
+    inline const static float PLANE_THICKNESS_EPISLON = 0.0001f;
+
+    int ClassifyPointToPlane(Point3D p, Plane plane);
+
+
+}
+namespace std
+{
+    template<>
+    struct hash<Shapes::Point3D>
+    {
+        size_t operator() (Shapes::Point3D const & obj) const;
+    };
+}
 
 #endif //OPENGLFRAMEWORK_SHAPES_H

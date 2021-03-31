@@ -5,13 +5,28 @@
 #ifndef OPENGLFRAMEWORK_COLLISION_H
 #define OPENGLFRAMEWORK_COLLISION_H
 
+struct LoadedModel;
+
+
+
 namespace Shapes {
+
 
     template<typename ShapeA, typename ShapeB>
     inline bool CheckCollision(Shape const &a, Shape const &b, Collision &output) {
         Log("Warning! Collision between %s and %s are not implemented!\n", typeid(a).name(), typeid(b).name());
         return false;
     }
+
+    Point3D IntersectEdgeAgainstPlane(Point3D a, Point3D b, Plane plane);
+
+
+
+
+    void
+    SuthHodgeClip(const std::vector<Shapes::Point3D> &polygon, Shapes::Plane const & clipper,
+            std::vector<Shapes::Point3D>& backFace, std::vector<Shapes::Point3D>& frontFace);
+
 
     template<>
     bool CheckCollision<BoundingSphere, BoundingSphere>
@@ -72,5 +87,22 @@ namespace Shapes {
         }
         return CheckCollision<ShapeA, ShapeB>(a, b, output);
     }
+
+    Point3D IntersectEdgeAgainstPlane(Point3D a, Point3D b, Plane plane);
 }
+
+class CollisionMesh
+{
+public:
+    CollisionMesh() = default;
+    void AddModel(LoadedModel const & model);
+    void AddModel(LoadedModel const & model, int transformID);
+
+private:
+    std::vector<Shapes::Triangle> vertices;
+    Shapes::AABB boundingBox;
+    friend class OctTree;
+};
+
+
 #endif //OPENGLFRAMEWORK_COLLISION_H
