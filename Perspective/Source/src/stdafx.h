@@ -21,6 +21,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/hash.hpp>
+#include <glm/ext.hpp>
+
 
 // Tiny obj loader
 #include <tiny_obj_loader.h>
@@ -29,6 +31,7 @@
 
 // Todo fix this
 #include "../deps/rapidjson/include/rapidjson/rapidjson.h"
+#include "../deps/rapidjson/include/rapidjson/document.h"
 
 // STL libs
 #include <string>

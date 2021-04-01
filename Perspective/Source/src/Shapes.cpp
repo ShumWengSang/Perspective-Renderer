@@ -154,8 +154,6 @@ Shapes::Triangle::Triangle(glm::vec3 const & a, glm::vec3 const & b, glm::vec3 c
 
 // Return triangle + generated triangle (if necessary) for within bounds
 std::vector<Shapes::Triangle> Shapes::Triangle::BoundingVolumeCut(const Shapes::AABB &boundingVolume) const {
-    std::vector<Shapes::Triangle> res;
-
     auto [Min, Max] = boundingVolume.GetMinMax();
 
     // Generate 6 planes pointing inward into the box, run the SH algo to clip triangle against all planes
@@ -188,19 +186,28 @@ std::vector<Shapes::Triangle> Shapes::Triangle::BoundingVolumeCut(const Shapes::
         frontFace.clear();
     }
 
-    // Now from all the points we reassembly the triangles
-    for(int i = 2; i < polygon.size(); ++i)
-    {
-        res.emplace_back(Shapes::Triangle(polygon[0].coordinates,
-                                          polygon[i - 1].coordinates,
-                                          polygon[i].coordinates));
-    }
-
-    return res;
+    return Shapes::ReassemblePointsToTriangle(polygon);
 }
 
 bool Shapes::Triangle::operator==(const Shapes::Triangle &rhs) const {
     return this->v1 == rhs.v1 && this->v2 == rhs.v2 && this->v3 == rhs.v3;
+}
+
+Shapes::Triangle Shapes::Triangle::Deserialize(rapidjson::Value &val) {
+
+    Shapes::Triangle res (
+    DeserializeVec3(val["v1"]),
+    DeserializeVec3(val["v2"]),
+    DeserializeVec3(val["v3"]));
+    return res;
+}
+
+Shapes::Triangle::Triangle() : Shape(Type::Plane) {
+
+}
+
+Shapes::Plane Shapes::Triangle::GetPlane() const {
+    return Shapes::Plane(v1, v2, v3);
 }
 
 Shapes::Plane::Plane(glm::vec3 const & normal, float d) : Shape(Type::Plane){
@@ -217,10 +224,9 @@ Shapes::Plane::Plane(glm::vec3 const & pointA, glm::vec3 const & pointB, glm::ve
     glm::vec3 AB = pointB - pointA;
     glm::vec3 AC = pointC - pointA;
 
-    glm::vec3 normal = glm::cross(AB, AC);
-    float mag = glm::length(normal);
-    float d = glm::dot(pointA, glm::cross(AB, AC));
-    Normal = glm::vec4(normal, d) / mag;
+    glm::vec3 normal = glm::normalize(glm::cross(AB, AC));
+    float d = glm::dot(pointA, normal);
+    Normal = glm::vec4(normal, d);
 }
 
 void Shapes::Plane::Flip() {
@@ -228,6 +234,12 @@ void Shapes::Plane::Flip() {
     float d = this->Normal.w;
     norm *= -1;
     Normal = glm::vec4(norm, d);
+}
+
+Shapes::Plane Shapes::Plane::Deserialize(rapidjson::Value &val) {
+    glm::vec3 normal = DeserializeVec3(val["Normal"]);
+    float d = val["d"].GetFloat();
+    return Plane(normal, d);
 }
 
 Shapes::Point3D::Point3D(glm::vec3 const & point) : coordinates(point), Shape(Type::Point3D){
@@ -268,6 +280,11 @@ void Shapes::AABB::RenderAABB(glm::vec4 const & color) const {
     dd::aabb(glm::value_ptr(Min), glm::value_ptr(Max), glm::value_ptr(color));
 }
 
+Shapes::AABB Shapes::AABB::Deserialize(rapidjson::Value &val) {
+    Shapes::AABB res( DeserializeVec3(val["center"]), DeserializeVec3(val["halfExtents"]));
+    return res;
+}
+
 Shapes::BoundingSphere::BoundingSphere(glm::vec3 const& center, float radius) :
     center(center), radius(radius), Shape(Type::BoundingSphere){
 
@@ -280,6 +297,8 @@ Shapes::BoundingSphere::BoundingSphere() : BoundingSphere(glm::vec3(0), 0){
 Shapes::Shape::Shape(Shapes::Type type) : type(type){
 
 }
+
+Shapes::Shape::Shape() {}
 
 bool Shapes::CheckCollision(const Shapes::Shape &a, const Shapes::Shape &b, Shapes::Collision &output) {
     Bitmask<Shapes::Type> currMask = Bitmask<Shapes::Type>(a.type) | b.type;
@@ -386,7 +405,7 @@ bool Shapes::solveQuadratic(const float &a, const float &b, const float &c, floa
     return true;
 }
 
-int Shapes::ClassifyPointToPlane(Shapes::Point3D p, Shapes::Plane plane) {
+int Shapes::ClassifyPointToPlane(Shapes::Point3D  const & p, Shapes::Plane const & plane) {
     float dist = glm::dot(glm::vec3(plane.Normal), p.coordinates) - plane.Normal.w;
 
     if(dist > PLANE_THICKNESS_EPISLON)
@@ -394,4 +413,64 @@ int Shapes::ClassifyPointToPlane(Shapes::Point3D p, Shapes::Plane plane) {
     if(dist < -PLANE_THICKNESS_EPISLON)
         return POINT_BEHIND_PLANE;
     return POINT_ON_PLANE;
+}
+
+int Shapes::ClassifyPolyonToPlane(const std::vector<Shapes::Point3D> &polygon, const Shapes::Plane &plane) {
+    int numInFront = 0, numBehind = 0;
+    for(int i = 0; i < polygon.size(); i++)
+    {
+        const Shapes::Point3D& p = polygon[i];
+        switch(ClassifyPointToPlane(p, plane)){
+            case POINT_IN_FRONT_OF_PLANE:
+                numInFront++;
+                break;
+            case POINT_BEHIND_PLANE:
+                numBehind++;
+                break;
+        }
+    }
+    // See where vertices are
+    // Polygon is straddling
+    if(numBehind != 0 && numInFront != 0)
+    {
+        return POLYGON_STRADDLING_PLANE;
+    }
+    // No vertices behind, all in front
+    else if(numInFront != 0)
+    {
+        return POLYGON_IN_FRONT_OF_PLANE;
+    }
+    // No vertices in front, all behind
+    else if(numBehind != 0)
+    {
+        return POLYGON_BEHIND_PLANE;
+    }
+    else
+    {
+        // All vertices lie on plane, so is coplaner
+        return POLYGON_COPLANAR_WITH_PLANE;
+    }
+}
+
+std::vector<Shapes::Triangle> Shapes::ReassemblePointsToTriangle(const std::vector<Shapes::Point3D> &polygon) {
+    // Now from all the points we reassembly the triangles
+    static std::vector<Shapes::Triangle> res;
+    res.clear();
+    res.reserve(polygon.size() / 3);
+
+    for(int i = 2; i < polygon.size(); ++i)
+    {
+        res.emplace_back(Shapes::Triangle(polygon[0].coordinates,
+                                          polygon[i - 1].coordinates,
+                                          polygon[i].coordinates));
+    }
+    return res;
+}
+
+glm::vec3 DeserializeVec3(rapidjson::Value &value) {
+    glm::vec3 result;
+    result.x = value["x"].GetFloat();
+    result.y = value["y"].GetFloat();
+    result.z = value["z"].GetFloat();
+    return result;
 }

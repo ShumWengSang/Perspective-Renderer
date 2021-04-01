@@ -49,7 +49,7 @@ protected:
     glm::quat orientation{};
     glm::vec3 position{};
     float fieldOfView{ 3.141562f / 3.0f };
-    float zNear{ 0.25f };
+    float zNear{ 0.001f };
     float zFar{ 250.0f };
     int targetPixelsWidth;
     int targetPixelsHeight;

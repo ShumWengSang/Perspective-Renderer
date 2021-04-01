@@ -23,9 +23,8 @@ namespace Shapes {
 
 
 
-    void
-    SuthHodgeClip(const std::vector<Shapes::Point3D> &polygon, Shapes::Plane const & clipper,
-            std::vector<Shapes::Point3D>& backFace, std::vector<Shapes::Point3D>& frontFace);
+
+
 
 
     template<>
@@ -88,7 +87,7 @@ namespace Shapes {
         return CheckCollision<ShapeA, ShapeB>(a, b, output);
     }
 
-    Point3D IntersectEdgeAgainstPlane(Point3D a, Point3D b, Plane plane);
+
 }
 
 class CollisionMesh
@@ -102,6 +101,7 @@ private:
     std::vector<Shapes::Triangle> vertices;
     Shapes::AABB boundingBox;
     friend class OctTree;
+    friend class BSPTree;
 };
 
 

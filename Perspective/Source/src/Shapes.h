@@ -34,6 +34,8 @@ inline void SerializeVec3(Writer& writer, glm::vec3 const & vector)
     writer.EndObject();
 }
 
+glm::vec3 DeserializeVec3(rapidjson::Value& value);
+
 
 namespace Shapes
 {
@@ -52,6 +54,9 @@ namespace Shapes
     {
         virtual ~Shape() = default;
         explicit Shape(Type type);
+
+        Shape();
+
         Type type;
     };
 
@@ -70,6 +75,19 @@ namespace Shapes
         Plane(glm::vec3 const & pointA, glm::vec3 const & pointB, glm::vec3 const & pointC);
         void Flip();
         explicit Plane(glm::vec4 const & normal);
+
+        template<typename Writer>
+        inline void Serialize(Writer& writer) const
+        {
+            writer.StartObject();
+            writer.String(("Normal"));
+            SerializeVec3(writer, glm::vec3(this->Normal));
+            writer.String(("d"));
+            writer.Double(Normal.w);
+            writer.EndObject();
+        }
+
+        static Plane Deserialize(rapidjson::Value& val);
     };
     struct AABB : public Shape
     {
@@ -93,16 +111,20 @@ namespace Shapes
             writer.EndObject();
         }
 
+        static AABB Deserialize(rapidjson::Value& val);
+
     };
     struct Triangle : public Shape
     {
-        glm::vec3 v1;
-        glm::vec3 v2;
-        glm::vec3 v3;
+        glm::vec3 v1 = glm::vec3(0);
+        glm::vec3 v2 = glm::vec3(0);
+        glm::vec3 v3 = glm::vec3(0);
         Triangle(glm::vec3 const & a, glm::vec3 const & b, glm::vec3 const & c);
+        Triangle();
         bool operator== (Triangle const & rhs) const;
         std::vector<Shapes::Triangle> BoundingVolumeCut(AABB const & boundingVolume) const;
-
+        Shapes::Plane GetPlane() const;
+        static Triangle Deserialize(rapidjson::Value& val);
         template<typename Writer>
         inline void Serialize(Writer& writer) const
         {
@@ -165,9 +187,17 @@ namespace Shapes
     inline const static int POINT_ON_PLANE = 0;
     inline const static float PLANE_THICKNESS_EPISLON = 0.0001f;
 
-    int ClassifyPointToPlane(Point3D p, Plane plane);
+    inline const static int POLYGON_STRADDLING_PLANE = 1;
+    inline const static int POLYGON_IN_FRONT_OF_PLANE = 0;
+    inline const static int POLYGON_BEHIND_PLANE = 2;
+    inline const static int POLYGON_COPLANAR_WITH_PLANE = 3;
 
-
+    int ClassifyPointToPlane(Point3D  const & p, Plane  const & plane);
+    void
+    SuthHodgeClip(const std::vector<Shapes::Point3D> &polygon, Shapes::Plane const & clipper,
+            std::vector<Shapes::Point3D>& backFace, std::vector<Shapes::Point3D>& frontFace);
+    int ClassifyPolyonToPlane(std::vector<Shapes::Point3D> const & polygon, Plane const & plane);
+    std::vector<Shapes::Triangle> ReassemblePointsToTriangle(std::vector<Shapes::Point3D> const & polygon);
 }
 namespace std
 {

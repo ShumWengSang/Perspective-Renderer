@@ -23,7 +23,6 @@
 #include "Shapes.h"
 
 class CollisionMesh;
-class Model;
 
 struct OctTreeRenderSettings
 {
@@ -32,6 +31,8 @@ struct OctTreeRenderSettings
     bool renderRootPoints = false;
     bool renderOnlyLeaf = false;
     bool renderLeafPoints = true;
+    bool renderAABBColorPerLevel = true;
+    int renderLevel = 0;
 };
 
 struct OctTreeNode
@@ -41,6 +42,7 @@ struct OctTreeNode
     OctTreeNode* Parent = nullptr;
     glm::vec4 color;
     Shapes::AABB boundingVolume;
+    int depth = 0;
 
     // Debug
     int numberInBox = 0;
@@ -49,6 +51,8 @@ struct OctTreeNode
 
     OctTreeNode(OctTreeNode* parent, std::vector<Shapes::Triangle> const & vertices, int maxNumTrigs,
                 Shapes::AABB const & boundingVolume, int depth, bool &depthTerminated);
+    OctTreeNode(OctTreeNode* parent, rapidjson::Value& doc, int depth);
+    ~OctTreeNode();
 
     bool isLeaf() const;
 
@@ -102,6 +106,7 @@ private:
     OctTreeNode *root;
     OctTreeRenderSettings settings;
 public:
+    explicit OctTree(rapidjson::Document & doc);
     template <typename Writer>
     inline void Serialize(Writer& writer) const {
         writer.StartObject();
