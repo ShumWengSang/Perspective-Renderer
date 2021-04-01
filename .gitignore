@@ -14,3 +14,10 @@ out
 Build
 cmake-build-debug
 PowerPlantFiles
+cmake-build-relwithdebinfo
+.idea
+vsbuild
+*.jpg
+*.png
+*.ppm
+samples
