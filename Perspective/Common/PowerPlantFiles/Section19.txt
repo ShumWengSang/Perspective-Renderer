@@ -1,0 +1,15 @@
+ppsection19/part_a/g1.obj
+ppsection19/part_a/g7.obj
+ppsection19/part_a/g9.obj
+ppsection19/part_a/g11.obj
+ppsection19/part_a/g8.obj
+ppsection19/part_a/g2.obj
+ppsection19/part_a/g3.obj
+ppsection19/part_a/g6.obj
+ppsection19/part_a/g4.obj
+ppsection19/part_a/g0.obj
+ppsection19/part_a/g10.obj
+ppsection19/part_a/g5.obj
+ppsection19/part_d/g0.obj
+ppsection19/part_c/g0.obj
+ppsection19/part_b/g0.obj

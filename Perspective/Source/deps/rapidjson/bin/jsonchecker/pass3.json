@@ -1,6 +1,3 @@
-{
-    "JSON Test Pattern pass3": {
-        "The outermost value": "must be an object or array.",
-        "In this test": "It is an object."
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:45aaef317f170e5490aa4a18cc301f6d5e03ee617980dec1b15403abf6c537f4
+size 148

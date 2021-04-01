@@ -1,0 +1,11 @@
+@echo off
+
+set BUILD_CONFIG=%1
+set BUILD_DIR=%2
+
+IF NOT DEFINED BUILD_CONFIG (SET BUILD_CONFIG="RelWithDebInfo") 
+IF NOT DEFINED BUILD_DIR (SET BUILD_DIR="vsbuild") 
+
+cmake -G "Visual Studio 16 2019" -A x64 -S . -B %BUILD_DIR%
+
+

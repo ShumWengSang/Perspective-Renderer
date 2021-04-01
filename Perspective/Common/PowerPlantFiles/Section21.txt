@@ -1,0 +1,6 @@
+ppsection21/part_a/g1.obj
+ppsection21/part_a/g2.obj
+ppsection21/part_a/g3.obj
+ppsection21/part_a/g4.obj
+ppsection21/part_a/g0.obj
+ppsection21/part_a/g5.obj

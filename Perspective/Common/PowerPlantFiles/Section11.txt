@@ -1,0 +1,7 @@
+ppsection11/part_a/g0.obj
+ppsection11/part_d/g1.obj
+ppsection11/part_d/g2.obj
+ppsection11/part_d/g0.obj
+ppsection11/part_c/g1.obj
+ppsection11/part_c/g0.obj
+ppsection11/part_b/g0.obj

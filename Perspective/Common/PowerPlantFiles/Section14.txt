@@ -1,0 +1,10 @@
+ppsection14/part_a/g1.obj
+ppsection14/part_a/g7.obj
+ppsection14/part_a/g9.obj
+ppsection14/part_a/g8.obj
+ppsection14/part_a/g2.obj
+ppsection14/part_a/g3.obj
+ppsection14/part_a/g6.obj
+ppsection14/part_a/g4.obj
+ppsection14/part_a/g0.obj
+ppsection14/part_a/g5.obj

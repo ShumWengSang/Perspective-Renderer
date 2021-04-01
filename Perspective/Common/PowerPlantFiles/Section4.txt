@@ -1,0 +1,5 @@
+ppsection4/part_a/g1.obj
+ppsection4/part_a/g2.obj
+ppsection4/part_a/g0.obj
+ppsection4/part_b/g1.obj
+ppsection4/part_b/g0.obj
