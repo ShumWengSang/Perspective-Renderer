@@ -25,6 +25,9 @@ Currently, the renderer features an easy way of adding new passes for rendering.
 * glsl #include<> is supported
 * Deferred Rendering Pipeline for lighting objects
 * Forward Rendering Pipeline for debug objects
+* Oct Tree generation 
+* BSP Tree generation
+* JSON loading of trees
 
 ## Some pictures
 A nice console so that anything I print can be seen in the gui.
