@@ -171,6 +171,18 @@ Here is another picture of the light pass on the sphere. We can see the ImGui on
 
 ![Powerplant](/images/sphere_lightpass.png)
 
+![BSP](https://user-images.githubusercontent.com/8475959/113262967-11fd0680-9286-11eb-8d95-bb816df38503.png)
+
+![BSPSphere](https://user-images.githubusercontent.com/8475959/113262973-13c6ca00-9286-11eb-83b0-4b0825fed472.png)
+
+![OctTree](https://user-images.githubusercontent.com/8475959/113262976-14f7f700-9286-11eb-9b21-e2f3aadb0760.png)
+
+![OctTreeModel](https://user-images.githubusercontent.com/8475959/113262939-0a3d6200-9286-11eb-971a-7626b44f1315.png)
+
+
+https://user-images.githubusercontent.com/8475959/113263025-23461300-9286-11eb-8fd5-3f44174c0d62.mp4
+
+
 # To Build
 
 Use CMake to build. It should work out of the box as all the libraries are packaged together and built from source.
