@@ -55,6 +55,13 @@ Parts completed (100%)
                     - You can specify if you want to render AABB bounding boxes or the lines (that make the triangles) for octree
                     - There is a risk of "drawing too many things" that would bring down the program
                     - BSP allows you to render the lines that make up the triangles
+                    
+IMPORTANT:
+    Program may stutter and fail when you attempt to render too many nodes/triangles. Try to keep the rendering to one tree at a time.
+    User will have to manually load the octTree and bstTree, in the ImGui -> Assigment Three Options.
+    The source code for loading the tree hasn't been touched [No feedback on this from last assignment]
+        To load a different model go to AssigmentThree.cpp line 100 and uncomment.
+        No .json file generated for other models.
         
 To Compile:
     -- ALL LIBRARIES COME WITH SOURCE FILE
