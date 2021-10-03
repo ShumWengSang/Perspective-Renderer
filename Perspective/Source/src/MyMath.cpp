@@ -17,6 +17,10 @@
  * End Header --------------------------------------------------------*/
 #include "stdafx.h"
 #include "MyMath.h"
+#include "Model.h"
+#include "ModelSystem.h"
+#include "TransformSystem.h"
+
 
 glm::vec4 MyMath::Remap(const glm::vec4 &value, const glm::vec2 &inMinMax, const glm::vec2 &outMinMax) {
     return outMinMax.x + (value - inMinMax.x) * (outMinMax.y - outMinMax.x) / (inMinMax.y - inMinMax.x);
@@ -25,3 +29,49 @@ glm::vec4 MyMath::Remap(const glm::vec4 &value, const glm::vec2 &inMinMax, const
 float MyMath::Remap(float value, float low1, float high1, float low2, float high2) {
     return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 }
+
+void MyMath::CsoSupport(
+        const Model &modelA, const Model &modelB, const glm::vec3 &dir, glm::vec3 &support, glm::vec3 &supportA
+        , glm::vec3 &supportB
+                       ) {
+    Transform &transformA = TransformSystem::getInstance().Get(modelA.transformID);
+    Transform &transformB = TransformSystem::getInstance().Get(modelA.transformID);
+
+    // Convert search direction to model space
+    const glm::vec3 localDirA = transformA.WorldToLocal(glm::vec4(dir, 0));
+    const glm::vec3 localDirB = transformA.WorldToLocal(glm::vec4(-dir, 0));
+
+    // Compute support points in model space
+
+}
+
+glm::vec3 MyMath::FindSupportPoint(const std::vector<Vertex> &vertices, const glm::vec3 &dir) {
+    float highest = std::numeric_limits<float>::max();
+    glm::vec3 support{0, 0, 0};
+    for (int i = 0; i < vertices.size(); i++) {
+        glm::vec3 v = vertices[i].position;
+        float dot = glm::dot(dir, v);
+        if (dot > highest) {
+            highest = dot;
+            support = v;
+        }
+    }
+    return support;
+}
+
+glm::vec3 MyMath::FindSupportPoint(const std::vector<Shapes::Triangle> &trigs, const glm::vec3 &dir) {
+    float highest = std::numeric_limits<float>::max();
+    glm::vec3 support{0, 0, 0};
+    for (int i = 0; i < trigs.size(); i++) {
+        glm::vec3 v[] = {trigs[i].v1, trigs[i].v2, trigs[i].v3};
+        for (int i = 0; i < 3; i++) {
+            float dot = glm::dot(dir, v[i]);
+            if (dot > highest) {
+                highest = dot;
+                support = v[i];
+            }
+        }
+    }
+    return support;
+}
+

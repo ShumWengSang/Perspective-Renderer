@@ -32,14 +32,21 @@ public:
     glm::quat orientation{ 1.0f, 0.0f, 0.0f, 0.0f};
     glm::vec3 scale{ 1.0f };
 
-    glm::mat4 matrix{ 1.0f };
-    glm::mat4 inverseMatrix{ 1.0f };
-    glm::mat3 normalMatrix{ 1.0f };
+    glm::mat4 matrix{1.0f};
+    glm::mat4 inverseMatrix{1.0f};
+    glm::mat3 normalMatrix{1.0f};
 
-    Transform& SetLocalPosition(float x, float y, float z);
-    Transform& SetLocalScale(float s);
-    Transform& SetLocalScale(float x, float y, float z);
-    Transform& SetLocalDirection(float x, float y, float z);
+    Transform &SetLocalPosition(float x, float y, float z);
+
+    Transform &SetLocalScale(float s);
+
+    Transform &SetLocalScale(float x, float y, float z);
+
+    Transform &SetLocalDirection(float x, float y, float z);
+
+    glm::vec4 WorldToLocal(const glm::vec4 &vec) const;
+
+    glm::vec4 LocalToWorld(const glm::vec4 &vec) const;
 
     int parentTransformID = NoParent;
 };

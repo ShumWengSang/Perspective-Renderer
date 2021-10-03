@@ -48,6 +48,7 @@ struct OctTreeNode
     int numberInBox = 0;
     int numberOutBox = 0;
     int numberGenerated = 0;
+    bool showRed = false;
 
     OctTreeNode(OctTreeNode* parent, std::vector<Shapes::Triangle> const & vertices, int maxNumTrigs,
                 Shapes::AABB const & boundingVolume, int depth, bool &depthTerminated);
@@ -61,8 +62,10 @@ struct OctTreeNode
     std::vector<Shapes::AABB> CreateBoundingVolumes(const Shapes::AABB& parentBoundingVolume) const;
 
     void RenderNode(OctTreeRenderSettings const & settings) const;
-    void GetBoundingBoxes(std::vector<Shapes::AABB>& output);
 
+    void GetBoundingBoxes(std::vector<Shapes::AABB> &output);
+
+    bool isColliding(Shapes::AABB const &aabb, std::vector<OctTreeNode *> &result) const;
     static int MAX_DEPTH;
 
     template <typename Writer>
@@ -122,6 +125,8 @@ public:
 
         writer.EndObject();
     }
+
+    bool isColliding(Shapes::AABB const &aabb, std::vector<OctTreeNode *> &result) const;
 };
 
 

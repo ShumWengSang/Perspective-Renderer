@@ -23,7 +23,7 @@
 
 struct BSPRenderSettings
 {
-    bool renderNodes = true;
+    bool renderNodes = false;
     bool renderPlanes = false;
 };
 
@@ -105,6 +105,7 @@ public:
 
         writer.EndObject();
     }
+
 };
 
 

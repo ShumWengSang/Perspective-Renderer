@@ -23,6 +23,8 @@
 #include "DebugModel.h"
 class Material;
 
+class LoadedModel;
+
 class Model {
 public:
     GLuint vao = 0;
@@ -31,7 +33,8 @@ public:
 
     int transformID = 0;
     Material *material = nullptr;
-    Shapes::BoundingSphere bounds = {{0, 0, 0}, 9999.0f };
+    const LoadedModel *loadedModel = nullptr;
+    Shapes::BoundingSphere bounds = {{0, 0, 0}, 9999.0f};
     Shapes::AABB boundingBox;
 
     void Draw() const;

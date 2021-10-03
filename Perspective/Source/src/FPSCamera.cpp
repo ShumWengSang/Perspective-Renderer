@@ -33,7 +33,7 @@ void FpsCamera::Update(const Input &input, float dt) {
     if (input.IsKeyDown(GLFW_KEY_D)) acceleration.x += 1;
     if (input.IsKeyDown(GLFW_KEY_A)) acceleration.x -= 1;
 
-    if (input.IsKeyDown(GLFW_KEY_SPACE))      acceleration.y += 1;
+    //if (input.IsKeyDown(GLFW_KEY_SPACE))      acceleration.y += 1;
     if (input.IsKeyDown(GLFW_KEY_LEFT_SHIFT)) acceleration.y -= 1;
 
     // Normal slowdown (decelerate based on division)
@@ -81,7 +81,7 @@ void FpsCamera::Update(const Input &input, float dt) {
 
     // Calculate banking due to movement
     vec3 right = rotate(orientation, vec3(1, 0, 0));
-    vec3 forward = rotate(orientation, vec3(0, 0, 1));
+    forward = rotate(orientation, vec3(0, 0, 1));
     if (speed > 0.0f)
     {
         auto direction = velocity / speed;
@@ -121,7 +121,7 @@ void FpsCamera::Update(const Input &input, float dt) {
     auto preAdjustedUp = rotate(orientation, vec3(0, 1, 0));
     auto up = rotate(bankingOrientation, preAdjustedUp);
 
-    vec3 lookAt = position + forward;
+    lookAt = position + forward;
     viewFromWorld = glm::lookAtLH(position, lookAt, up);
 
     // Create the projection matrix

@@ -600,5 +600,6 @@ Model ModelSystem::RegisterModel(const LoadedModel &loadedModel) {
         model.material = MaterialSystem::getInstance().CreateMaterial(loadedModel.materialDescription, loadedModel.baseDirectory);
     }
     model.name = loadedModel.filename;
+    model.loadedModel = &loadedModel;
     return model;
 }

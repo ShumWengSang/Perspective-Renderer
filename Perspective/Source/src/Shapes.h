@@ -56,7 +56,6 @@ namespace Shapes
         explicit Shape(Type type);
 
         Shape();
-
         Type type;
     };
 

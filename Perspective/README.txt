@@ -3,7 +3,7 @@
  * Reproduction or disclosure of this file or its contents without the prior
  * written consent of DigiPen Institute of Technology is prohibited.
  * File Name: README.txt
- * Purpose: README of CS350 Assigment 3
+ * Purpose: README of CS350 Assigment 4
  * Language: C++, G++
  * Platform: Linux:
  *              g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M, 
@@ -16,50 +16,26 @@
  *              OpenGL version: 4.6 NVIDIA 451.67
  * Project: OpenGLFramework
  * Author: Roland Shum, roland.shum@digipen.edu
- * Creation date: April 1st 2021
+ * Creation date: April 22nd 2021
  * End Header --------------------------------------------------------*/
 
 
-Parts completed (100%)
-    -- Added functionality to stop deferred rendering of object
-        - ImGui 
-            - Geometry Pass
-                - Draw Obj checkbox
-    -- Assignment Three Options
-        -- Oct Tree
-            - Adaptive top-down oct tree
-            - Only leaf nodes contain triangles
-            - Triangle that straddles boundaryt are split
-        -- BSP Tree
-            - Top- down BSP
-                - Every leaf nodes contains geometry, and internal nodes only contain information about the split plane
-                - Straddling triangles are split 
-            - Choosing a split plane
-                - Flip flops between randomly finding a plane and getting a random triangle's plane to split on
-                    - Each iteration runs this "x" times based on the Plane Split Sampling and finds the best plane to split on
-                    - "Random Split Lower Bound" gives a fast case for the algorithm to escape once its found a plane that is "good enough that we don't need to try other planes"
-                - Experimentations with splitting on [X,Y,Z] axis has shown that it will degrade performance
-        -- Optimising BSP Tree Creation
-            - JSON Serializing and deserialization
-                - For both octtree and BSP
-                - The source code by itself loads only Section 10
-                    - Can be changed in AssignmentThree.cpp line 100
-                    - BSP and OctTree generated for this model as well.
-        -- Displaying the Tree
-                - Change the number of triangles a node can hold (affects both Oct Tree and BSP)
-                - Added a max depth so that generation of trees can stop.
-                - Visualizing (only available if octtree or bsp were generated/loaded)
-                    - You can specify the level of oct tree to view
-                        - 0 specifies to render all levels
-                        - This applies to both Bounding Volume and node wireframe
-                    - You can specify if you want to render AABB bounding boxes or the lines (that make the triangles) for octree
-                    - There is a risk of "drawing too many things" that would bring down the program
-                    - BSP allows you to render the lines that make up the triangles
-                    
+Parts completed (80%)
+    -- Broad Phase
+        - AABB oct tree 
+        - BST tree
+    -- Fireing of sphere
+        - No debug info 
 IMPORTANT:
     Program may stutter and fail when you attempt to render too many nodes/triangles. Try to keep the rendering to one tree at a time.
-    User will have to manually load the octTree and bstTree, in the ImGui -> Assigment Three Options.
-    The source code for loading the tree hasn't been touched [No feedback on this from last assignment]
+    
+    The program automatically loads the oct tree and bst tree from json, but only the oct tree will show (until graders mess with the imgui settings)
+    
+    [https://www.youtube.com/watch?v=oN05GHGdfE4] Youtube video showing it
+    
+    The program will expect the octtree.json and bsttree.json to be in the base working directory
+    
+    The source code for loading the tree hasn't been touched [No feedback on this from last assignment, don't fix what isn't broken]
         To load a different model go to AssigmentThree.cpp line 100 and uncomment.
         No .json file generated for other models.
         

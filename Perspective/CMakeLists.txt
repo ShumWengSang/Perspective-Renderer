@@ -33,6 +33,7 @@ target_link_libraries(Perspective PRIVATE stb_image)
 target_link_libraries(Perspective PRIVATE dear_imgui)
 target_link_libraries(Perspective PRIVATE glm_static)
 target_link_libraries(Perspective PRIVATE tinyobjloader)
+TARGET_LINK_LIBRARIES(Perspective PRIVATE assimp)
 
 
 target_precompile_headers(Perspective PRIVATE "Source/src/stdafx.cpp")

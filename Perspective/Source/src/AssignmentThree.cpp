@@ -85,9 +85,10 @@ void AssignmentThree::Init() {
     MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
 
     // Load Oct Tree for Section 10
-    //octTree.reset(OctTreeFromJSON());
+    octTree.reset(OctTreeFromJSON());
+    bspTree.reset(BSTTreeFromJSON());
 
-    if(Global::loadFile.empty()) {
+    if (Global::loadFile.empty()) {
         //LoadModelFromTextFile("Common/PowerPlantFiles/Section1.txt", powerPlantMaterial);
         //LoadModelFromTextFile("Common/PowerPlantFiles/Section2.txt", powerPlantMaterial);
         //LoadModelFromTextFile("Common/PowerPlantFiles/Section3.txt", powerPlantMaterial);

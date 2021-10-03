@@ -13,15 +13,16 @@
 static std::unique_ptr<App> app;
 static bool renderUI = true;
 
-static void MidTerm()
-{
+void Driver();
+
+static void MidTerm() {
 
     using namespace glm;
     std::vector<vec3> points = {
-            {0.2113249,0.5608486,0.3076091},
-            {0.7560439,0.6623569,0.9329616},
-            {0.0002211,0.7263507,0.2146008},
-            {0.3303271,0.1985144,0.312642 },
+            {0.2113249, 0.5608486, 0.3076091},
+            {0.7560439, 0.6623569, 0.9329616},
+            {0.0002211, 0.7263507, 0.2146008},
+            {0.3303271, 0.1985144, 0.312642},
             {0.6653811,0.5442573,0.3616361},
             {0.6283918,0.2320748,0.2922267},
             {0.8497452,0.2312237,0.5664249},
@@ -134,6 +135,7 @@ void glfwResizeCallback(GLFWwindow *window, int width, int height)
 
 int main(int argc, char *argv[])
 {
+
     // Set global from argv
     if(argc >= 2)
     {

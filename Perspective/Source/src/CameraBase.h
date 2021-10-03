@@ -28,18 +28,31 @@ class Input;
 class CameraBase {
 public:
     CameraBase() = default;
+
     virtual ~CameraBase() = default;
 
     void DrawEditorGui();
-    void CommitToGpu();
-    void LookAt(const glm::vec3& position, const glm::vec3& target, const glm::vec3& up = { 0, 1, 0 });
-    void Resize(int width, int height);
-    virtual void Update(const Input& input, float dt) = 0;
 
-    const glm::vec3& GetPosition() const { return position; }
-    const glm::quat& GetOrientation() const { return orientation; }
-    const glm::mat4& GetViewMatrix() const { return viewFromWorld; }
-    const glm::mat4& GetProjectionMatrix() const { return projectionFromView; }
+    void CommitToGpu();
+
+    void LookAt(const glm::vec3 &position, const glm::vec3 &target, const glm::vec3 &up = {0, 1, 0});
+
+    void Resize(int width, int height);
+
+    virtual void Update(const Input &input, float dt) = 0;
+
+    const glm::vec3 &GetPosition() const { return position; }
+
+    const glm::vec3 &GetForward() const { return forward; }
+
+    const glm::vec3 &GetLookAt() const { return lookAt; }
+
+    const glm::quat &GetOrientation() const { return orientation; }
+
+    const glm::mat4 &GetViewMatrix() const { return viewFromWorld; }
+
+    const glm::mat4 &GetProjectionMatrix() const { return projectionFromView; }
+
     glm::mat4 GetViewProjectionMatrix() const { return GetProjectionMatrix() * GetViewMatrix(); }
 
 protected:
@@ -48,9 +61,11 @@ protected:
     glm::mat4 projectionFromView;
     glm::quat orientation{};
     glm::vec3 position{};
-    float fieldOfView{ 3.141562f / 3.0f };
-    float zNear{ 0.001f };
-    float zFar{ 250.0f };
+    glm::vec3 forward{};
+    glm::vec3 lookAt{};
+    float fieldOfView{3.141562f / 3.0f};
+    float zNear{0.001f};
+    float zFar{250.0f};
     int targetPixelsWidth;
     int targetPixelsHeight;
 };

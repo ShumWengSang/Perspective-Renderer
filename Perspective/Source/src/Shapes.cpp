@@ -300,6 +300,7 @@ Shapes::Shape::Shape(Shapes::Type type) : type(type){
 
 Shapes::Shape::Shape() {}
 
+
 bool Shapes::CheckCollision(const Shapes::Shape &a, const Shapes::Shape &b, Shapes::Collision &output) {
     Bitmask<Shapes::Type> currMask = Bitmask<Shapes::Type>(a.type) | b.type;
 

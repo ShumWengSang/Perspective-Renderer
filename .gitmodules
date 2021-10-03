@@ -1,0 +1,3 @@
+[submodule "Perspective/Source/deps/assimp"]
+	path = Perspective/Source/deps/assimp
+	url = git@github.com:assimp/assimp.git

@@ -20,9 +20,11 @@
 #include "CS350.h"
 #include "AssignmentTwo.h"
 #include "AssignmentThree.h"
+#include "AssignmentFour.h"
+#include "CS460AssignmentOne.h"
 
 std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<AssignmentThree>();
+    auto app = std::make_unique<CS460AssignmentOne>();
     App::CurrApp = app.get();
     return app;
 }

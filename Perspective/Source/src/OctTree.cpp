@@ -116,18 +116,20 @@ void OctTree::ImGuiSettings() {
 
 OctTree::OctTree(rapidjson::Document &doc) {
     using namespace rapidjson;
-    Value& value = doc["Root"];
+    Value &value = doc["Root"];
     root = new OctTreeNode(nullptr, value, 0);
+}
+
+bool OctTree::isColliding(const Shapes::AABB &aabb, std::vector<OctTreeNode *> &result) const {
+    return root->isColliding(aabb, result);
 }
 
 OctTreeNode::OctTreeNode(
         OctTreeNode *parent, const std::vector<Shapes::Triangle> &triangles, int maxNumTrigs
-        , const Shapes::AABB &boundingVolume, int depth,  bool &depthTerminated
+        , const Shapes::AABB &boundingVolume, int depth, bool &depthTerminated
                         ) :
-        Parent(parent), boundingVolume(boundingVolume), depth(depth)
-{
-    if(depth >= OctTreeNode::MAX_DEPTH)
-    {
+        Parent(parent), boundingVolume(boundingVolume), depth(depth) {
+    if (depth >= OctTreeNode::MAX_DEPTH) {
         depthTerminated = true;
         return;
     }
@@ -239,21 +241,21 @@ void OctTreeNode::RenderNode(OctTreeRenderSettings const & settings) const {
         }
     }
 
-
+    glm::vec3 color = showRed ? glm::vec3(1, 0, 0) : ColorArray[depth];
 
     if(settings.renderLevel == 0 || (settings.renderLevel - 1 ) == depth) {
         if (settings.renderAABB) {
             if (settings.renderOnlyLeaf) {
                 if (this->isLeaf()) {
                     if (settings.renderAABBColorPerLevel) {
-                        boundingVolume.RenderAABB(glm::vec4(ColorArray[depth], 1));
+                        boundingVolume.RenderAABB(glm::vec4(color, 1));
                     } else {
                         boundingVolume.RenderAABB(this->color);
                     }
                 }
             } else {
                 if (settings.renderAABBColorPerLevel) {
-                    boundingVolume.RenderAABB(glm::vec4(ColorArray[depth], 1));
+                    boundingVolume.RenderAABB(glm::vec4(color, 1));
                 } else {
                     boundingVolume.RenderAABB(this->color);
                 }
@@ -277,7 +279,7 @@ void OctTreeNode::RenderNode(OctTreeRenderSettings const & settings) const {
                     };
 
                     if (settings.renderAABBColorPerLevel)
-                        renderTrigs(ColorArray[depth]);
+                        renderTrigs(color);
                     else
                         renderTrigs(this->color);
 
@@ -335,12 +337,36 @@ OctTreeNode::OctTreeNode(OctTreeNode* parent, rapidjson::Value &value, int depth
     {
         Objects.emplace_back(Shapes::Triangle::Deserialize(*objectsIterator));
     }
-    for(auto objectsIterator = value["Child Nodes"].Begin(); objectsIterator != value["Child Nodes"].End(); ++objectsIterator)
-    {
+    for (auto objectsIterator = value["Child Nodes"].Begin();
+         objectsIterator != value["Child Nodes"].End(); ++objectsIterator) {
         Nodes.emplace_back(new OctTreeNode(this, *objectsIterator, depth + 1));
     }
 }
 
 OctTreeNode::~OctTreeNode() {
     this->Clear();
+}
+
+bool OctTreeNode::isColliding(const Shapes::AABB &aabb, std::vector<OctTreeNode *> &result) const {
+    // Collide with AABB to see here if is in.
+    Shapes::Collision output{};
+    if (CheckCollision(aabb, this->boundingVolume, output)) {
+        // Not leaf, so forward to child
+        if (!this->isLeaf()) {
+            bool res = false;
+            for (int i = 0; i < 8; i++) {
+                if (Nodes[i] && Nodes[i]->isColliding(aabb, result)) {
+                    res = true;
+                }
+            }
+            return res;
+        }
+            // We are leaf node
+        else {
+            // Put into result
+            result.emplace_back(const_cast<OctTreeNode *>(this));
+            return true;
+        }
+    }
+    return false;
 }

@@ -24,8 +24,8 @@ namespace Shapes {
 
     template<>
     bool CheckCollision<BoundingSphere, BoundingSphere>(Shape const &a, Shape const &b, Collision &output) {
-        Log("Checking collision between a Sphere and a Sphere \n");
-        Log("Passed in a %s and a %s\n", typeid(a).name(), typeid(b).name());
+//        Log("Checking collision between a Sphere and a Sphere \n");
+//        Log("Passed in a %s and a %s\n", typeid(a).name(), typeid(b).name());
         const auto[SphereA, SphereB] = FixOrdering<BoundingSphere, BoundingSphere>(a, b);
 
         float totalRadiusSquared = (SphereA.radius + SphereB.radius) * (SphereA.radius + SphereB.radius);
@@ -52,16 +52,15 @@ namespace Shapes {
 
     template<>
     bool CheckCollision<AABB, AABB>(Shape const &a, Shape const &b, Collision &output) {
-        Log("Checking collision between a Sphere and a Sphere \n");
-        Log("Passed in a %s and a %s\n", typeid(a).name(), typeid(b).name());
+        //Log("Checking collision between a Sphere and a Sphere \n");
+        //Log("Passed in a %s and a %s\n", typeid(a).name(), typeid(b).name());
         const auto[BoxA, BoxB] = FixOrdering<AABB, AABB>(a, b);
 
-        const auto[minA , maxA] = BoxA.GetMinMax();
-        const auto[minB , maxB] = BoxB.GetMinMax();
+        const auto[minA, maxA] = BoxA.GetMinMax();
+        const auto[minB, maxB] = BoxB.GetMinMax();
 
-        for(unsigned i = 0; i < 3; ++i)
-        {
-            if(maxA[i] < minB[i] || maxB[i] < maxA[i])
+        for (unsigned i = 0; i < 3; ++i) {
+            if (maxA[i] < minB[i] || maxB[i] < maxA[i])
                 return false;
         }
         return true;

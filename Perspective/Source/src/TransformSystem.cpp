@@ -59,6 +59,14 @@ Transform &Transform::SetLocalDirection(float x, float y, float z) {
     return *this;
 }
 
+glm::vec4 Transform::LocalToWorld(const glm::vec4 &vec) const {
+    return this->matrix * vec;
+}
+
+glm::vec4 Transform::WorldToLocal(const glm::vec4 &vec) const {
+    return this->inverseMatrix * vec;
+}
+
 
 void TransformSystem::Init() {
 
@@ -66,8 +74,7 @@ void TransformSystem::Init() {
 
 void TransformSystem::Update() {
     size_t numTransforms = nextIndex;
-    for (size_t id = 0; id < numTransforms; ++id)
-    {
+    for (size_t id = 0; id < numTransforms; ++id) {
         Transform& old = oldTransforms[id];
         Transform& curr = transforms[id];
 
