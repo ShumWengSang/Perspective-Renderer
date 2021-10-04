@@ -58,7 +58,7 @@ glm::vec3 MyMath::FindSupportPoint(const std::vector<Vertex> &vertices, const gl
     }
     return support;
 }
-
+#if TINYOBJLOADER
 glm::vec3 MyMath::FindSupportPoint(const std::vector<Shapes::Triangle> &trigs, const glm::vec3 &dir) {
     float highest = std::numeric_limits<float>::max();
     glm::vec3 support{0, 0, 0};
@@ -75,3 +75,4 @@ glm::vec3 MyMath::FindSupportPoint(const std::vector<Shapes::Triangle> &trigs, c
     return support;
 }
 
+#endif

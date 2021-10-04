@@ -69,28 +69,28 @@ MaterialSystem::CreateMaterial(const tinyobj::material_t &materialDescription, c
     bool hasRoughnessMap = !materialDescription.roughness_texname.empty();
     bool hasMetallicMap = !materialDescription.metallic_texname.empty();
 
-/*    if (hasDiffuseTex && hasNormalMap && hasRoughnessMap)
-    {
-        auto mat = new CompleteMaterial();
-        TextureSystem& textureSystem = TextureSystem::getInstance();
+    //if (hasDiffuseTex && hasNormalMap && hasRoughnessMap)
+    //{
+    //    auto mat = new CompleteMaterial();
+    //    TextureSystem& textureSystem = TextureSystem::getInstance();
 
-        mat->baseColorTexture = textureSystem.LoadLdrImage(baseDirectory + materialDescription.diffuse_texname);
-        mat->normalMap = textureSystem.LoadDataTexture(baseDirectory + materialDescription.normal_texname);
-        mat->roughnessMap = textureSystem.LoadDataTexture(baseDirectory + materialDescription.roughness_texname);
+    //    mat->baseColorTexture = textureSystem.LoadHdrImage(baseDirectory + materialDescription.diffuse_texname);
+    //    mat->normalMap = textureSystem.LoadDataTexture(baseDirectory + materialDescription.normal_texname);
+    //    mat->roughnessMap = textureSystem.LoadDataTexture(baseDirectory + materialDescription.roughness_texname);
 
-        if (hasMetallicMap)
-        {
-            mat->metallicMap = textureSystem.LoadDataTexture(baseDirectory + materialDescription.metallic_texname);
-        }
-        else
-        {
-            // Assume not metal if no map is specified
-            mat->metallicMap = textureSystem.CreatePlaceholder(0, 0, 0, 0);
-        }
+    //    if (hasMetallicMap)
+    //    {
+    //        mat->metallicMap = textureSystem.LoadDataTexture(baseDirectory + materialDescription.metallic_texname);
+    //    }
+    //    else
+    //    {
+    //        // Assume not metal if no map is specified
+    //        mat->metallicMap = textureSystem.CreatePlaceholder(0, 0, 0, 0);
+    //    }
 
-        material = mat;
-    }
-    else*/
+    //    material = mat;
+    //}
+    //else
     {
         auto mat = new BasicMaterial();
 

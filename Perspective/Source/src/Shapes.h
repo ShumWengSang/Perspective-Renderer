@@ -20,6 +20,7 @@
 #ifndef OPENGLFRAMEWORK_SHAPES_H
 #define OPENGLFRAMEWORK_SHAPES_H
 
+#ifdef TINYOBJLOADER
 
 template <typename Writer>
 inline void SerializeVec3(Writer& writer, glm::vec3 const & vector)
@@ -206,5 +207,5 @@ namespace std
         size_t operator() (Shapes::Point3D const & obj) const;
     };
 }
-
+#endif
 #endif //OPENGLFRAMEWORK_SHAPES_H

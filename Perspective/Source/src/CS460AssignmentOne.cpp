@@ -18,17 +18,18 @@
 #include "GeometryPass.h"
 #include "LightPass.h"
 #include "CS350.h"
-#include "Collision.h"
 #include "FinalPass.h"
 #include "ForwardRendering.h"
 #include "DebugDraw.h"
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
+#include "Model.h"
+#include "TransformSystem.h"
 
 namespace {
     Scene scene{};
-    Model sphere;
+    Model* model;
 
     GBuffer gBuffer;
     LightBuffer lightBuffer;
@@ -41,7 +42,6 @@ namespace {
 
     ForwardRendering forwardRendering;
 
-    CollisionMesh factoryCollisionMesh;
 
 }
 
@@ -59,25 +59,32 @@ void CS460AssignmentOne::Init() {
     powerPlantMaterial->ReadMaterialFromFile("Common/PowerPlantFiles/");
     MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
 
-    ModelSystem::getInstance().LoadModel("Common/sphere.obj", [&, powerPlantMaterial](std::vector<Model> models) {
-        assert(models.size() == 1);
-        Model &model = models[0];
-        model.material = powerPlantMaterial;
-        scene.models.emplace_back(model);
+    model = new Model("Common/alien.fbx");
+    model->material = powerPlantMaterial;
+    model->transformID = TransformSystem::getInstance().Create();
+    Transform &trans = TransformSystem::getInstance().Get(model->transformID);
+    trans.SetLocalDirection(-90, 0, 0);
+    scene.models.emplace_back(model);
 
-        Log("Loading of BoundingSphere is a success! \n");
-        scene.debugSystem.AddDebugModel(DebugSystem::Face_Normal, model.faceNormal);
-        scene.debugSystem.AddDebugModel(DebugSystem::Vertex_Normal, model.vertexNormal);
+    //ModelSystem::getInstance().LoadModel("Common/sphere.obj", [&, powerPlantMaterial](std::vector<Model> models) {
+    //    assert(models.size() == 1);
+    //    Model &model = models[0];
+    //    model.material = powerPlantMaterial;
+    //    scene.models.emplace_back(model);
 
-        auto &LoadedModels = ModelSystem::getInstance().GetAllLoadedModels();
-        auto iterator = LoadedModels.find(model.name);
-        if (iterator != LoadedModels.end()) {
-            const LoadedModel &loadedModel = iterator->second[0];
-            factoryCollisionMesh.AddModel(loadedModel);
-        } else {
-            Log("Mesh %s is not loaded! Weird!", model.name.c_str());
-        }
-    });
+    //    Log("Loading of BoundingSphere is a success! \n");
+    //    scene.debugSystem.AddDebugModel(DebugSystem::Face_Normal, model.faceNormal);
+    //    scene.debugSystem.AddDebugModel(DebugSystem::Vertex_Normal, model.vertexNormal);
+
+    //    auto &LoadedModels = ModelSystem::getInstance().GetAllLoadedModels();
+    //    auto iterator = LoadedModels.find(model.name);
+    //    if (iterator != LoadedModels.end()) {
+    //        const LoadedModel &loadedModel = iterator->second[0];
+    //        factoryCollisionMesh.AddModel(loadedModel);
+    //    } else {
+    //        Log("Mesh %s is not loaded! Weird!", model.name.c_str());
+    //    }
+    //});
 
     // Load the skybox
     scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({

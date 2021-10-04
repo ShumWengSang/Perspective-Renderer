@@ -16,12 +16,12 @@
  * Creation date: 3/28/2021
  * End Header --------------------------------------------------------*/
 #define DEBUG_DRAW_IMPLEMENTATION
-#include <debug_draw.hpp>
 #include "stdafx.h"
 #include "DebugDraw.h"
 #include "Scene.h"
 #include "CameraBase.h"
 #include "Logger.h"
+#include <debug_draw.hpp>
 #define errorF Log   // Empty
 // ========================================================
 // Minimal shaders we need for the debug primitives:

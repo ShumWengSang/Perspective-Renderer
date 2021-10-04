@@ -24,6 +24,8 @@
 #include "MaterialSystem.h"
 
 #pragma region Internal API
+
+#ifdef TINYOBJLOADER
 static void ReadObjShape(LoadedModel& model, tinyobj::shape_t& shape, const std::string& filename, const std::string& baseDirectory,
         const tinyobj::attrib_t& attributes, const std::vector<tinyobj::material_t> materials)
 {
@@ -375,6 +377,8 @@ void ModelSystem::Update() {
     }
 }
 
+
+
 bool ModelSystem::IsIdle() {
     assert(currentJobsCounter >= 0);
     return currentJobsCounter == 0;
@@ -603,3 +607,9 @@ Model ModelSystem::RegisterModel(const LoadedModel &loadedModel) {
     model.loadedModel = &loadedModel;
     return model;
 }
+
+#elif ASSIMPLOADER
+void ModelSystem::Init() {}
+void ModelSystem::Destroy() {}
+void ModelSystem::Update() {}
+#endif

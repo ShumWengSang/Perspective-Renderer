@@ -30,7 +30,7 @@ class DebugModel;
 class Scene {
 public:
     std::unique_ptr<CameraBase> mainCamera;
-    std::vector<Model> models;
+    std::vector<Model*> models;
     mutable DebugSystem debugSystem;
     std::vector<DirectionalLight> directionalLights;
 

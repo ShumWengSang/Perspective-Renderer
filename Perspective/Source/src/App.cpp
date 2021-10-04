@@ -17,10 +17,6 @@
  * End Header --------------------------------------------------------*/
 #include "stdafx.h"
 #include "App.h"
-#include "CS350.h"
-#include "AssignmentTwo.h"
-#include "AssignmentThree.h"
-#include "AssignmentFour.h"
 #include "CS460AssignmentOne.h"
 
 std::unique_ptr<App> AppSelector::ConstructApp() {

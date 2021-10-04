@@ -19,9 +19,7 @@
 
 #ifndef OPENGLFRAMEWORK_DEBUGSYSTEM_H
 #define OPENGLFRAMEWORK_DEBUGSYSTEM_H
-
-class DebugModel;
-// Graphical debug.
+#include "DebugModel.h"
 class DebugSystem {
 public:
     enum DebugType : int

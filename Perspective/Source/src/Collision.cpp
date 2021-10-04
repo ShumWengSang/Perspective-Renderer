@@ -9,6 +9,8 @@
 #include "ModelSystem.h"
 #include "TransformSystem.h"
 
+#ifdef TINYOBJLOADER
+
 namespace Shapes {
 
     template<typename T, typename C>
@@ -348,3 +350,4 @@ void CollisionMesh::AddModel(const LoadedModel &model, int transformID) {
     }
     this->boundingBox = model.boundingBox;
 }
+#endif

@@ -20,14 +20,17 @@
 #ifndef OPENGLFRAMEWORK_MODELSYSTEM_H
 #define OPENGLFRAMEWORK_MODELSYSTEM_H
 #include "Shapes.h"
-#pragma region Internal Structures
-struct Vertex
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 texCoord;
-    glm::vec4 tangent; // (w is bitangent's handedness)
+
+struct Vertex {
+  glm::vec3 position;
+  glm::vec3 normal;
+  glm::vec2 texCoord;
+  glm::vec4 tangent;  // (w is bitangent's handedness)
 };
+#ifdef TINYOBJLOADER
+
+#pragma region Internal Structures
+
 
 struct LoadedModel
 {
@@ -98,6 +101,29 @@ private:
     std::condition_variable runCondition;
     bool                    runBackgroundLoop;
 };
+
+#elif ASSIMPLOADER
+class ModelSystem {
+  // Singleton stuff
+ public:
+  static ModelSystem& getInstance() {
+    static ModelSystem instance;  // Guaranteed to be destroyed.
+    // Instantiated on first use.
+    return instance;
+  }
+  ModelSystem(ModelSystem const&) = delete;
+  void operator=(ModelSystem const&) = delete;
+
+ private:
+  ModelSystem() = default;
+
+ public:
+  void Init();
+  void Destroy();
+  void Update();
+  bool IsIdle();
+};
+#endif
 
 
 #endif //OPENGLFRAMEWORK_MODELSYSTEM_H

@@ -27,26 +27,26 @@
 #include "ShaderLocations.h"
 
 #pragma region InternalFunctions
-static int ModelCompareFunc(const void *a, const void *b)
-{
-    auto modelA = (const Model *)a;
-    auto modelB = (const Model *)b;
-
-    if (modelA->material->program <  modelB->material->program) return -1;
-    if (modelA->material->program == modelB->material->program) return  0;
-    if (modelA->material->program >  modelB->material->program) return +1;
-
-    return 0;
-}
+//static int ModelCompareFunc(const void *a, const void *b)
+//{
+//    auto modelA = (const Model *)a;
+//    auto modelB = (const Model *)b;
+//
+//    if (modelA->material->program <  modelB->material->program) return -1;
+//    if (modelA->material->program == modelB->material->program) return  0;
+//    if (modelA->material->program >  modelB->material->program) return +1;
+//
+//    return 0;
+//}
 #pragma endregion
 
 void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
     // Frustum data
     std::array<glm::vec4, 6> frustumPlanes{};
-    Shapes::ExtractFrustumPlanes(scene.mainCamera->GetViewProjectionMatrix(), frustumPlanes);
+    // Shapes::ExtractFrustumPlanes(scene.mainCamera->GetViewProjectionMatrix(), frustumPlanes);
     TransformSystem& transformSystem = TransformSystem::getInstance();
 
-    static std::vector<Model> geometryToRender{};
+    static std::vector<Model*> geometryToRender{};
     geometryToRender.reserve(scene.models.size());
     geometryToRender.clear();
 
@@ -55,16 +55,10 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
     glClearTexImage(gBuffer.albedoTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
     glClearTexImage(gBuffer.materialTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
 */
-    for (const Model& model : scene.models)
+    for (const auto& model : scene.models)
     {
-        if(!model.material) continue;
-        if (!model.material->opaque) continue;
-
-        auto transform = transformSystem.Get(model.transformID);
-        Shapes::BoundingSphere worldSpaceBounds = model.bounds;
-        worldSpaceBounds.center += transform.position;
-        worldSpaceBounds.radius *= Shapes::VectorMaxComponent(transform.scale); // TODO: We can't use max-component, rather we would need the largest singular value!
-        // if (!InsideFrustum(frustumPlanes, worldSpaceBounds)) continue;
+        //if(!model.material) continue;
+        //if (!model.material->opaque) continue;
 
         geometryToRender.emplace_back(model);
     }
@@ -93,7 +87,7 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
     glPolygonMode(GL_FRONT_AND_BACK, wireframeRendering ? GL_LINE : GL_FILL);
 
     // Sort geometry so that we can optimize the number of shader program switches, i.e. calling glUseProgram
-    qsort((void *)(geometryToRender.data()), geometryToRender.size(), sizeof(Model), ModelCompareFunc);
+    // qsort((void *)(geometryToRender.data()), geometryToRender.size(), sizeof(Model), ModelCompareFunc);
 
     int numDrawCalls = 0;
     int numTriangles = 0;
@@ -102,8 +96,8 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 
     GLuint lastProgram = UINT_MAX;
     if(drawObject) {
-        for (const Model &model : geometryToRender) {
-            GLuint program = model.material->program;
+        for (const auto &model : geometryToRender) {
+            GLuint program = model->material->program;
 
             if (program == 0) {
                 continue;
@@ -114,18 +108,20 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
                 lastProgram = program;
             }
 
-            Transform &transform = transformSystem.Get(model.transformID);
-            const Transform &prevTransform = transformSystem.GetPrevious(model.transformID);
-            model.material->BindUniforms(transform, prevTransform);
+            Transform &transform = transformSystem.Get(model->transformID);
+            const Transform &prevTransform =
+                transformSystem.GetPrevious(model->transformID);
+            model->material->BindUniforms(transform, prevTransform);
 
-            if (model.material->cullBackface) glEnable(GL_CULL_FACE);
+            if (model->material->cullBackface)
+              glEnable(GL_CULL_FACE);
             else
                 glDisable(GL_CULL_FACE);
 
-            model.Draw();
+            model->Draw();
 
             numDrawCalls += 1;
-            numTriangles += model.TriangleCount();
+            numTriangles += model->TriangleCount();
         }
     }
 
