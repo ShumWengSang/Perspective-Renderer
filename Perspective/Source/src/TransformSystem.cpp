@@ -46,17 +46,11 @@ Transform &Transform::SetLocalScale(float x, float y, float z) {
 }
 
 
-Transform &Transform::SetLocalDirection(float x, float y, float z) {
-    // From: https://gamedev.stackexchange.com/questions/149006/direction-vector-to-quaternion
+Transform& Transform::SetLocalDirection(float x, float y, float z) {
 
-    // Switch x and z if 90� off!
-    float halfAngle = atan2(x, z) / 2.0f;
-
-    orientation.x = 0.0f;
-    orientation.y = sin(halfAngle);
-    orientation.z = 0.0f;
-    orientation.w = cos(halfAngle);
-    return *this;
+  // Switch x and z if 90� off!
+  orientation = glm::vec3(x, y, z);
+  return *this;
 }
 
 glm::vec4 Transform::LocalToWorld(const glm::vec4 &vec) const {
@@ -107,12 +101,16 @@ void TransformSystem::UpdateMatrices(int transformID) {
 
     // Unless nothing has changed, create new matrices for the transform
     if (!IdenticalTransformProperties(old, curr))
-    {
-        auto scale       = glm::scale(identity, curr.scale);
-        auto translation = glm::translate(identity, curr.position);
-        auto rotation    = glm::toMat4(glm::normalize(curr.orientation));
+    {  
+        curr.matrix = glm::scale(glm::mat4(1.0f), curr.scale);
 
-        curr.matrix = translation * rotation * scale;
+        curr.matrix =
+            curr.matrix *
+            glm::yawPitchRoll(glm::radians(curr.orientation.y),
+                                            glm::radians(curr.orientation.x),
+                                            glm::radians(curr.orientation.z));
+        curr.matrix = glm::translate(curr.matrix, curr.position);
+
 
         curr.inverseMatrix = glm::inverse(curr.matrix);
         curr.normalMatrix = glm::transpose(glm::inverse(glm::mat3{ curr.matrix }));

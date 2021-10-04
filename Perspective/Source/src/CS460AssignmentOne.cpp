@@ -63,7 +63,8 @@ void CS460AssignmentOne::Init() {
     model->material = powerPlantMaterial;
     model->transformID = TransformSystem::getInstance().Create();
     Transform &trans = TransformSystem::getInstance().Get(model->transformID);
-    trans.SetLocalDirection(-90, 0, 0);
+    trans.SetLocalDirection(-90, 180, 0);
+    TransformSystem::getInstance().UpdateMatrices(model->transformID);
     scene.models.emplace_back(model);
 
     //ModelSystem::getInstance().LoadModel("Common/sphere.obj", [&, powerPlantMaterial](std::vector<Model> models) {
@@ -104,7 +105,7 @@ void CS460AssignmentOne::Init() {
 
     scene.mainCamera = std::make_unique<FpsCamera>();
 
-    scene.mainCamera->LookAt({0, 0, -20}, {0, 0, 0});
+    scene.mainCamera->LookAt({0, 10, -50}, {0, 0, 0});
 }
 
 void CS460AssignmentOne::Resize(int width, int height) {
@@ -132,5 +133,14 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     finalPass.Draw(gBuffer, lightBuffer, scene);
     {
         forwardRendering.Draw(scene);
+    }
+
+    if(ImGui::TreeNode("Rotation")) {
+      static glm::vec3 floats;
+      ImGui::DragFloat3("Rotation Floats", glm::value_ptr(floats));
+      Transform &trans = TransformSystem::getInstance().Get(model->transformID);
+      trans.SetLocalDirection(floats.x, floats.y, floats.z);
+      TransformSystem::getInstance().UpdateMatrices(model->transformID);
+      ImGui::TreePop();
     }
 }

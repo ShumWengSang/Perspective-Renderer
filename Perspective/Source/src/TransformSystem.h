@@ -29,7 +29,7 @@ public:
     ~Transform() = default;
 
     glm::vec3 position{};
-    glm::quat orientation{ 1.0f, 0.0f, 0.0f, 0.0f};
+    glm::vec3 orientation{};
     glm::vec3 scale{ 1.0f };
 
     glm::mat4 matrix{1.0f};
