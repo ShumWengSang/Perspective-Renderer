@@ -35,6 +35,7 @@ public:
 private:
     GLuint depthOnlyProgram = 0;
     GLint modelMatrixLocation;
+    GLint bonesMatrixLocation;
 };
 
 

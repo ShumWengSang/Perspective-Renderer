@@ -49,6 +49,9 @@ public:
 #elif ASSIMPLOADER
 #include "Mesh.h"
 #include "Material.h"
+#include "Bone.h"
+#include "MyMath.h"
+#include "Logger.h"
 class Model {
  public:
   explicit Model(char *path) { loadModel(path); }
@@ -56,16 +59,32 @@ class Model {
   Material *material = nullptr;
   int TriangleCount() const;
   int transformID = 0;
+
+  auto& GetBoneInfoMap() { return boneInfoMap; }
+  int& GetBoneCounter() { return boneCounter; }
+
  private:
   // model data
   std::vector<Mesh> meshes;
   std::string directory;
 
-  void loadModel(std::string path);
+
+  void loadModel(const std::string & path);
   void processNode(aiNode *node, const aiScene *scene);
   Mesh processMesh(aiMesh *mesh, const aiScene *scene);
   std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
-                                       std::string typeName);
+                                       std::string const &typeName);
+
+    // Bones
+
+  std::unordered_map<std::string, BoneInfo> boneInfoMap;
+  int boneCounter = 0;
+
+  void SetVertexBoneData(Vertex& vertex, int boneID, float weight);
+
+  void ExtractBoneWeight(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
+
+
 };
 #endif
 

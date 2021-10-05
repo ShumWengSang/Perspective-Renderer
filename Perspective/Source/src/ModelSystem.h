@@ -20,12 +20,14 @@
 #ifndef OPENGLFRAMEWORK_MODELSYSTEM_H
 #define OPENGLFRAMEWORK_MODELSYSTEM_H
 #include "Shapes.h"
-
+#define MAX_BONE_INFLUENCE 4
 struct Vertex {
   glm::vec3 position;
   glm::vec3 normal;
   glm::vec2 texCoord;
   glm::vec4 tangent;  // (w is bitangent's handedness)
+  GLint boneIDs[MAX_BONE_INFLUENCE];
+  float weights[MAX_BONE_INFLUENCE];
 };
 #ifdef TINYOBJLOADER
 

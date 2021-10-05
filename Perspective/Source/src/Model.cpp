@@ -43,7 +43,7 @@ void Model::Draw() const {
   for (unsigned int i = 0; i < meshes.size(); i++) meshes[i].Draw();
 }
 
-void Model::loadModel(std::string path) {
+void Model::loadModel(const std::string & path) {
   Assimp::Importer importer;
   const aiScene* scene =
       importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -88,6 +88,12 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     vector.z = mesh->mNormals[i].z;
     vertex.normal = vector;
 
+    for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+    {
+        vertex.boneIDs[i] = -1;
+        vertex.weights[i] = 0.0f;
+    }
+
     if (mesh->mTextureCoords[0])  // does the mesh contain texture coordinates?
     {
       glm::vec2 vec;
@@ -119,12 +125,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
   }
 
+  // Process Bones
+  ExtractBoneWeight(vertices, mesh, scene);
+
   return Mesh(vertices, indices, textures);
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat,
                                                  aiTextureType type,
-                                                 std::string typeName) {
+                                                 std::string const & typeName) {
   std::vector<Texture> textures;
   for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
     aiString str;
@@ -138,6 +147,60 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat,
     textures.emplace_back(texture);
   }
   return textures;
+}
+
+void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight)
+{
+    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+    {
+        if (vertex.boneIDs[i] < 0)
+        {
+            vertex.weights[i] = weight;
+            vertex.boneIDs[i] = boneID;
+            break;
+        }
+    }
+}
+
+void Model::ExtractBoneWeight(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
+{
+    // For each bone
+    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+    {
+        int boneID = -1;
+        // Cache the bones for quick optimization
+        std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+        Log("Extracting bone ... [%s]", boneName.c_str());
+        if (boneInfoMap.find(boneName) == boneInfoMap.end())
+        {
+            // New bone info add it in
+            BoneInfo newBoneInfo;
+            newBoneInfo.id = boneCounter;
+            newBoneInfo.offset = MyMath::AssimpToMat4(mesh->mBones[boneIndex]->mOffsetMatrix);
+            boneInfoMap[boneName] = newBoneInfo;
+            boneID = boneCounter;
+            boneCounter++;
+        }
+        else
+        {
+            // Retrieve the bone ID from the map
+            boneID = boneInfoMap[boneName].id;
+        }
+        assert(boneID != -1);
+        // Get the number of weights and the weights array
+        auto weights = mesh->mBones[boneIndex]->mWeights;
+        int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+        // For each weight inside the bone
+        for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+        {
+            // Find the vertex that is affected by this weight
+            int vertexId = weights[weightIndex].mVertexId;
+            float weight = weights[weightIndex].mWeight;
+            assert(vertexId <= vertices.size());
+            // The vertex has is given this bone and weight (up till 4)
+            SetVertexBoneData(vertices[vertexId], boneID, weight);
+        }
+    }
 }
 
 #endif

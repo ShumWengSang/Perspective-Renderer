@@ -24,14 +24,17 @@
 #include "DebugSystem.h"
 
 class Scene;
+class Model;
 
 class ForwardRendering : public ShaderDependant{
 public:
     void Draw(Scene const & scene);
     void ProgramLoaded(GLuint program) override;
+    ~ForwardRendering() {delete cylinder;}
 private:
     DebugLineMaterial debugLineMaterial;
     GLuint lineProgram;
+    Model* cylinder = nullptr;
 };
 
 

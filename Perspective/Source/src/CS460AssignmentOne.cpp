@@ -1,5 +1,4 @@
-
-
+#include "stdafx.h"
 #include "CS460AssignmentOne.h"
 #include "Input.h"
 #include "PowerPlantMaterial.h"
@@ -26,10 +25,15 @@
 #include <assimp/postprocess.h>     // Post processing flags
 #include "Model.h"
 #include "TransformSystem.h"
+#include "Animation.h"
+#include "Animator.h"
+#include "Phong_AnimatedMaterial.h"
 
 namespace {
     Scene scene{};
     Model* model;
+    std::vector<Animation*> animation;
+    Animator* animator;
 
     GBuffer gBuffer;
     LightBuffer lightBuffer;
@@ -45,47 +49,55 @@ namespace {
 
 }
 
+CS460AssignmentOne::~CS460AssignmentOne()
+{
+    delete model;
+    for(int i = 0; i <animation.size(); ++i)
+        delete animation[i];
+    delete animator;
+}
+
 CS460AssignmentOne::Settings CS460AssignmentOne::Setup() {
     Settings settings{};
     settings.window.size = {1600, 900};
     settings.window.resizeable = false;
     settings.context.msaaSamples = 1;
+
     return settings;
 }
 
 void CS460AssignmentOne::Init() {
     // Load power plant material
-    PowerPlantMaterial *powerPlantMaterial = new PowerPlantMaterial();
-    powerPlantMaterial->ReadMaterialFromFile("Common/PowerPlantFiles/");
-    MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
+    PhongAnimatedMaterial *phongAnimated = new PhongAnimatedMaterial();
+    phongAnimated->ReadMaterialFromFile("Common/PowerPlantFiles/");
+    MaterialSystem::getInstance().ManageMaterial(phongAnimated);
+
+
 
     model = new Model("Common/alien.fbx");
-    model->material = powerPlantMaterial;
+    model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
     Transform &trans = TransformSystem::getInstance().Get(model->transformID);
     trans.SetLocalDirection(-90, 180, 0);
     TransformSystem::getInstance().UpdateMatrices(model->transformID);
-    scene.models.emplace_back(model);
 
-    //ModelSystem::getInstance().LoadModel("Common/sphere.obj", [&, powerPlantMaterial](std::vector<Model> models) {
-    //    assert(models.size() == 1);
-    //    Model &model = models[0];
-    //    model.material = powerPlantMaterial;
-    //    scene.models.emplace_back(model);
 
-    //    Log("Loading of BoundingSphere is a success! \n");
-    //    scene.debugSystem.AddDebugModel(DebugSystem::Face_Normal, model.faceNormal);
-    //    scene.debugSystem.AddDebugModel(DebugSystem::Vertex_Normal, model.vertexNormal);
+    // Animation
+    // animation = new Animation("Common/alien.fbx", model);
 
-    //    auto &LoadedModels = ModelSystem::getInstance().GetAllLoadedModels();
-    //    auto iterator = LoadedModels.find(model.name);
-    //    if (iterator != LoadedModels.end()) {
-    //        const LoadedModel &loadedModel = iterator->second[0];
-    //        factoryCollisionMesh.AddModel(loadedModel);
-    //    } else {
-    //        Log("Mesh %s is not loaded! Weird!", model.name.c_str());
-    //    }
-    //});
+    Assimp::Importer importer;
+    const aiScene* ASSIMPScene = importer.ReadFile("Common/alien.fbx", aiProcess_Triangulate);
+    // Get the number of animation
+    int numOfAnimation = ASSIMPScene->mNumAnimations;
+    for (int i = 0; i < numOfAnimation; ++i)
+    {
+        animation.emplace_back(new Animation(ASSIMPScene, ASSIMPScene->mAnimations[i], model));
+    }
+
+    animator = new Animator(animation[2]);
+
+    scene.entities.emplace_back(Entity{ model, animator });
+
 
     // Load the skybox
     scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({
@@ -120,7 +132,7 @@ void CS460AssignmentOne::Resize(int width, int height) {
 void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float runningTime) {
     scene.mainCamera->Update(input, deltaTime);
     DebugDrawSystem::getInstance().Update(scene);
-
+    animator->UpdateAnimation(deltaTime);
 
     for (auto &dirLight : scene.directionalLights) {
         dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
@@ -143,4 +155,17 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
       TransformSystem::getInstance().UpdateMatrices(model->transformID);
       ImGui::TreePop();
     }
+    if (ImGui::Begin("Animation Control"))
+    {
+        static int animNumber = 4;
+        ImGui::DragInt("Animation counter", &animNumber, 0.5f, 0, 12);
+        if (ImGui::Button("Use Animation"))
+        {
+            animator->PlayAnimation(animation[animNumber]);
+        }
+
+    }
+    ImGui::End();
+
+
 }

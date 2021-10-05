@@ -26,11 +26,17 @@
 class CameraBase;
 class Model;
 class DebugModel;
+class Animator;
+
+struct Entity {
+    Model* model;
+    Animator* animator;
+};
 
 class Scene {
 public:
     std::unique_ptr<CameraBase> mainCamera;
-    std::vector<Model*> models;
+    std::vector<Entity> entities;
     mutable DebugSystem debugSystem;
     std::vector<DirectionalLight> directionalLights;
 

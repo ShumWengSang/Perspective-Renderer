@@ -74,4 +74,12 @@ void Mesh::setupMesh() {
     glEnableVertexArrayAttrib(vao, PredefinedAttributeLocation(a_tangent));
     glVertexArrayAttribFormat(vao, PredefinedAttributeLocation(a_tangent), 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, tangent));
     glVertexArrayAttribBinding(vao, PredefinedAttributeLocation(a_tangent), vertexArrayBindingIndex);
+
+    glEnableVertexArrayAttrib(vao, PredefinedAttributeLocation(a_boneIDs));
+    glVertexArrayAttribIFormat(vao, PredefinedAttributeLocation(a_boneIDs), 4, GL_INT, offsetof(Vertex, boneIDs));
+    glVertexArrayAttribBinding(vao, PredefinedAttributeLocation(a_boneIDs), vertexArrayBindingIndex);
+
+    glEnableVertexArrayAttrib(vao, PredefinedAttributeLocation(a_weights));
+    glVertexArrayAttribFormat(vao, PredefinedAttributeLocation(a_weights), 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, weights));
+    glVertexArrayAttribBinding(vao, PredefinedAttributeLocation(a_weights), vertexArrayBindingIndex);
 }

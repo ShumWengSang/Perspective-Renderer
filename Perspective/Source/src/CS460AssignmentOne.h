@@ -9,7 +9,7 @@ class CS460AssignmentOne final : public App {
 public:
     CS460AssignmentOne() = default;
 
-    virtual ~CS460AssignmentOne() = default;
+    virtual ~CS460AssignmentOne();
 
     Settings Setup() override;
 

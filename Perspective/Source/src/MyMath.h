@@ -40,6 +40,14 @@ namespace MyMath {
     glm::vec3 FindSupportPoint(std::vector<Shapes::Triangle> const &trigs, glm::vec3 const &dir);
 
     glm::vec3 FindSupportPoint(std::vector<Vertex> const &vertices, glm::vec3 const &dir);
+
+    inline glm::mat4 AssimpToMat4(const aiMatrix4x4& assimpMat)
+    {
+        return glm::transpose(glm::make_mat4(&assimpMat.a1)); // Convert to normal glm::mat4
+    }
+
+
+    inline glm::vec3 AssimpToGLMVec3(const aiVector3D& v) { return glm::vec3(v.x, v.y, v.z); }
 };
 
 

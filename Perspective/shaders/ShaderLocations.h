@@ -14,6 +14,8 @@
 #define ATTRIB_a_normal    1
 #define ATTRIB_a_tex_coord 2
 #define ATTRIB_a_tangent   3
+#define ATTRIB_a_boneIDs   4
+#define ATTRIB_a_weights   5
 
 ////////////////////////////////////////////////////////////
 // Outputs / render targets

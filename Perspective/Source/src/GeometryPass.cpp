@@ -25,7 +25,7 @@
 #include "Material.h"
 #include "TransformSystem.h"
 #include "ShaderLocations.h"
-
+#include "Animator.h"
 #pragma region InternalFunctions
 //static int ModelCompareFunc(const void *a, const void *b)
 //{
@@ -46,22 +46,22 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
     // Shapes::ExtractFrustumPlanes(scene.mainCamera->GetViewProjectionMatrix(), frustumPlanes);
     TransformSystem& transformSystem = TransformSystem::getInstance();
 
-    static std::vector<Model*> geometryToRender{};
-    geometryToRender.reserve(scene.models.size());
-    geometryToRender.clear();
+    //static std::vector<Model*> geometryToRender{};
+    //geometryToRender.reserve(scene.entities.size());
+    //geometryToRender.clear();
 
 /*
     const uint8_t magenta[] = { 255, 0, 255, 255 };
     glClearTexImage(gBuffer.albedoTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
     glClearTexImage(gBuffer.materialTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
 */
-    for (const auto& model : scene.models)
-    {
-        //if(!model.material) continue;
-        //if (!model.material->opaque) continue;
+    //for (const auto& ent : scene.entities)
+    //{
+    //    //if(!model.material) continue;
+    //    //if (!model.material->opaque) continue;
 
-        geometryToRender.emplace_back(model);
-    }
+    //    geometryToRender.emplace_back(ent.model);
+    //}
 
     const float clear[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     // Clear the FBO
@@ -83,7 +83,6 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-
     glPolygonMode(GL_FRONT_AND_BACK, wireframeRendering ? GL_LINE : GL_FILL);
 
     // Sort geometry so that we can optimize the number of shader program switches, i.e. calling glUseProgram
@@ -96,7 +95,9 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 
     GLuint lastProgram = UINT_MAX;
     if(drawObject) {
-        for (const auto &model : geometryToRender) {
+        for (const auto& ent : scene.entities) {
+            Model* model = ent.model;
+            Animator* anim = ent.animator;
             GLuint program = model->material->program;
 
             if (program == 0) {
@@ -112,6 +113,11 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
             const Transform &prevTransform =
                 transformSystem.GetPrevious(model->transformID);
             model->material->BindUniforms(transform, prevTransform);
+
+            if(anim != nullptr){
+                const auto& transforms = anim->GetFinalBoneMatrices();
+                glUniformMatrix4fv(bonesMatrixLocation, transforms.size(), GL_FALSE, glm::value_ptr(transforms[0]));
+            }
 
             if (model->material->cullBackface)
               glEnable(GL_CULL_FACE);
@@ -142,4 +148,5 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 void GeometryPass::ProgramLoaded(GLuint program) {
     depthOnlyProgram = program;
     modelMatrixLocation = glGetUniformLocation(depthOnlyProgram, "u_world_from_local");
+    bonesMatrixLocation = glGetUniformLocation(depthOnlyProgram, "u_finalBonesMatrices");
 }

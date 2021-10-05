@@ -1,0 +1,214 @@
+//
+// Created by user on 1/27/2021.
+//
+
+/* Start Header -------------------------------------------------------
+ * Copyright (C) 2020 DigiPen Institute of Technology.
+ * Reproduction or disclosure of this file or its contents without the prior
+ * written consent of DigiPen Institute of Technology is prohibited.
+ * File Name: Uniform.cpp
+ * Purpose: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Language: C++, G++
+ * Platform: g++ (Ubuntu 9.3.0-10ubuntu2) 9.3, ThinkPad T430u, Nvidia GT 620M,
+ *           OpenGL version string: 4.6.0 NVIDIA 390.138
+ * Project: OpenGLFramework
+ * Author: Roland Shum, roland.shum@digipen.edu
+ * Creation date: 1/27/2021
+ * End Header --------------------------------------------------------*/
+#include "stdafx.h"
+#include "Quaternions.h"
+
+MyMath::Quaternion::Quaternion() : s(1), v(0) {}
+
+MyMath::Quaternion::Quaternion(float S, const glm::vec3& V)
+    : s(S), v(V) {}
+
+MyMath::Quaternion::Quaternion(glm::mat4 const& mat)
+{
+    s = 0.5 * sqrt(mat[0][0] + mat[1][1] + mat[2][2] + 1);
+    v.x = (mat[2][1] - mat[1][2]) / (4 * s);
+    v.y = (mat[0][2] - mat[2][0]) / (4 * s);
+    v.z = (mat[1][0] - mat[0][1]) / (4 * s);
+}
+
+void MyMath::Quaternion::operator+=(const MyMath::Quaternion &rhs) {
+    s += rhs.s;
+    v += rhs.v;
+}
+
+MyMath::Quaternion MyMath::Quaternion::operator+(const MyMath::Quaternion &rhs) const {
+    float scalar = this->s + rhs.s;
+    glm::vec3 vector = this->v + rhs.v;
+    return Quaternion(scalar, vector);
+}
+
+void MyMath::Quaternion::operator-=(const MyMath::Quaternion &rhs) {
+    s -= rhs.s;
+    v -= rhs.v;
+}
+
+MyMath::Quaternion MyMath::Quaternion::operator-(const MyMath::Quaternion &rhs) const {
+    float scalar = this->s - rhs.s;
+    glm::vec3 vector = this->v - rhs.v;
+    return Quaternion(scalar, vector);
+}
+
+void MyMath::Quaternion::operator*=(const MyMath::Quaternion &q) { (*this) = Dot(q); }
+
+MyMath::Quaternion MyMath::Quaternion::operator*(const MyMath::Quaternion &q) const {
+    float scalar = s * q.s - glm::dot(v, q.v);
+
+    glm::vec3 imaginary = q.v * s + v * q.s + glm::cross(v, q.v);
+
+    return Quaternion(scalar, imaginary);
+}
+
+MyMath::Quaternion MyMath::Quaternion::Dot(const MyMath::Quaternion &q) const {
+    float scalar = s * q.s - glm::dot(v, q.v);
+
+    glm::vec3 imaginary = q.v * s + v * q.s + glm::cross(v, q.v);
+
+    return Quaternion(scalar, imaginary);
+}
+
+void MyMath::Quaternion::operator*=(const float value) {
+    s *= value;
+    v *= value;
+}
+
+MyMath::Quaternion MyMath::Quaternion::operator*(const float value) const {
+    float scalar = s * value;
+    glm::vec3 imaginary = v * value;
+
+    return Quaternion(scalar, imaginary);
+}
+
+float MyMath::Quaternion::MagSquared() const {
+    float scalar = s * s;
+    float imaginary = glm::dot(v, v);
+    return scalar + imaginary;
+}
+
+float MyMath::Quaternion::Magnitude() const { return sqrt(MagSquared()); }
+
+void MyMath::Quaternion::Normalize() {
+    float Mag = Magnitude();
+    if (Mag != 0) {
+        float normValue = 1 / Mag;
+        v *= normValue;
+        s *= normValue;
+    }
+}
+
+MyMath::Quaternion MyMath::Quaternion::Conjugate() const {
+    float scalar = s;
+    glm::vec3 imaginary = -v;
+    return Quaternion(scalar, imaginary);
+}
+
+MyMath::Quaternion MyMath::Quaternion::Inverse() const {
+    float absoluteValue = MagSquared();
+    absoluteValue = std::abs(absoluteValue);
+    absoluteValue = 1 / absoluteValue;
+
+    Quaternion conjugateValue = Conjugate();
+
+    float scalar = conjugateValue.s * absoluteValue;
+    glm::vec3 imaginary = conjugateValue.v * absoluteValue;
+
+    return Quaternion(scalar, imaginary);
+}
+
+void MyMath::Quaternion::ConvertToSpecialForm() {
+    float angle = glm::radians(s);
+    v = glm::normalize(v);
+    s = cosf(angle * 0.5);
+    v = v * sinf(angle * 0.5);
+}
+
+glm::vec3 MyMath::Quaternion::RotateAngleAxis(float alphaAngle, const glm::vec3 &uAxis, const glm::vec3 &rotVectorR) {
+    // convert our vector to a pure quaternion
+    Quaternion p(0.f, rotVectorR);
+
+    // normalize the axis
+    glm::vec3 normalizedAxis = glm::normalize(uAxis);
+
+    // create the real quaternion
+    Quaternion q(alphaAngle, normalizedAxis);
+
+    // convert quaternion to unit norm quaternion
+    q.ConvertToSpecialForm();
+
+    // Get the inverse of the quaternion
+    Quaternion qInverse = q.Inverse();
+
+    // rotate the quaternion
+    Quaternion rotatedVector = q * p * qInverse;
+
+    // return the vector part of the quaternion
+    return rotatedVector.v;
+}
+
+MyMath::Quaternion MyMath::Quaternion::Norm() const {
+    float Mag = Magnitude();
+    if (Mag != 0) {
+        Quaternion result;
+        float normValue = 1 / Mag;
+        result.v = v * normValue;
+        result.s = s * normValue;
+        return result;
+    }
+    // errr lol
+    return *this;
+}
+
+glm::vec3 MyMath::Quaternion::Rotate(glm::vec3 point) const {
+    Quaternion norm = this->Norm();
+    return (norm * Quaternion(0, point) * norm.Inverse()).v;
+}
+
+glm::mat4 MyMath::Quaternion::ToMat4() const {
+    Quaternion norm = this->Norm();
+    glm::mat4 result;
+
+    result[0][0] = 1 - 2 * (norm.v.y * norm.v.y + norm.v.z * norm.v.z);
+    result[1][0] = 2 * (norm.v.x * norm.v.y - norm.s * norm.v.z);
+    result[2][0] = 2 * (norm.v.x * norm.v.z + norm.s * norm.v.y);
+
+    result[0][1] = 2 * (norm.v.x * norm.v.y + norm.s * norm.v.z);
+    result[1][1] = 1 - 2 * (norm.v.x * norm.v.x + norm.v.z * norm.v.z);
+    result[2][1] = 2 * (norm.v.y * norm.v.z - norm.s * norm.v.x);
+
+    result[0][2] = 2 * (norm.v.x * norm.v.z - norm.s * norm.v.y);
+    result[1][2] = 2 * (norm.v.y * norm.v.z + norm.s * norm.v.x);
+    result[2][2] = 1 - 2 * (norm.v.x * norm.v.x + norm.v.y * norm.v.y);
+
+    return result;
+}
+
+MyMath::VQS::VQS(const glm::vec3 &V, const MyMath::Quaternion &Q, const float S)
+        : v(V), q(Q), s(S) {}
+
+glm::vec3 MyMath::VQS::operator*(const glm::vec3 &p) const {
+    return s * q.Rotate(p) + v;
+}
+
+MyMath::VQS MyMath::VQS::operator*(const MyMath::VQS &rhs) const {
+    glm::vec3 v = s * q.Rotate(rhs.v) + v;
+    Quaternion Q = q * rhs.q;
+    float S = s * rhs.s;
+    return VQS(v, Q, S);
+}
+
+MyMath::VQS MyMath::VQS::Inverse() const {
+    glm::vec3 V = 1 / s * (q.Rotate(-v));
+    Quaternion Q = q.Inverse();
+    float S = 1 / s;
+    return VQS(V, Q, S);
+}
+
+void MyMath::VQS::operator*=(const MyMath::VQS &rhs) {
+    v = s * q.Rotate(rhs.v) + v;
+    q = q * rhs.q;
+    s = s * rhs.s;
+}
