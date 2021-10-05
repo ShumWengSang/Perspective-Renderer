@@ -94,7 +94,7 @@ void CS460AssignmentOne::Init() {
         animation.emplace_back(new Animation(ASSIMPScene, ASSIMPScene->mAnimations[i], model));
     }
 
-    animator = new Animator(animation[2]);
+    animator = new Animator(nullptr);
 
     scene.entities.emplace_back(Entity{ model, animator });
 

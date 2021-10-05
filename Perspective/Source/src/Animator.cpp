@@ -14,7 +14,6 @@ void Animator::UpdateAnimation(float dt)
     if (currentAnimation)
     {
         currentTime += currentAnimation->GetTicksPerSecond() * dt;
-        Log("Current Time: %f", currentTime);
         currentTime = fmod(currentTime, currentAnimation->GetDuration());
         CalculateBoneTransform(&currentAnimation->GetRootNode(), glm::mat4(1.0f));
     }
