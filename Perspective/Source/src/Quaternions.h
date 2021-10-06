@@ -77,8 +77,8 @@ namespace MyMath {
 		}
 		
 	public:
-		float s{};
-		glm::vec3 v{};
+		float s{0};
+		glm::vec3 v{0};
 	};
 
 	class VQS {
@@ -101,9 +101,9 @@ namespace MyMath {
 		glm::mat4 ToMat4() const;
 
 	public:
-		glm::vec3 v{};
+		glm::vec3 v{0};
 		Quaternion q{};
-		float s{};
+		float s = 1.0f;
 	};
 }  // namespace MyMath
 #endif  // OPENGLFRAMEWORK_UNIFORM_H

@@ -49,20 +49,28 @@ void ForwardRendering::Draw(const Scene &scene) {
     //}
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    if(scene.entities[0].animator->GetAnimation() != nullptr)
+    { 
     Transform& trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
 	glUseProgram(lineProgram);
 	{
-        auto finalMatrices = scene.entities[0].animator->DrawBones(trans.matrix);
+        auto finalMatrices = scene.entities[0].animator->DrawBones(MyMath::VQS(trans.matrix));
+
         for (int i = 0; i < finalMatrices.size(); ++i)
         {
-            this->debugLineMaterial.BindUniforms(finalMatrices[i]);
-            if (i == 0)
-            {
-                
-            }
+            this->debugLineMaterial.BindUniforms(finalMatrices[i].ToMat4());
+            //if (i == 0)
+            //{
+            //    glUniform4f(u_color, 0.7f, 0.1f, 0.1f, 1.0f);
+            //}
+            //else
+            //{
+            //    glUniform4f(u_color, 0.2f, 0.8f, 0.27f, 1.0f);
+            //}
             cylinder->Draw();
         }
 	}
+    }
 
     ImGui::Checkbox("Enable Face Normal Lines", &debugOptions[0]);
     ImGui::Checkbox("Enable Vertex Normal Lines", &debugOptions[1]);

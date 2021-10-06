@@ -13,21 +13,21 @@ class Animator {
 
         void Animator::PlayAnimation(Animation* pAnimation);
 
-        void Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);
+        void Animator::CalculateBoneTransform(const AssimpNodeData* node, MyMath::VQS parentTransform);
 
-        const std::vector<glm::mat4>& GetFinalBoneMatrices();
+        const std::vector<MyMath::VQS>& GetFinalBoneMatrices() const;
 
         void ImGuiDisplay(float dt) const;
         const Animation* GetAnimation() const {return currentAnimation;}
 
 
-        const std::vector<glm::mat4> DrawBones(const glm::mat4& mat) const;
+        const std::vector<MyMath::VQS> DrawBones(const MyMath::VQS& mat) const;
 
 private:
-    void DrawBoneRecur(const AssimpNodeData* node, const glm::mat4& parentMatrix, std::vector<glm::mat4>& matrices) const;
+    void DrawBoneRecur(const AssimpNodeData* node, const MyMath::VQS& parentMatrix, std::vector<MyMath::VQS>& matrices) const;
 
 private:
-    std::vector<glm::mat4> finalBoneMatrices;
+    std::vector<MyMath::VQS> finalBoneMatrices;
     Animation* currentAnimation;
     float currentTime;
     float deltaTime;

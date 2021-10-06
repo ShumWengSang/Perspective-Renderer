@@ -2,7 +2,7 @@
 #include "Animator.h"
 #include "Logger.h"
 
-Animator::Animator(Animation* animation) : finalBoneMatrices(200, glm::mat4(1.0f))
+Animator::Animator(Animation* animation) : finalBoneMatrices(200, MyMath::VQS())
 {
     currentTime = 0.0;
     currentAnimation = animation;
@@ -15,7 +15,7 @@ void Animator::UpdateAnimation(float dt)
     {
         currentTime += currentAnimation->GetTicksPerSecond() * dt;
         currentTime = fmod(currentTime, currentAnimation->GetDuration());
-        CalculateBoneTransform(&currentAnimation->GetRootNode(), glm::mat4(1.0f));
+        CalculateBoneTransform(&currentAnimation->GetRootNode(), MyMath::VQS());
     }
 }
 
@@ -25,7 +25,7 @@ void Animator::PlayAnimation(Animation* pAnimation)
     currentTime = 0.0f;
 }
 
-void Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform)
+void Animator::CalculateBoneTransform(const AssimpNodeData* node, MyMath::VQS parentTransform)
 {
     std::string nodeName = node->name;
     MyMath::VQS nodeTransform = node->transformation;
@@ -38,21 +38,21 @@ void Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 pare
         nodeTransform = Bone->GetLocalTransform();
     }
 
-    glm::mat4 globalTransformation = parentTransform * nodeTransform.ToMat4();
+    MyMath::VQS globalTransformation = parentTransform * nodeTransform;
 
     auto boneInfoMap = currentAnimation->GetBoneIDMap();
     if (boneInfoMap.find(nodeName) != boneInfoMap.end())
     {
         int index = boneInfoMap[nodeName].id;
         MyMath::VQS offset = boneInfoMap[nodeName].offset;
-        finalBoneMatrices[index] = globalTransformation * offset.ToMat4();
+        finalBoneMatrices[index] = globalTransformation * offset;
     }
 
     for (int i = 0; i < node->childrenCount; i++)
         CalculateBoneTransform(&node->children[i], globalTransformation);
 }
 
-const std::vector<glm::mat4>& Animator::GetFinalBoneMatrices()
+const std::vector<MyMath::VQS>& Animator::GetFinalBoneMatrices() const
 {
     return finalBoneMatrices;
 }
@@ -82,9 +82,9 @@ void Animator::ImGuiDisplay(float dt) const
     }
 }
 
-const std::vector<glm::mat4> Animator::DrawBones(const glm::mat4& mat) const
+const std::vector<MyMath::VQS> Animator::DrawBones(const MyMath::VQS& mat) const
 {
-    std::vector<glm::mat4> res;
+    std::vector<MyMath::VQS> res;
     if (currentAnimation)
     {
         DrawBoneRecur(&currentAnimation->GetRootNode(), mat, res);
@@ -92,7 +92,7 @@ const std::vector<glm::mat4> Animator::DrawBones(const glm::mat4& mat) const
     return res;
 }
 
-void Animator::DrawBoneRecur(const AssimpNodeData* node, const glm::mat4& parentMatrix, std::vector<glm::mat4>& matrices) const
+void Animator::DrawBoneRecur(const AssimpNodeData* node, const MyMath::VQS& parentMatrix, std::vector<MyMath::VQS>& matrices) const
 {
     std::string nodeName = node->name;
     MyMath::VQS nodeTransform = node->transformation;
@@ -103,7 +103,7 @@ void Animator::DrawBoneRecur(const AssimpNodeData* node, const glm::mat4& parent
     {
         nodeTransform = Bone->GetLocalTransform();
     }
-    glm::mat4 globalTransform = parentMatrix * nodeTransform.ToMat4();
+    MyMath::VQS globalTransform = parentMatrix * nodeTransform;
     matrices.emplace_back(globalTransform);
     for (int i = 0; i < node->childrenCount; i++)
         DrawBoneRecur(&node->children[i], globalTransform, matrices);

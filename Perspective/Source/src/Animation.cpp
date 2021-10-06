@@ -38,6 +38,15 @@ Bone* Animation::FindBone(const std::string& name)
 
 // Sometimes there are missing bone data...
 
+void Animation::ImGuiDisplay(float dt) const
+{
+    if (ImGui::TreeNode("Show heiarchy of %s", animName.c_str()))
+    {
+        rootNode.DisplayImGui(0);
+        ImGui::TreePop();
+    }
+}
+
 void Animation::ReadMissingBones(const aiAnimation* animation, Model& model)
 {
     int size = animation->mNumChannels;

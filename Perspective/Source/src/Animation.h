@@ -49,14 +49,7 @@ class Animation {
         return boneInfoMap;
     }
     const std::string& GetName() const {return animName;}
-    void ImGuiDisplay(float dt) const
-    {
-        if (ImGui::TreeNode("Show heiarchy of %s", animName.c_str()))
-        {
-            rootNode.DisplayImGui(0);
-            ImGui::TreePop();
-        }
-    }
+    void ImGuiDisplay(float dt) const;
     
     private:
         // Sometimes there are missing bone data...
