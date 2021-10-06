@@ -19,7 +19,7 @@
 
 #ifndef OPENGLFRAMEWORK_MYMATH_H
 #define OPENGLFRAMEWORK_MYMATH_H
-
+#include "Quaternions.h"
 class Model;
 
 struct Vertex;
@@ -48,6 +48,19 @@ namespace MyMath {
 
 
     inline glm::vec3 AssimpToGLMVec3(const aiVector3D& v) { return glm::vec3(v.x, v.y, v.z); }
+
+    MyMath::Quaternion Slerp(const MyMath::Quaternion& begin, const MyMath::Quaternion& end, float factor);
+    glm::vec3 Slerp(const glm::vec3& begin, const glm::vec3& end, float factor);
+
+    glm::vec3 Lerp(const glm::vec3& begin, const glm::vec3& end, float factor);
+    float Lerp(float begin, float end, float factor);
+    struct iSlerp {
+        int a;
+    };
+
+    struct iVQS {
+        int a;
+    };
 };
 
 

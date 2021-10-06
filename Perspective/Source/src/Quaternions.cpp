@@ -87,6 +87,10 @@ MyMath::Quaternion MyMath::Quaternion::operator*(const float value) const {
     return Quaternion(scalar, imaginary);
 }
 
+MyMath::Quaternion MyMath::Quaternion::operator/(const float value) const {
+    return *this * (1 / value);
+}
+
 float MyMath::Quaternion::MagSquared() const {
     float scalar = s * s;
     float imaginary = glm::dot(v, v);
@@ -227,7 +231,6 @@ glm::mat4 MyMath::VQS::ToMat4() const
 {
     glm::mat4 t = glm::translate(v);
     glm::mat4 scale = glm::scale(glm::vec3(s,s,s));
-    glm::mat4 res = scale * q.ToMat4();
     // Scale first, then rotate, then translate
     return t * q.ToMat4() * scale;
 }

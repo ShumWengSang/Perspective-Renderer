@@ -32,9 +32,9 @@ public:
     void BindUniforms(Transform& transform, const Transform& prevTransform) const override;
 
     mutable Uniform<glm::vec3> ambient {"u_mat_ambient", {}};
-    mutable Uniform<glm::vec3> diffuse {"u_mat_diffuse", {}};;
-    mutable Uniform<glm::vec3> specular {"u_mat_specular", {}};;
-    mutable Uniform<float> Shininess {"u_mat_shininess", {}};;
+    mutable Uniform<glm::vec3> diffuse {"u_mat_diffuse", {}};
+    mutable Uniform<glm::vec3> specular {"u_mat_specular", {}};
+    mutable Uniform<float> Shininess {"u_mat_shininess", {}};
 
     // Load material data defined by PowerPlantMaterial. Directory must end in "/". Lile
     // "Commons/PowerPlantFiles/"

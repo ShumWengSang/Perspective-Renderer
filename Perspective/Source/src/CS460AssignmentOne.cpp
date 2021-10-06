@@ -28,6 +28,8 @@
 #include "Animation.h"
 #include "Animator.h"
 #include "Phong_AnimatedMaterial.h"
+#include <ShaderLocations.h>
+#include "CameraUniforms.h"
 
 namespace {
     Scene scene{};
@@ -44,6 +46,7 @@ namespace {
     FinalPass<AssignmentOne> finalPass;
 
     ForwardRendering forwardRendering;
+    BufferObject<VQS[MAX_BONES]> VQSUniformBlock;
 }
 
 CS460AssignmentOne::~CS460AssignmentOne()
@@ -71,7 +74,7 @@ void CS460AssignmentOne::Init() {
 
 
 
-    model = new Model("Common/anim_idle_01.fbx");
+    model = new Model("Common/anim_allAnim_01.fbx");
     model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
     Transform &trans = TransformSystem::getInstance().Get(model->transformID);
@@ -83,20 +86,14 @@ void CS460AssignmentOne::Init() {
     // animation = new Animation("Common/alien.fbx", model);
 
     Assimp::Importer importer;
-    const aiScene* ASSIMPScene = importer.ReadFile("Common/anim_idle_01.fbx", aiProcess_Triangulate);
+    const aiScene* ASSIMPScene = importer.ReadFile("Common/anim_allAnim_01.fbx", aiProcess_Triangulate);
     // Get the number of animation
     int numOfAnimations = ASSIMPScene->mNumAnimations;
     for (int i = 0; i < numOfAnimations; ++i)
     {
         animation.emplace_back(new Animation(ASSIMPScene, ASSIMPScene->mAnimations[i], model));
     }
-    const aiScene* anim2 = importer.ReadFile("Common/anim_wave_01.fbx", aiProcess_Triangulate);
-    // Get the number of animation
-    numOfAnimations = anim2->mNumAnimations;
-    for (int i = 0; i < numOfAnimations; ++i)
-    {
-        animation.emplace_back(new Animation(anim2, anim2->mAnimations[i], model));
-    }
+    
     Animation* anim = animation.empty() ? nullptr : animation.back();
     animator = new Animator(anim);
 
@@ -122,6 +119,8 @@ void CS460AssignmentOne::Init() {
     scene.mainCamera = std::make_unique<FpsCamera>();
 
     scene.mainCamera->LookAt({0, 10, -50}, {0, 0, 0});
+
+    VQSUniformBlock.BindBufferBase(BufferObjectType::Uniform, PredefinedUniformBlockBinding(VQSUniformBlock));
 }
 
 void CS460AssignmentOne::Resize(int width, int height) {
@@ -138,18 +137,33 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     DebugDrawSystem::getInstance().Update(scene);
     animator->UpdateAnimation(deltaTime);
 
+
+    const auto& transforms = animator->GetFinalBoneMatrices();
+    // Prepare the data for UBO
+    for (int i = 0; i < transforms.size(); ++i)
+    {
+        if(i >= MAX_BONES)
+            throw std::runtime_error("Too many bones!");
+        auto& vqs = transforms[i];
+        ShaderStruct::VQS mem;
+        mem.q = glm::vec4(vqs.q.v.x, vqs.q.v.y, vqs.q.v.z, vqs.q.s);
+        mem.s = vqs.s;
+        mem.v = vqs.v;
+        VQSUniformBlock.memory[i] = mem;
+    }
+    // Send to UBO
+    VQSUniformBlock.UpdateGpuBuffer();
+
     for (auto &dirLight : scene.directionalLights) {
         dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
     }
     scene.mainCamera->CommitToGpu();
     geometryPass.Draw(gBuffer, scene);
-    // gBuffer.RenderGui("GBuffer");
     lightPass.Draw(lightBuffer, gBuffer, scene);
-    // LightPass::RenderGui(scene.directionalLights[0], lightBuffer);
     finalPass.Draw(gBuffer, lightBuffer, scene);
-    {
-        forwardRendering.Draw(scene);
-    }
+    forwardRendering.Draw(scene);
+    
+    // ImGui
     static int selected = -1;
     if (ImGui::CollapsingHeader("Animation System"))
     {

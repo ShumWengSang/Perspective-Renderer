@@ -32,7 +32,7 @@ public:
     void ProgramLoaded(GLuint program) override;
     ~ForwardRendering() {delete cylinder;}
 private:
-    DebugLineMaterial debugLineMaterial;
+    DebugLineMaterial* debugLineMaterial;
     GLuint lineProgram;
     Model* cylinder = nullptr;
     GLuint u_color;

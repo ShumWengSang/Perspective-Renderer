@@ -2,7 +2,7 @@
 #include "Animator.h"
 #include "Logger.h"
 
-Animator::Animator(Animation* animation) : finalBoneMatrices(200, MyMath::VQS())
+Animator::Animator(Animation* animation) : finalBoneMatrices(MAX_BONES, MyMath::VQS())
 {
     currentTime = 0.0;
     currentAnimation = animation;

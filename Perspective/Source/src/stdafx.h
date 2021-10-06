@@ -80,5 +80,8 @@
 #define DEBUG_BREAKPOINT() __debugbreak()
 #endif
 
+constexpr int MAX_BONE_INFLUENCE = 4;
+constexpr int MAX_BONES = 200;
+
 // Our own classes
 #include "Queue.h"

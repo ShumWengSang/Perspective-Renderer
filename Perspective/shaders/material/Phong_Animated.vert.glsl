@@ -2,6 +2,7 @@
 
 #include <ShaderLocations.h>
 #include <CameraUniforms.h>
+#include <Quaternion.h>
 
 PredefinedAttribute(vec3, a_position);
 PredefinedAttribute(vec3, a_normal);
@@ -15,6 +16,20 @@ uniform mat4 u_world_from_local;
 const int MAX_BONES = 200;
 const int MAX_BONE_INFLUENCE = 4;
 uniform mat4 u_finalBonesMatrices[MAX_BONES];
+
+layout(std140, binding = PredefinedUniformBlockBinding(VQSUniformBlock)) uniform vqsBlock
+{ 
+    VQS vqs[MAX_BONES];
+};
+
+vec3 RotateCustom(in int index, in vec3 p){
+    vec4 q = vqs[index].q;
+    
+    vec3 v = vqs[index].v;
+    float s = vqs[index].s;
+    
+    return s * rotate_vector(q, p) + v;
+}
 
 out vec2 v_tex_coord;
 out vec3 v_position;
@@ -40,6 +55,7 @@ void main()
             break;
         }
         vec4 localPosition = u_finalBonesMatrices[a_boneIDs[i]] * vec4(a_position,1.0f);
+        // vec4 localPosition = vec4(RotateCustom(a_boneIDs[i], a_position), 1.0f);
         totalPosition += localPosition * a_weights[i];
         vec3 localNormal = mat3(u_finalBonesMatrices[a_boneIDs[i]]) * a_normal;
         v_boneID[i] = a_boneIDs[i];

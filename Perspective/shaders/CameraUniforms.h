@@ -11,6 +11,12 @@ namespace ShaderStruct {
         vec4 nearFar; // x = near, y = far, z = fov, w = ratio
         vec4 camPos;
     };
+
+    struct VQS {
+        vec4  q;
+        vec3  v;
+        float s;
+    };
 #ifdef __cplusplus
 }
 using namespace ShaderStruct;

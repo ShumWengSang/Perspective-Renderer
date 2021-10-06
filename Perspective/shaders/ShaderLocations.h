@@ -85,6 +85,9 @@
 #define TYPE_DirectionalLightBlock DirectionalLight
 #define BINDING_DirectionalLightBlock 3
 
+#define TYPE_VQSUniformBlock VQS
+#define BINDING_VQSUniformBlock 4
+
 
 #define BINDING_SphereSampleBuffer 10
 #endif //OPENGLFRAMEWORK_SHADERLOCATIONS_H

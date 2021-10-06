@@ -58,6 +58,53 @@ glm::vec3 MyMath::FindSupportPoint(const std::vector<Vertex> &vertices, const gl
     }
     return support;
 }
+
+MyMath::Quaternion MyMath::Slerp(const MyMath::Quaternion& begin, const MyMath::Quaternion& end, float factor)
+{
+    float cosTheta = begin.Dot(end);
+    MyMath::Quaternion localEnd = end;
+    if (cosTheta < 0)
+    {
+        localEnd = (end * -1);
+        cosTheta = -cosTheta;
+    }
+
+    // Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+    if (cosTheta > 1.0 - 0.0004)
+    {
+        // Linear interpolation all components
+        return MyMath::Quaternion(
+            MyMath::Lerp(begin.s, end.s, factor),
+            MyMath::Lerp(begin.v, end.v, factor));
+    }
+    
+    float angle = acos(cosTheta);
+
+    return (begin * sin((1.0f - factor) * angle) + end * sin(factor * angle)) / sin(angle);
+}
+
+glm::vec3 MyMath::Slerp(const glm::vec3& begin, const glm::vec3& end, float factor)
+{
+    float cosTheta = glm::dot(begin, end);
+    glm::vec3 localEnd = end;
+    if (cosTheta < 0)
+    {
+        localEnd = (end * -1);
+        cosTheta = -cosTheta;
+    }
+
+    float angle = acos(cosTheta);
+    return (begin * (sin((1 - factor) * angle)) + localEnd * sin(factor * angle)) * (1 / sin(angle));
+}
+
+glm::vec3 MyMath::Lerp(const glm::vec3& begin, const glm::vec3& end, float factor)
+{
+    return (1 - factor) * begin + factor * end;
+}
+float MyMath::Lerp(float begin, float end, float factor)
+{
+    return (1 - factor) * begin + factor * end;
+}
 #if TINYOBJLOADER
 glm::vec3 MyMath::FindSupportPoint(const std::vector<Shapes::Triangle> &trigs, const glm::vec3 &dir) {
     float highest = std::numeric_limits<float>::max();

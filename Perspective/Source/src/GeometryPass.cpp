@@ -122,7 +122,8 @@ void GeometryPass::Draw(const GBuffer& gBuffer, Scene& scene) {
 				{
 					matrices[i] = transforms[i].ToMat4();
 				}
-				glUniformMatrix4fv(bonesMatrixLocation, transforms.size(), GL_FALSE, glm::value_ptr(matrices[0]));
+				glUniformMatrix4fv(glGetUniformLocation(model->material->program, "u_finalBonesMatrices"),
+				transforms.size(), GL_FALSE, glm::value_ptr(matrices[0]));
 			}
 
 			if (model->material->cullBackface)
@@ -141,18 +142,9 @@ void GeometryPass::Draw(const GBuffer& gBuffer, Scene& scene) {
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	if (ImGui::CollapsingHeader("Geometry Pass"))
-	{
-		ImGui::Checkbox("Draw wireframes", &wireframeRendering);
-		ImGui::Checkbox("Draw Obj", &drawObject);
-		ImGui::Text("Draw calls: %d", numDrawCalls);
-		ImGui::Text("Triangles:  %d", numTriangles);
-	}
 }
 
 void GeometryPass::ProgramLoaded(GLuint program) {
 	depthOnlyProgram = program;
 	modelMatrixLocation = glGetUniformLocation(depthOnlyProgram, "u_world_from_local");
-	bonesMatrixLocation = glGetUniformLocation(depthOnlyProgram, "u_finalBonesMatrices");
 }

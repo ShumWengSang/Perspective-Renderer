@@ -49,7 +49,7 @@ void BufferObject<T>::UpdateGpuBuffer() {
     CreateBufferIfRequired();
     if (memcmp(&memory, &gpuMemory, sizeof(T)) != 0)
     {
-        gpuMemory = memory;
+        memcpy(&gpuMemory, &memory, sizeof(T));
         glNamedBufferSubData(bufferHandle, 0, sizeof(T), &gpuMemory);
     }
 }

@@ -20,7 +20,7 @@
 #ifndef OPENGLFRAMEWORK_MODELSYSTEM_H
 #define OPENGLFRAMEWORK_MODELSYSTEM_H
 #include "Shapes.h"
-#define MAX_BONE_INFLUENCE 4
+
 struct Vertex {
   glm::vec3 position;
   glm::vec3 normal;

@@ -7,13 +7,19 @@
 //! Read data from heirachy of bones, recursive through all of them to prepare final data
 class Animator {
 	public:
-        Animator::Animator(Animation* animation);
+        enum LerpMode
+        {
+            iVQS,
+            Mix
+        };
 
-        void Animator::UpdateAnimation(float dt);
+        Animator(Animation* animation);
 
-        void Animator::PlayAnimation(Animation* pAnimation);
-
-        void Animator::CalculateBoneTransform(const AssimpNodeData* node, MyMath::VQS parentTransform);
+        void UpdateAnimation(float dt);
+             
+        void PlayAnimation(Animation* pAnimation);
+             
+        void CalculateBoneTransform(const AssimpNodeData* node, MyMath::VQS parentTransform);
 
         const std::vector<MyMath::VQS>& GetFinalBoneMatrices() const;
 
@@ -31,6 +37,8 @@ private:
     Animation* currentAnimation;
     float currentTime;
     float deltaTime;
+
+    LerpMode currentLerpMode;
 };
 
 

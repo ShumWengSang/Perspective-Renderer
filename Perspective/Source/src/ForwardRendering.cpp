@@ -24,60 +24,49 @@
 #include "Scene.h"
 #include "DebugSystem.h"
 #include "Animator.h"
+#include "MaterialSystem.h"
 
-void ForwardRendering::Draw(const Scene &scene) {
-    static bool once = false;
-    if (!once) {
-        ShaderSystem::getInstance().AddProgram("material/debugLine", this);
-        cylinder =  new Model("Common/cylinder.fbx");
-        once = true;
-    }
-    TransformSystem & transformSystem = TransformSystem::getInstance();
-    static bool debugOptions[DebugSystem::DebugType::All] = {false, false};
+void ForwardRendering::Draw(const Scene& scene) {
+	static bool once = false;
+	if (!once) {
+		this->debugLineMaterial = (new DebugLineMaterial());
+		MaterialSystem::getInstance().ManageMaterial(debugLineMaterial);
 
-    //const auto& debugModels = scene.debugSystem.GetDebugModels();
-    //for(const auto& debugModelPair : debugModels)
-    //{
-    //    if(debugOptions[debugModelPair.first])
-    //    {
-    //        for (const DebugModel &model : debugModelPair.second) {
-    //            glUseProgram(lineProgram);
-    //            this->debugLineMaterial.BindUniforms(transformSystem.Get(model.transformID).matrix);
-    //            model.Draw();
-    //        }
-    //    }
-    //}
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    if(scene.entities[0].animator->GetAnimation() != nullptr)
-    { 
-    Transform& trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
-	glUseProgram(lineProgram);
-	{
-        auto finalMatrices = scene.entities[0].animator->DrawBones(MyMath::VQS(trans.matrix));
-
-        for (int i = 0; i < finalMatrices.size(); ++i)
-        {
-            this->debugLineMaterial.BindUniforms(finalMatrices[i].ToMat4());
-            //if (i == 0)
-            //{
-            //    glUniform4f(u_color, 0.7f, 0.1f, 0.1f, 1.0f);
-            //}
-            //else
-            //{
-            //    glUniform4f(u_color, 0.2f, 0.8f, 0.27f, 1.0f);
-            //}
-            cylinder->Draw();
-        }
+		cylinder = new Model("Common/cylinder.fbx");
+		once = true;
 	}
-    }
+	TransformSystem& transformSystem = TransformSystem::getInstance();
+	static bool debugOptions[DebugSystem::DebugType::All] = { false, false };
 
-    ImGui::Checkbox("Enable Face Normal Lines", &debugOptions[0]);
-    ImGui::Checkbox("Enable Vertex Normal Lines", &debugOptions[1]);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	if (scene.entities[0].animator->GetAnimation() != nullptr)
+	{
+		glUseProgram(this->debugLineMaterial->program);
+		Transform& trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
+
+		{
+			auto finalMatrices = scene.entities[0].animator->DrawBones(MyMath::VQS(trans.matrix));
+
+			for (int i = 0; i < finalMatrices.size(); ++i)
+			{
+				this->debugLineMaterial->BindUniforms(finalMatrices[i].ToMat4());
+				if (i == 0)
+				{
+					debugLineMaterial->BindColor(glm::vec4{ 0.7,0.1,0.1,1.0 });
+				}
+				else
+				{
+					debugLineMaterial->BindColor(glm::vec4{ 0.2,0.8,0.27,1.0 });
+				}
+				cylinder->Draw();
+			}
+		}
+	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void ForwardRendering::ProgramLoaded(GLuint program) {
-    this->lineProgram = program;
-    this->u_color = glGetUniformLocation(program, "u_color");
+
+
 }

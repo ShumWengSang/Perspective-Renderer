@@ -43,6 +43,7 @@ namespace MyMath {
 		// Scalar multiplication
 		void operator*=(const float value);
 		Quaternion operator*(const float value) const;
+		Quaternion operator/(const float value) const;
 
 		// Magnitude
 		float MagSquared() const;
@@ -77,9 +78,13 @@ namespace MyMath {
 		}
 		
 	public:
-		float s{0};
 		glm::vec3 v{0};
+		float s{0};
 	};
+	inline MyMath::Quaternion operator*(float constant, MyMath::Quaternion const& quat)
+	{
+		return quat * constant;
+	}
 
 	class VQS {
 	public:
@@ -101,8 +106,8 @@ namespace MyMath {
 		glm::mat4 ToMat4() const;
 
 	public:
-		glm::vec3 v{0};
 		Quaternion q{};
+		glm::vec3 v{0};
 		float s = 1.0f;
 	};
 }  // namespace MyMath
