@@ -28,7 +28,7 @@ void Animator::PlayAnimation(Animation* pAnimation)
 void Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform)
 {
     std::string nodeName = node->name;
-    glm::mat4 nodeTransform = node->transformation;
+    MyMath::VQS nodeTransform = node->transformation;
 
     Bone* Bone = currentAnimation->FindBone(nodeName);
 
@@ -38,14 +38,14 @@ void Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 pare
         nodeTransform = Bone->GetLocalTransform();
     }
 
-    glm::mat4 globalTransformation = parentTransform * nodeTransform;
+    glm::mat4 globalTransformation = parentTransform * nodeTransform.ToMat4();
 
     auto boneInfoMap = currentAnimation->GetBoneIDMap();
     if (boneInfoMap.find(nodeName) != boneInfoMap.end())
     {
         int index = boneInfoMap[nodeName].id;
-        glm::mat4 offset = boneInfoMap[nodeName].offset;
-        finalBoneMatrices[index] = globalTransformation * offset;
+        MyMath::VQS offset = boneInfoMap[nodeName].offset;
+        finalBoneMatrices[index] = globalTransformation * offset.ToMat4();
     }
 
     for (int i = 0; i < node->childrenCount; i++)
@@ -80,4 +80,31 @@ void Animator::ImGuiDisplay(float dt) const
         }
         ImGui::TreePop();
     }
+}
+
+const std::vector<glm::mat4> Animator::DrawBones(const glm::mat4& mat) const
+{
+    std::vector<glm::mat4> res;
+    if (currentAnimation)
+    {
+        DrawBoneRecur(&currentAnimation->GetRootNode(), mat, res);
+    }
+    return res;
+}
+
+void Animator::DrawBoneRecur(const AssimpNodeData* node, const glm::mat4& parentMatrix, std::vector<glm::mat4>& matrices) const
+{
+    std::string nodeName = node->name;
+    MyMath::VQS nodeTransform = node->transformation;
+
+    Bone* Bone = currentAnimation->FindBone(nodeName);
+
+    if (Bone)
+    {
+        nodeTransform = Bone->GetLocalTransform();
+    }
+    glm::mat4 globalTransform = parentMatrix * nodeTransform.ToMat4();
+    matrices.emplace_back(globalTransform);
+    for (int i = 0; i < node->childrenCount; i++)
+        DrawBoneRecur(&node->children[i], globalTransform, matrices);
 }

@@ -21,33 +21,10 @@ class Animator {
         const Animation* GetAnimation() const {return currentAnimation;}
 
 
-        const std::vector<glm::mat4> DrawBones(const glm::mat4& mat) const
-        {
-            std::vector<glm::mat4> res;
-            if (currentAnimation)
-            {
-                DrawBoneRecur(&currentAnimation->GetRootNode(), mat, res);
-            }
-            return res;
-        }
+        const std::vector<glm::mat4> DrawBones(const glm::mat4& mat) const;
 
 private:
-    void DrawBoneRecur(const AssimpNodeData* node, const glm::mat4& parentMatrix, std::vector<glm::mat4>& matrices) const
-    {
-        std::string nodeName = node->name;
-        glm::mat4 nodeTransform = node->transformation;
-
-        Bone* Bone = currentAnimation->FindBone(nodeName);
-
-        if (Bone)
-        {
-            nodeTransform = Bone->GetLocalTransform();
-        }
-        glm::mat4 globalTransform = parentMatrix * nodeTransform;
-        matrices.emplace_back(globalTransform);
-        for (int i = 0; i < node->childrenCount; i++)
-            DrawBoneRecur(&node->children[i], globalTransform, matrices);
-    }
+    void DrawBoneRecur(const AssimpNodeData* node, const glm::mat4& parentMatrix, std::vector<glm::mat4>& matrices) const;
 
 private:
     std::vector<glm::mat4> finalBoneMatrices;

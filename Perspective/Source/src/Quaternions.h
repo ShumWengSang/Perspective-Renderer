@@ -23,6 +23,7 @@ namespace MyMath {
 	class Quaternion {
 	public:
 		Quaternion();
+		explicit Quaternion(const glm::quat& quat);
 		Quaternion(float S, const glm::vec3& V);
 		Quaternion(const Quaternion& value) = default;
 		Quaternion& operator=(const Quaternion& value) = default;
@@ -84,7 +85,7 @@ namespace MyMath {
 	public:
 		VQS() = default;
 		VQS(const glm::vec3& V, const Quaternion& Q, const float S);
-
+		explicit VQS(const glm::mat4& transformation);
 	public:
 		// Rotate
 		glm::vec3 operator*(const glm::vec3& p) const;

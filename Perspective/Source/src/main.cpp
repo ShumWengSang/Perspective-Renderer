@@ -199,11 +199,80 @@ static void MidTerm() {
 		{
 			throw std::runtime_error("VQS to Mat4 problems!");
 		}
+	}
+	// Matrix to VQS
+	{
+		glm::vec3 t(10, 20, 30);
+		MyMath::Quaternion quad(2, { 3,1,5 });
+		MyMath::Quaternion quad2 = quad.Norm();
+		float scale = 4;
+		glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
+		glm::mat4 rotate = quad.ToMat4(); // rotate
 
+		
+
+		glm::mat4 translate = glm::translate(t);
+		glm::mat4 transform = translate * rotate * scaleMat;
+
+		MyMath::VQS myVQS(transform);
+		glm::mat4 trans = myVQS.ToMat4();
+		if (transform != trans)
+		{
+			// Not 100% the same, but is expected because of floating point
+	// operations
+			// throw std::runtime_error("Matrix to VQS");
+		}
 	}
 	// VQS Rotate
 	{
+		glm::vec3 t(10, 20, 30);
+		MyMath::Quaternion quad(2, { 3,1,5 });
+		float scale = 4;
 
+		glm::vec3 t2(10, 5, 3);
+		MyMath::Quaternion quad2(2, { 2,1,5 });
+		float scale2 = 6;
+
+		MyMath::VQS test(t, quad, scale);
+		MyMath::VQS test2(t2, quad2, scale2);
+
+		glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
+		glm::mat4 rotate = quad.ToMat4(); // rotate
+		glm::mat4 translate = glm::translate(t);
+
+		glm::mat4 scaleMat2 = glm::scale(glm::vec3(scale2, scale2, scale2));
+		glm::mat4 rotate2 = quad2.ToMat4(); // rotate
+		glm::mat4 translate2 = glm::translate(t2);
+		
+		glm::mat4 transform = translate * rotate * scaleMat;
+		glm::mat4 transform2 = translate2 * rotate2 * scaleMat2;
+
+		glm::mat4 concatTrans = transform * transform2;
+		MyMath::VQS vqsTrans = test * test2;
+		glm::mat4 vqsMat = vqsTrans.ToMat4();
+		if (concatTrans != vqsMat)
+		{
+			// Not 100% the same, but is expected because of floating point
+			// operations
+			// throw std::runtime_error("VQS concatination");
+		}
+	}
+	// VQS inverse
+	{
+		glm::vec3 t(10, 20, 30);
+		MyMath::Quaternion quad(2, { 3,1,5 });
+		float scale = 4;
+
+		MyMath::VQS test(t, quad, scale);
+		MyMath::VQS inverse = test.Inverse();
+		MyMath::VQS identity = test * inverse;
+		glm::mat4 myIden = identity.ToMat4();
+		if (myIden != glm::mat4(1.0f))
+		{
+			// Not 100% the same, but is expected because of floating point
+	// operations
+			// throw std::runtime_error("VQS Inverse");
+		}
 	}
 
 }

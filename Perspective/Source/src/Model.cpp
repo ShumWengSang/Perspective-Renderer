@@ -186,13 +186,13 @@ void Model::ExtractBoneWeight(std::vector<Vertex>& vertices, aiMesh* mesh, const
         int boneID = -1;
         // Cache the bones for quick optimization
         std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
-        Log("Extracting bone ... [%s]", boneName.c_str());
         if (boneInfoMap.find(boneName) == boneInfoMap.end())
         {
             // New bone info add it in
             BoneInfo newBoneInfo;
             newBoneInfo.id = boneCounter;
-            newBoneInfo.offset = MyMath::AssimpToMat4(mesh->mBones[boneIndex]->mOffsetMatrix);
+            glm::mat4 transformation = MyMath::AssimpToMat4(mesh->mBones[boneIndex]->mOffsetMatrix);
+            newBoneInfo.offset = MyMath::VQS(transformation);
             boneInfoMap[boneName] = newBoneInfo;
             boneID = boneCounter;
             boneCounter++;

@@ -3,9 +3,10 @@
 
 #pragma once
 #include "Model.h"
+#include "MyMath.h"
 struct AssimpNodeData
 {
-    glm::mat4 transformation;
+    MyMath::VQS transformation;
     std::string name;
     int childrenCount;
     std::vector<AssimpNodeData> children;

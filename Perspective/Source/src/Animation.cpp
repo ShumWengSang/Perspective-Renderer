@@ -66,15 +66,16 @@ void Animation::ReadMissingBones(const aiAnimation* animation, Model& model)
 
 void Animation::ReadHeirarchyData(AssimpNodeData& dest, const aiNode* src)
 {
-    assert(src);
+	assert(src);
 
-    dest.name = src->mName.data;
-    dest.transformation = MyMath::AssimpToMat4(src->mTransformation);
-    dest.childrenCount = src->mNumChildren;
+	dest.name = src->mName.data;
+	glm::mat4 transformation = MyMath::AssimpToMat4(src->mTransformation);
+	dest.transformation = MyMath::VQS(transformation);
+	dest.childrenCount = src->mNumChildren;
 
-    for (int i = 0; i < src->mNumChildren; i++)
-    {
-        AssimpNodeData newData;
+	for (int i = 0; i < src->mNumChildren; i++)
+	{
+		AssimpNodeData newData;
         ReadHeirarchyData(newData, src->mChildren[i]);
         dest.children.emplace_back(newData);
     }

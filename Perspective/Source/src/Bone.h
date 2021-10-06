@@ -37,7 +37,7 @@ struct BoneInfo
 	int id;
 
 	/*offset matrix transforms vertex from model space to bone space*/
-	glm::mat4 offset;
+	MyMath::VQS offset;
 
 };
 
@@ -88,10 +88,10 @@ public:
 
 	void Update(float animationTime)
 	{
-		glm::mat4 translation = InterpolatePosition(animationTime);
-		glm::mat4 rotation = InterpolateRotation(animationTime);
-		glm::mat4 scale = InterpolateScaling(animationTime);
-		localTransform = translation * rotation * scale;
+		auto translation = InterpolatePosition(animationTime);
+		auto rotation = InterpolateRotation(animationTime);
+		auto scale = InterpolateScaling(animationTime);
+		localTransform = MyMath::VQS(translation, rotation, scale.x);
 	}
 
 	/* Gets the current index on mKeyPositions to interpolate to based on
@@ -130,7 +130,7 @@ the current animation time*/
 		assert(0);
 	}
 
-	glm::mat4 GetLocalTransform() const { return localTransform; }
+	MyMath::VQS GetLocalTransform() const { return localTransform; }
 	std::string_view GetBoneName() const { return name; }
 	int GetBoneID() const { return id; }
 
@@ -145,10 +145,10 @@ the current animation time*/
 
 		/*figures out which position keys to interpolate b/w and performs the interpolation
 and returns the translation matrix*/
-		glm::mat4 InterpolatePosition(float animationTime)
+		glm::vec3 InterpolatePosition(float animationTime)
 		{
 			if (1 == positions.size())
-				return glm::translate(glm::mat4(1.0f), positions[0].position);
+				return positions[0].position;
 
 			const int currIndex = GetPositionIndex(animationTime);
 			const auto& currKeyPosition = positions[currIndex];
@@ -159,17 +159,17 @@ and returns the translation matrix*/
 				nextKeyPosition.timeStamp, animationTime);
 			glm::vec3 finalPosition = glm::mix(currKeyPosition.position,
 				nextKeyPosition.position, scaleFactor);
-			return glm::translate(glm::mat4(1.0f), finalPosition);
+			return finalPosition;
 		}
 
 		/*figures out which rotations keys to interpolate b/w and performs the interpolation
 		and returns the rotation matrix*/
-		glm::mat4 InterpolateRotation(float animationTime)
+		MyMath::Quaternion InterpolateRotation(float animationTime)
 		{
 			if (1 == rotations.size())
 			{
 				auto rotation = rotations[0].orientation.Norm();
-				return rotation.ToMat4();
+				return rotation;
 			}
 			const int currIndex = GetRotationIndex(animationTime);
 			const auto& currKeyPosition = rotations[currIndex];
@@ -182,15 +182,15 @@ and returns the translation matrix*/
 			glm::quat finalRotation = glm::slerp(currKeyPosition.orientation.ToGLMQuat(),
 				nextKeyPosition.orientation.ToGLMQuat(), scaleFactor);
 			finalRotation = glm::normalize(finalRotation);
-			return glm::toMat4(finalRotation);
+			return MyMath::Quaternion(finalRotation);
 		}
 
 		/*figures out which scaling keys to interpolate b/w and performs the interpolation
 		and returns the scale matrix*/
-		glm::mat4 Bone::InterpolateScaling(float animationTime)
+		glm::vec3 Bone::InterpolateScaling(float animationTime)
 		{
 			if (1 == scales.size())
-				return glm::scale(glm::mat4(1.0f), scales[0].scale);
+				return scales[0].scale;
 
 			const int currIndex = GetScaleIndex(animationTime);
 			const auto& currKeyPosition = scales[currIndex];
@@ -201,7 +201,7 @@ and returns the translation matrix*/
 				nextKeyPosition.timeStamp, animationTime);
 			glm::vec3 finalScale = glm::mix(currKeyPosition.scale, nextKeyPosition.scale
 				, scaleFactor);
-			return glm::scale(glm::mat4(1.0f), finalScale);
+			return finalScale;
 		}
 
 
@@ -212,7 +212,7 @@ private:
 	std::vector<KeyScale> scales;
 	std::vector<KeyFrame> VQSs;
 
-	glm::mat4 localTransform{};
+	MyMath::VQS localTransform{};
 	std::string name{};
 	int id{};
 };
