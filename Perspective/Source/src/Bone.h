@@ -5,7 +5,7 @@
 #include "Quaternions.h"
 #include "MyMath.h"
 #include <Logger.h>
-using Quat = glm::quat;
+using Quat = MyMath::Quaternion;
 struct KeyPosition
 {
 	glm::vec3 position;
@@ -21,6 +21,12 @@ struct KeyRotation
 struct KeyScale
 {
 	glm::vec3 scale;
+	float timeStamp;
+};
+
+struct KeyFrame
+{
+	MyMath::VQS vqs;
 	float timeStamp;
 };
 
@@ -58,7 +64,7 @@ public:
 			aiQuaternion aiRotation = channel->mRotationKeys[i].mValue;
 			float timeStamp = channel->mRotationKeys[i].mTime;
 			KeyRotation data;
-			data.orientation = glm::quat(aiRotation.w, aiRotation.x, aiRotation.y, aiRotation.z);
+			data.orientation = Quat(aiRotation.w, glm::vec3(aiRotation.x, aiRotation.y, aiRotation.z ));
 			data.timeStamp = timeStamp;
 			rotations.emplace_back(data);
 		}
@@ -162,8 +168,8 @@ and returns the translation matrix*/
 		{
 			if (1 == rotations.size())
 			{
-				auto rotation = glm::normalize(rotations[0].orientation);
-				return glm::toMat4(rotation);
+				auto rotation = rotations[0].orientation.Norm();
+				return rotation.ToMat4();
 			}
 			const int currIndex = GetRotationIndex(animationTime);
 			const auto& currKeyPosition = rotations[currIndex];
@@ -173,8 +179,8 @@ and returns the translation matrix*/
 
 			float scaleFactor = GetScaleFactor(currKeyPosition.timeStamp,
 				nextKeyPosition.timeStamp, animationTime);
-			glm::quat finalRotation = glm::slerp(currKeyPosition.orientation,
-				nextKeyPosition.orientation, scaleFactor);
+			glm::quat finalRotation = glm::slerp(currKeyPosition.orientation.ToGLMQuat(),
+				nextKeyPosition.orientation.ToGLMQuat(), scaleFactor);
 			finalRotation = glm::normalize(finalRotation);
 			return glm::toMat4(finalRotation);
 		}
@@ -204,6 +210,7 @@ private:
 	std::vector<KeyPosition> positions;
 	std::vector<KeyRotation> rotations;
 	std::vector<KeyScale> scales;
+	std::vector<KeyFrame> VQSs;
 
 	glm::mat4 localTransform{};
 	std::string name{};

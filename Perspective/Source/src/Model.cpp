@@ -128,6 +128,22 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
   // Process Bones
   ExtractBoneWeight(vertices, mesh, scene);
 
+  // Normalize weights
+  for (auto& vertex : vertices)
+  {
+      // Find largest weight
+      double largestWeight = 0;
+      for(int i = 0 ; i < 4; ++i)
+      { 
+          largestWeight += (double)vertex.weights[i];
+      }
+      // Remap it
+      for (int i = 0; i < 4; ++i)
+      {
+          vertex.weights[i] = MyMath::Remap(vertex.weights[i], 0, (float)largestWeight, 0, 1);
+      }
+  }
+
   return Mesh(vertices, indices, textures);
 }
 

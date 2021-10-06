@@ -56,3 +56,28 @@ const std::vector<glm::mat4>& Animator::GetFinalBoneMatrices()
 {
     return finalBoneMatrices;
 }
+
+void Animator::ImGuiDisplay(float dt) const
+{
+    if (ImGui::TreeNode("Animator Widget"))
+    {
+        if (currentAnimation)
+        {
+            ImGui::Text("Currently playing: ");
+            ImGui::SameLine();
+            ImGui::TextColored({ 0.0,0.7,0.2,1.0 }, "[%s]", currentAnimation->GetName().c_str());
+            ImGui::Text("Time: ");
+            ImGui::SameLine();
+            ImGui::TextColored({ 0.0,0.7,0.2,1.0 }, "%.2f", currentTime);
+            ImGui::SameLine();
+            ImGui::Text(" \\ ");
+            ImGui::SameLine();
+            ImGui::TextColored({ 0.0,0.7,0.2,1.0 }, "%.2f", currentAnimation->GetDuration());
+        }
+        else
+        {
+            ImGui::TextColored({ 0.7, 0.1, 0.1, 1.0 }, "No animation set currently");
+        }
+        ImGui::TreePop();
+    }
+}

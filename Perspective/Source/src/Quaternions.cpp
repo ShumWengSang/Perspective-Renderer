@@ -42,18 +42,22 @@ MyMath::Quaternion MyMath::Quaternion::operator+(const MyMath::Quaternion &rhs) 
     return Quaternion(scalar, vector);
 }
 
-void MyMath::Quaternion::operator-=(const MyMath::Quaternion &rhs) {
-    s -= rhs.s;
-    v -= rhs.v;
-}
+//void MyMath::Quaternion::operator-=(const MyMath::Quaternion &rhs) {
+//    s -= rhs.s;
+//    v -= rhs.v;
+//}
+//
+//MyMath::Quaternion MyMath::Quaternion::operator-(const MyMath::Quaternion &rhs) const {
+//    float scalar = this->s - rhs.s;
+//    glm::vec3 vector = this->v - rhs.v;
+//    return Quaternion(scalar, vector);
+//}
 
-MyMath::Quaternion MyMath::Quaternion::operator-(const MyMath::Quaternion &rhs) const {
-    float scalar = this->s - rhs.s;
-    glm::vec3 vector = this->v - rhs.v;
-    return Quaternion(scalar, vector);
+void MyMath::Quaternion::operator*=(const MyMath::Quaternion &q) { 
+    auto olds = s;
+    s = s * q.s - glm::dot(v, q.v);
+    v = q.v * olds + v * q.s + glm::cross(v, q.v);
 }
-
-void MyMath::Quaternion::operator*=(const MyMath::Quaternion &q) { (*this) = Dot(q); }
 
 MyMath::Quaternion MyMath::Quaternion::operator*(const MyMath::Quaternion &q) const {
     float scalar = s * q.s - glm::dot(v, q.v);
@@ -63,12 +67,8 @@ MyMath::Quaternion MyMath::Quaternion::operator*(const MyMath::Quaternion &q) co
     return Quaternion(scalar, imaginary);
 }
 
-MyMath::Quaternion MyMath::Quaternion::Dot(const MyMath::Quaternion &q) const {
-    float scalar = s * q.s - glm::dot(v, q.v);
-
-    glm::vec3 imaginary = q.v * s + v * q.s + glm::cross(v, q.v);
-
-    return Quaternion(scalar, imaginary);
+float MyMath::Quaternion::Dot(const MyMath::Quaternion &q) const {
+    return q.s * s + glm::dot(v, q.v);
 }
 
 void MyMath::Quaternion::operator*=(const float value) {
@@ -167,13 +167,16 @@ glm::vec3 MyMath::Quaternion::Rotate(glm::vec3 point) const {
     return (norm * Quaternion(0, point) * norm.Inverse()).v;
 }
 
-glm::mat4 MyMath::Quaternion::ToMat4() const {
-    Quaternion norm = this->Norm();
-    glm::mat4 result;
+glm::mat4 MyMath::Quaternion::ToMat4(bool normalize) const {
+    Quaternion norm = *this;
+    if(normalize)
+        norm = this->Norm();
+
+    glm::mat4 result(1.0f);
 
     result[0][0] = 1 - 2 * (norm.v.y * norm.v.y + norm.v.z * norm.v.z);
-    result[1][0] = 2 * (norm.v.x * norm.v.y - norm.s * norm.v.z);
-    result[2][0] = 2 * (norm.v.x * norm.v.z + norm.s * norm.v.y);
+    result[1][0] = 2 * (norm.v.x * norm.v.y - norm.v.z * norm.s);
+    result[2][0] = 2 * (norm.v.x * norm.v.z + norm.v.y * norm.s);
 
     result[0][1] = 2 * (norm.v.x * norm.v.y + norm.s * norm.v.z);
     result[1][1] = 1 - 2 * (norm.v.x * norm.v.x + norm.v.z * norm.v.z);
@@ -205,6 +208,15 @@ MyMath::VQS MyMath::VQS::Inverse() const {
     Quaternion Q = q.Inverse();
     float S = 1 / s;
     return VQS(V, Q, S);
+}
+
+glm::mat4 MyMath::VQS::ToMat4() const
+{
+    glm::mat4 t = glm::translate(v);
+    glm::mat4 scale = glm::scale(glm::vec3(s,s,s));
+    glm::mat4 res = scale * q.ToMat4();
+    // Scale first, then rotate, then translate
+    return t * q.ToMat4() * scale;
 }
 
 void MyMath::VQS::operator*=(const MyMath::VQS &rhs) {

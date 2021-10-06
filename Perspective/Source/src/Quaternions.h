@@ -31,13 +31,13 @@ namespace MyMath {
 		// Adding and subtraction
 		void operator+=(const Quaternion& rhs);
 		Quaternion operator+(const Quaternion& rhs) const;
-		void operator-=(const Quaternion& rhs);
-		Quaternion operator-(const Quaternion& rhs) const;
+		//void operator-=(const Quaternion& rhs);
+		//Quaternion operator-(const Quaternion& rhs) const;
 
 		// Product
 		void operator*=(const Quaternion& q);
 		Quaternion operator*(const Quaternion& q) const;
-		Quaternion Dot(const Quaternion& q) const;
+		float Dot(const Quaternion& q) const;
 
 		// Scalar multiplication
 		void operator*=(const float value);
@@ -67,7 +67,7 @@ namespace MyMath {
 			const glm::vec3& rotVectorR);
 
 		// Matrix back and forth
-		glm::mat4 ToMat4() const;
+		glm::mat4 ToMat4(bool normalize = true) const;
 
 		// To glm Quats
 		glm::quat ToGLMQuat() const
@@ -76,8 +76,8 @@ namespace MyMath {
 		}
 		
 	public:
-		float s;
-		glm::vec3 v;
+		float s{};
+		glm::vec3 v{};
 	};
 
 	class VQS {
@@ -96,10 +96,13 @@ namespace MyMath {
 		// Inverse
 		VQS Inverse() const;
 
+		// To Mat4
+		glm::mat4 ToMat4() const;
+
 	public:
-		glm::vec3 v;
-		Quaternion q;
-		float s;
+		glm::vec3 v{};
+		Quaternion q{};
+		float s{};
 	};
 }  // namespace MyMath
 #endif  // OPENGLFRAMEWORK_UNIFORM_H

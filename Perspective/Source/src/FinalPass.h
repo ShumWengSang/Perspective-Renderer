@@ -44,7 +44,7 @@ public:
     void ProgramLoaded(GLuint program) override;
 private:
 
-    Uniform<int> copyDepthBuffer {"copyDepthBuffer", 1};
+    Uniform<int> copyDepthBuffer {"copyDepthBuffer", 0};
     GLuint finalProgram;
 };
 

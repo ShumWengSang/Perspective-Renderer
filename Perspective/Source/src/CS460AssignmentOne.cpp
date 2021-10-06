@@ -41,12 +41,9 @@ namespace {
     GeometryPass geometryPass;
     LightPass lightPass;
 
-
     FinalPass<AssignmentOne> finalPass;
 
     ForwardRendering forwardRendering;
-
-
 }
 
 CS460AssignmentOne::~CS460AssignmentOne()
@@ -74,7 +71,7 @@ void CS460AssignmentOne::Init() {
 
 
 
-    model = new Model("Common/alien.fbx");
+    model = new Model("Common/anim_idle_01.fbx");
     model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
     Transform &trans = TransformSystem::getInstance().Get(model->transformID);
@@ -86,15 +83,22 @@ void CS460AssignmentOne::Init() {
     // animation = new Animation("Common/alien.fbx", model);
 
     Assimp::Importer importer;
-    const aiScene* ASSIMPScene = importer.ReadFile("Common/alien.fbx", aiProcess_Triangulate);
+    const aiScene* ASSIMPScene = importer.ReadFile("Common/anim_idle_01.fbx", aiProcess_Triangulate);
     // Get the number of animation
-    int numOfAnimation = ASSIMPScene->mNumAnimations;
-    for (int i = 0; i < numOfAnimation; ++i)
+    int numOfAnimations = ASSIMPScene->mNumAnimations;
+    for (int i = 0; i < numOfAnimations; ++i)
     {
         animation.emplace_back(new Animation(ASSIMPScene, ASSIMPScene->mAnimations[i], model));
     }
-
-    animator = new Animator(nullptr);
+    const aiScene* anim2 = importer.ReadFile("Common/anim_wave_01.fbx", aiProcess_Triangulate);
+    // Get the number of animation
+    numOfAnimations = anim2->mNumAnimations;
+    for (int i = 0; i < numOfAnimations; ++i)
+    {
+        animation.emplace_back(new Animation(anim2, anim2->mAnimations[i], model));
+    }
+    Animation* anim = animation.empty() ? nullptr : animation.back();
+    animator = new Animator(anim);
 
     scene.entities.emplace_back(Entity{ model, animator });
 
@@ -139,33 +143,43 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     }
     scene.mainCamera->CommitToGpu();
     geometryPass.Draw(gBuffer, scene);
-    gBuffer.RenderGui("GBuffer");
+    // gBuffer.RenderGui("GBuffer");
     lightPass.Draw(lightBuffer, gBuffer, scene);
-    LightPass::RenderGui(scene.directionalLights[0], lightBuffer);
+    // LightPass::RenderGui(scene.directionalLights[0], lightBuffer);
     finalPass.Draw(gBuffer, lightBuffer, scene);
     {
         forwardRendering.Draw(scene);
     }
-
-    if(ImGui::TreeNode("Rotation")) {
-      static glm::vec3 floats;
-      ImGui::DragFloat3("Rotation Floats", glm::value_ptr(floats));
-      Transform &trans = TransformSystem::getInstance().Get(model->transformID);
-      trans.SetLocalDirection(floats.x, floats.y, floats.z);
-      TransformSystem::getInstance().UpdateMatrices(model->transformID);
-      ImGui::TreePop();
-    }
-    if (ImGui::Begin("Animation Control"))
+    static int selected = -1;
+    if (ImGui::CollapsingHeader("Animation System"))
     {
-        static int animNumber = 4;
-        ImGui::DragInt("Animation counter", &animNumber, 0.5f, 0, 12);
-        if (ImGui::Button("Use Animation"))
+        if (ImGui::TreeNode("Select Animation to Play"))
         {
-            animator->PlayAnimation(animation[animNumber]);
-        }
 
+            for (int n = 0; n < animation.size(); n++)
+            {
+                char buf[64];
+                sprintf(buf, "#%i: [%s]", n + 1, animation[n]->GetName().c_str());
+                if (ImGui::Selectable(buf, selected == n))
+                { 
+                    selected = n;
+                    animator->PlayAnimation(animation[n]);
+                }
+            }
+            ImGui::TreePop();
+        }
+        animator->ImGuiDisplay(deltaTime);
+        if(ImGui::TreeNode("Display current animation heiarchy"))
+        { 
+            if (selected != -1)
+            {
+                animation[selected]->ImGuiDisplay(deltaTime);
+            }
+            else
+                ImGui::TextColored({0.7, 0.1, 0.1, 1.0}, "Select an animation to view this");
+            ImGui::TreePop();
+        }
     }
-    ImGui::End();
 
 
 }

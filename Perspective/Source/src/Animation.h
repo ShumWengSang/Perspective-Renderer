@@ -1,4 +1,4 @@
-
+﻿
 
 
 #pragma once
@@ -9,43 +9,32 @@ struct AssimpNodeData
     std::string name;
     int childrenCount;
     std::vector<AssimpNodeData> children;
+
+    void DisplayImGui(int nodeID) const
+    {
+        if (childrenCount == 0)
+        {
+            ImGui::TextColored({0.8, 0.1,0.1,1.0}, "%s", name.c_str());
+        }
+        else if (ImGui::TreeNode((void*)(intptr_t)nodeID, "%s", name.c_str(), nodeID))
+        {
+            for (int i = 0; i < childrenCount; ++i)
+            {
+                children[i].DisplayImGui(nodeID + i);
+            }
+            ImGui::TreePop();
+        }
+    }
 };
 
 //! Read data from assimp and create a heiracrchy of bones
 class Animation {
     public:
     Animation() = default;
-    Animation(const std::string& animationPath, Model* model)
-    {
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
-        assert(scene && scene->mRootNode);
+    Animation(const std::string& animationPath, Model* model);
+    Animation(const aiScene* scene, const aiAnimation* animation, Model* model);
 
-        auto animation = scene->mAnimations[0];
-        duration = animation->mDuration;
-        ticksPerSecond = animation->mTicksPerSecond;
-        ReadHeirarchyData(rootNode, scene->mRootNode);
-        ReadMissingBones(animation, *model);
-    }
-    Animation(const aiScene* scene, const aiAnimation* animation, Model* model)
-    {
-        duration = animation->mDuration;
-        ticksPerSecond = animation->mTicksPerSecond;
-        ReadHeirarchyData(rootNode, scene->mRootNode);
-        ReadMissingBones(animation, *model);
-    }
-
-    Bone* FindBone(const std::string& name)
-    {
-        auto iter = std::find_if(bones.begin(), bones.end(),
-            [&](const Bone& Bone)
-            {
-                return Bone.GetBoneName() == name;
-            }
-        );
-        if (iter == bones.end()) return nullptr;
-        else return &(*iter);
-    }
+    Bone* FindBone(const std::string& name);
 
 
     inline float GetTicksPerSecond() { return ticksPerSecond; }
@@ -58,50 +47,21 @@ class Animation {
     {
         return boneInfoMap;
     }
-
+    const std::string& GetName() const {return animName;}
+    void ImGuiDisplay(float dt) const
+    {
+        if (ImGui::TreeNode("Show heiarchy of %s", animName.c_str()))
+        {
+            rootNode.DisplayImGui(0);
+            ImGui::TreePop();
+        }
+    }
+    
     private:
         // Sometimes there are missing bone data...
-        void ReadMissingBones(const aiAnimation* animation, Model& model)
-        {
-            int size = animation->mNumChannels;
+        void ReadMissingBones(const aiAnimation* animation, Model& model);
 
-            auto& boneInfoMap = model.GetBoneInfoMap();//getting m_BoneInfoMap from Model class
-            int& boneCount = model.GetBoneCounter(); //getting the m_BoneCounter from Model class
-
-            //reading channels(bones engaged in an animation and their keyframes)
-            for (int i = 0; i < size; i++)
-            {
-                auto channel = animation->mChannels[i];
-                std::string boneName = channel->mNodeName.data;
-
-                if (boneInfoMap.find(boneName) == boneInfoMap.end())
-                {
-                    Log("Looks like we missed boned ... [%s]", boneName.c_str());
-                    boneInfoMap[boneName].id = boneCount;
-                    boneCount++;
-                }
-                bones.emplace_back(Bone(channel->mNodeName.data,
-                    boneInfoMap[channel->mNodeName.data].id, channel));
-            }
-
-            this->boneInfoMap = boneInfoMap;
-        }
-
-        void ReadHeirarchyData(AssimpNodeData& dest, const aiNode* src)
-        {
-            assert(src);
-
-            dest.name = src->mName.data;
-            dest.transformation = MyMath::AssimpToMat4(src->mTransformation);
-            dest.childrenCount = src->mNumChildren;
-
-            for (int i = 0; i < src->mNumChildren; i++)
-            {
-                AssimpNodeData newData;
-                ReadHeirarchyData(newData, src->mChildren[i]);
-                dest.children.emplace_back(newData);
-            }
-        }
+        void ReadHeirarchyData(AssimpNodeData& dest, const aiNode* src);
 
 
     private:
@@ -110,7 +70,7 @@ class Animation {
         std::vector<Bone> bones;
         AssimpNodeData rootNode;
         std::unordered_map<std::string, BoneInfo> boneInfoMap;
-
+        std::string animName;
 };
 
 

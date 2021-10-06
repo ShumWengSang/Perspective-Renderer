@@ -35,6 +35,7 @@ private:
     DebugLineMaterial debugLineMaterial;
     GLuint lineProgram;
     Model* cylinder = nullptr;
+    GLuint u_color;
 };
 
 

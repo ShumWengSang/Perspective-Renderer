@@ -413,9 +413,13 @@ void GuiSystem::NewFrame() {
     console.Draw("Console", &this->showConsole);
 
     // Draw everything we need to
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    ImGui::Text("WASD to move, right mouse click + drag to rotate");
-    ImGui::Text("If WASD is not working, remember to focus on the window! (not ImGui)");
+    ImGui::Text("Application average %.3f ms/frame (", 1000.0f / ImGui::GetIO().Framerate);
+    ImGui::SameLine();
+    ImGui::TextColored({0.1,0.7,0.1,1.0}, "%.1f", ImGui::GetIO().Framerate);
+    ImGui::SameLine();
+    ImGui::Text(" FPS)");
+    ImGui::TextWrapped("WASD to move, right mouse click + drag to rotate");
+    ImGui::TextWrapped("If WASD is not working, remember to focus on the window! (not ImGui)");
     for(int i = 0; i < GuiFunctions.size(); ++i)
     {
         auto& pair = GuiFunctions[i];

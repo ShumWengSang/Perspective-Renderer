@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.17)
 project(Perspective)
 option(BUILD_ANIMATION "Build Animation" ON)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Out")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 add_subdirectory(Source/deps/)
 
@@ -51,16 +53,18 @@ target_link_libraries(Perspective PRIVATE glm_static)
 target_link_libraries(Perspective PRIVATE tinyobjloader)
 target_link_libraries(Perspective PRIVATE assimp)
 
-
+set_target_properties( assimp
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 
 target_precompile_headers(Perspective PRIVATE "Source/src/stdafx.cpp")
 
 add_custom_command(TARGET Perspective POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Common $<TARGET_FILE_DIR:Perspective>/Common
-        )
-add_custom_command(TARGET Perspective POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders/
-        $<TARGET_FILE_DIR:Perspective>/shaders
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders/ $<TARGET_FILE_DIR:Perspective>/shaders
         )
 
 if(MSVC)

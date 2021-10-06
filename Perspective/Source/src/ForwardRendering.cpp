@@ -48,14 +48,21 @@ void ForwardRendering::Draw(const Scene &scene) {
     //    }
     //}
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    const auto& transforms = scene.entities[0].animator->GetFinalBoneMatrices();
+
     Transform& trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
-    glUseProgram(lineProgram);
-    //for (int i = 0; i < transforms.size(); ++i)
-    //{
-    //    this->debugLineMaterial.BindUniforms(transforms[i] * trans.matrix);
-    //    cylinder->Draw();
-    //}
+	glUseProgram(lineProgram);
+	{
+        auto finalMatrices = scene.entities[0].animator->DrawBones(trans.matrix);
+        for (int i = 0; i < finalMatrices.size(); ++i)
+        {
+            this->debugLineMaterial.BindUniforms(finalMatrices[i]);
+            if (i == 0)
+            {
+                
+            }
+            cylinder->Draw();
+        }
+	}
 
     ImGui::Checkbox("Enable Face Normal Lines", &debugOptions[0]);
     ImGui::Checkbox("Enable Vertex Normal Lines", &debugOptions[1]);
@@ -64,4 +71,5 @@ void ForwardRendering::Draw(const Scene &scene) {
 
 void ForwardRendering::ProgramLoaded(GLuint program) {
     this->lineProgram = program;
+    this->u_color = glGetUniformLocation(program, "u_color");
 }

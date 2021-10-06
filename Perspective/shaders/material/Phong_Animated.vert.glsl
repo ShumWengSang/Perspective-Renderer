@@ -29,7 +29,7 @@ void main()
     v_tex_coord = a_tex_coord;
     v_boneID = ivec4(-1);
     v_weight = ivec4(-1);
-    vec4 totalPosition = vec4(0.0f);
+    vec4 totalPosition = vec4(a_position, 1.0f);
     for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
     {
         if(a_boneIDs[i] == -1)
