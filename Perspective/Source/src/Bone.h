@@ -99,9 +99,9 @@ and returns the translation matrix*/
 	and returns the scale matrix*/
 	glm::vec3 InterpolateScalingGLM(float animationTime);
 
+	MyMath::VQS InterpolateIncrementalVQM(float animationTime);
 
-
-
+	MyMath::Quaternion InterpolateIncrementalSlerp(float animationTime);
 private:
 	std::vector<KeyPosition> positions;
 	std::vector<KeyRotation> rotations;
@@ -109,6 +109,8 @@ private:
 	std::vector<KeyFrame> VQSs;
 
 	MyMath::VQS localTransform{};
+	MyMath::iVQS incrementalVQSFunc;
+	MyMath::iSlerp incrementalSlerp;
 	std::string name{};
 	int id{};
 };

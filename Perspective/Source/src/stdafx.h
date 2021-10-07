@@ -88,7 +88,8 @@ constexpr int MAX_BONES = 200;
 
 enum LerpMode
 {
-    iVQS,
+    MyMix_iL_iS_iL,
+    MyMix_L_iSlerp_E,
     MyMix_L_S_L,
     MyMix_L_S_E,
     GLMMix

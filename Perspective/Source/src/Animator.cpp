@@ -77,10 +77,12 @@ void Animator::ImGuiDisplay(float dt) const
 
             static int selected = -1;
             ImGui::Text("Interpolation Mode ");
-            if (ImGui::Selectable("iVQS", selected == 0))
+            ImGui::Indent();
+            ImGui::PushStyleColor(ImGuiCol_Text, { 0.2,0.8,0.2,1.0 });
+            if (ImGui::Selectable("VQS - Lerp_iSlerp_eLerp", selected == 0))
             {
                 selected = 0;
-                currentLerpMode = LerpMode::iVQS;
+                currentLerpMode = LerpMode::MyMix_L_iSlerp_E;
             }
             if (ImGui::Selectable("GLM - Lerp_Slerp_Lerp", selected == 1))
             {
@@ -89,16 +91,23 @@ void Animator::ImGuiDisplay(float dt) const
             }
             if (ImGui::Selectable("VQS - Lerp_Slerp_Lerp", selected == 2))
             {
-                selected = 2;
-                currentLerpMode = LerpMode::MyMix_L_S_L;
-            }
-            if (ImGui::Selectable("VQS - Lerp_Slerp_Expo", selected == 3))
-            {
-                selected = 3;
-                currentLerpMode = LerpMode::MyMix_L_S_E;
-            }
-        }
-        else
+				selected = 2;
+				currentLerpMode = LerpMode::MyMix_L_S_L;
+			}
+			if (ImGui::Selectable("VQS - Lerp_Slerp_eLerp", selected == 3))
+			{
+				selected = 3;
+				currentLerpMode = LerpMode::MyMix_L_S_E;
+			}
+			if (ImGui::Selectable("VQS - iLerp_iSlerp_iLerp", selected == 4))
+			{
+				selected = 4;
+				currentLerpMode = MyMix_iL_iS_iL;
+			}
+			ImGui::Unindent();
+			ImGui::PopStyleColor();
+		}
+		else
         {
             ImGui::TextColored({ 0.7, 0.1, 0.1, 1.0 }, "No animation set currently");
         }

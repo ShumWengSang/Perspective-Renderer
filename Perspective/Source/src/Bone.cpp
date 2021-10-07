@@ -37,19 +37,29 @@ Bone::Bone(const std::string &name, int ID, const aiNodeAnim *channel) : name(na
         scales.emplace_back(data);
     }
 
-    if (numOfPositions != numOfRotations != numOfScalings)
-    {
-        static_assert(true, "Woah not expected at all!");
-    }
+
 }
 
 void Bone::Update(float animationTime, LerpMode lerpMode) {
 
 	switch (lerpMode)
 	{
-	case LerpMode::iVQS:
-
+    case LerpMode::MyMix_iL_iS_iL:
+    {
+        auto translation = InterpolatePosition(animationTime);
+        auto rotation = InterpolateIncrementalSlerp(animationTime);
+        auto scale = InterpolateScalingExpo(animationTime);
+        localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+        break;
+    }
+	case LerpMode::MyMix_L_iSlerp_E:
+	{
+		auto translation = InterpolatePosition(animationTime);
+		auto rotation = InterpolateIncrementalSlerp(animationTime);
+		auto scale = InterpolateScalingExpo(animationTime);
+		localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
 		break;
+	}
 	case LerpMode::MyMix_L_S_E:
 	{
 		auto translation = InterpolatePosition(animationTime);
@@ -85,7 +95,7 @@ int Bone::GetPositionIndex(float animationTime) {
         if (animationTime < positions[index + 1].timeStamp)
             return index;
     }
-    assert(0);
+    return 0;
 }
 
 int Bone::GetRotationIndex(float animationTime) {
@@ -94,7 +104,7 @@ int Bone::GetRotationIndex(float animationTime) {
         if (animationTime < rotations[index + 1].timeStamp)
             return index;
     }
-    assert(0);
+    return 0;
 }
 
 int Bone::GetScaleIndex(float animationTime) {
@@ -103,7 +113,7 @@ int Bone::GetScaleIndex(float animationTime) {
         if (animationTime < scales[index + 1].timeStamp)
             return index;
     }
-    assert(0);
+    return 0;
 }
 
 float Bone::GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime) {
@@ -236,3 +246,47 @@ glm::vec3 Bone::InterpolateScalingExpo(float animationTime) {
         , scaleFactor);
     return finalScale;
 }
+
+MyMath::VQS Bone::InterpolateIncrementalVQM(float animationTime)
+{
+    if (incrementalVQSFunc.iVQSStep())
+    {
+        // We have stepped forward
+        return incrementalVQSFunc.GetVQSIter();
+    }
+    else
+    {
+        // We can't step forward, init again. Find VQS for begin and end
+        MyMath::VQS begin{};
+        MyMath::VQS end{};
+
+    }
+    assert(0);
+    return MyMath::VQS();
+}
+
+MyMath::Quaternion Bone::InterpolateIncrementalSlerp(float animationTime)
+{
+    if (incrementalSlerp.iSlerpStep())
+    {
+        // We have stepped forward
+        return incrementalSlerp.GetQuat();
+    }
+    else
+    {
+        if (1 == rotations.size())
+            return rotations[0].orientation;
+        // We can't step forward, init again. Find VQS for begin and end
+        const int currIndex = GetRotationIndex(animationTime);
+        const auto& currKeyPosition = rotations[currIndex];
+        const int nextIndex = currIndex + 1;
+        const auto& nextKeyPosition = rotations[nextIndex];
+        const float dt = 0.01666666666;
+        incrementalSlerp.iSlerpInit(currKeyPosition.orientation, nextKeyPosition.orientation, 
+            (nextKeyPosition.timeStamp - currKeyPosition.timeStamp) * dt
+            );
+        return currKeyPosition.orientation;
+    }
+    assert(0);
+}
+
