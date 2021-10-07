@@ -54,8 +54,8 @@ void main()
             totalPosition = vec4(a_position,1.0f);
             break;
         }
-        vec4 localPosition = u_finalBonesMatrices[a_boneIDs[i]] * vec4(a_position,1.0f);
-        // vec4 localPosition = vec4(RotateCustom(a_boneIDs[i], a_position), 1.0f);
+        //vec4 localPosition = u_finalBonesMatrices[a_boneIDs[i]] * vec4(a_position,1.0f);
+        vec4 localPosition = vec4(RotateCustom(a_boneIDs[i], a_position), 1.0f);
         totalPosition += localPosition * a_weights[i];
         vec3 localNormal = mat3(u_finalBonesMatrices[a_boneIDs[i]]) * a_normal;
         v_boneID[i] = a_boneIDs[i];

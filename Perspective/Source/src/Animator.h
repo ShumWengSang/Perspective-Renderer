@@ -7,12 +7,6 @@
 //! Read data from heirachy of bones, recursive through all of them to prepare final data
 class Animator {
 	public:
-        enum LerpMode
-        {
-            iVQS,
-            Mix
-        };
-
         Animator(Animation* animation);
 
         void UpdateAnimation(float dt);
@@ -38,7 +32,7 @@ private:
     float currentTime;
     float deltaTime;
 
-    LerpMode currentLerpMode;
+    mutable LerpMode currentLerpMode;
 };
 
 

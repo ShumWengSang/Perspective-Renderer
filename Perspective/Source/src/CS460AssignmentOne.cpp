@@ -73,8 +73,8 @@ void CS460AssignmentOne::Init() {
     MaterialSystem::getInstance().ManageMaterial(phongAnimated);
 
 
-
-    model = new Model("Common/anim_allAnim_01.fbx");
+    const std::string modelAndAnimationName = "Common/anim_allAnim_01.fbx";
+    model = new Model(modelAndAnimationName.c_str());
     model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
     Transform &trans = TransformSystem::getInstance().Get(model->transformID);
@@ -86,7 +86,7 @@ void CS460AssignmentOne::Init() {
     // animation = new Animation("Common/alien.fbx", model);
 
     Assimp::Importer importer;
-    const aiScene* ASSIMPScene = importer.ReadFile("Common/anim_allAnim_01.fbx", aiProcess_Triangulate);
+    const aiScene* ASSIMPScene = importer.ReadFile(modelAndAnimationName, aiProcess_Triangulate);
     // Get the number of animation
     int numOfAnimations = ASSIMPScene->mNumAnimations;
     for (int i = 0; i < numOfAnimations; ++i)

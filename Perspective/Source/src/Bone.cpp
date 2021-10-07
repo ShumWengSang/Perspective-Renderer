@@ -43,11 +43,40 @@ Bone::Bone(const std::string &name, int ID, const aiNodeAnim *channel) : name(na
     }
 }
 
-void Bone::Update(float animationTime) {
-    auto translation = InterpolatePosition(animationTime);
-    auto rotation = InterpolateRotation(animationTime);
-    auto scale = InterpolateScaling(animationTime);
-    localTransform = MyMath::VQS(translation, rotation, scale.x);
+void Bone::Update(float animationTime, LerpMode lerpMode) {
+
+	switch (lerpMode)
+	{
+	case LerpMode::iVQS:
+
+		break;
+	case LerpMode::MyMix_L_S_E:
+	{
+		auto translation = InterpolatePosition(animationTime);
+		auto rotation = InterpolateRotation(animationTime);
+		auto scale = InterpolateScalingExpo(animationTime);
+		localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+		break;
+	}
+    case LerpMode::MyMix_L_S_L:
+    {
+        auto translation = InterpolatePosition(animationTime);
+        auto rotation = InterpolateRotation(animationTime);
+        auto scale = InterpolateScaling(animationTime);
+        localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+        break;
+    }
+	default:
+	case LerpMode::GLMMix:
+	{
+		auto translation = InterpolatePositionGLM(animationTime);
+		auto rotation = InterpolateRotationGLM(animationTime);
+		auto scale = InterpolateScalingGLM(animationTime);
+		localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+		break;
+	}
+	}
+
 }
 
 int Bone::GetPositionIndex(float animationTime) {
@@ -117,9 +146,6 @@ MyMath::Quaternion Bone::InterpolateRotation(float animationTime) {
                                                      nextKeyPosition.orientation, scaleFactor);
     quatFinal = quatFinal.Norm();
 
-    //auto glmquat = glm::slerp(currKeyPosition.orientation.ToGLMQuat(), 
-    //nextKeyPosition.orientation.ToGLMQuat(), scaleFactor);
-    //return MyMath::Quaternion(glmquat);
     return quatFinal;
 }
 
@@ -136,5 +162,77 @@ glm::vec3 Bone::InterpolateScaling(float animationTime) {
                                        nextKeyPosition.timeStamp, animationTime);
     glm::vec3 finalScale = MyMath::Lerp(currKeyPosition.scale, nextKeyPosition.scale
             , scaleFactor);
+    return finalScale;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// INTERNAL
+
+glm::vec3 Bone::InterpolatePositionGLM(float animationTime) {
+    if (1 == positions.size())
+        return positions[0].position;
+
+    const int currIndex = GetPositionIndex(animationTime);
+    const auto& currKeyPosition = positions[currIndex];
+    const int nextIndex = currIndex + 1;
+    const auto& nextKeyPosition = positions[nextIndex];
+
+    float scaleFactor = GetScaleFactor(currKeyPosition.timeStamp,
+        nextKeyPosition.timeStamp, animationTime);
+    glm::vec3 finalPosition = glm::mix(currKeyPosition.position,
+        nextKeyPosition.position, scaleFactor);
+    return finalPosition;
+}
+
+glm::quat Bone::InterpolateRotationGLM(float animationTime) {
+    if (1 == rotations.size())
+    {
+        auto rotation = rotations[0].orientation.Norm();
+        return rotation.ToGLMQuat();
+    }
+    const int currIndex = GetRotationIndex(animationTime);
+    const auto& currKeyPosition = rotations[currIndex];
+    const int nextIndex = currIndex + 1;
+    const auto& nextKeyPosition = rotations[nextIndex];
+
+
+    float scaleFactor = GetScaleFactor(currKeyPosition.timeStamp,
+        nextKeyPosition.timeStamp, animationTime);
+    auto quatFinal = glm::slerp(currKeyPosition.orientation.ToGLMQuat(),
+        nextKeyPosition.orientation.ToGLMQuat(), scaleFactor);
+    quatFinal = glm::normalize(quatFinal);
+
+    return quatFinal;
+}
+
+glm::vec3 Bone::InterpolateScalingGLM(float animationTime) {
+    if (1 == scales.size())
+        return scales[0].scale;
+
+    const int currIndex = GetScaleIndex(animationTime);
+    const auto& currKeyPosition = scales[currIndex];
+    const int nextIndex = currIndex + 1;
+    const auto& nextKeyPosition = scales[nextIndex];
+
+    float scaleFactor = GetScaleFactor(currKeyPosition.timeStamp,
+        nextKeyPosition.timeStamp, animationTime);
+    glm::vec3 finalScale = glm::mix(currKeyPosition.scale, nextKeyPosition.scale
+        , scaleFactor);
+    return finalScale;
+}
+
+glm::vec3 Bone::InterpolateScalingExpo(float animationTime) {
+    if (1 == scales.size())
+        return scales[0].scale;
+
+    const int currIndex = GetScaleIndex(animationTime);
+    const auto& currKeyPosition = scales[currIndex];
+    const int nextIndex = currIndex + 1;
+    const auto& nextKeyPosition = scales[nextIndex];
+
+    float scaleFactor = GetScaleFactor(currKeyPosition.timeStamp,
+        nextKeyPosition.timeStamp, animationTime);
+    glm::vec3 finalScale = MyMath::ExpoLerp(currKeyPosition.scale, nextKeyPosition.scale
+        , scaleFactor);
     return finalScale;
 }

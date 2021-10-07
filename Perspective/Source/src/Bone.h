@@ -47,7 +47,7 @@ public:
 	//Read keyframe from aiNodeAnim
 	Bone(const std::string& name, int ID, const aiNodeAnim* channel);
 
-	void Update(float animationTime);
+	void Update(float animationTime, LerpMode lerpMode);
 
 	/* Gets the current index on mKeyPositions to interpolate to based on
 the current animation time*/
@@ -80,6 +80,25 @@ and returns the translation matrix*/
 	/*figures out which scaling keys to interpolate b/w and performs the interpolation
 	and returns the scale matrix*/
 	glm::vec3 InterpolateScaling(float animationTime);
+
+	glm::vec3 InterpolateScalingExpo(float animationTime);
+
+
+
+
+	////////////////// INTERNAL //////////////////////////////
+		/*figures out which position keys to interpolate b/w and performs the interpolation
+and returns the translation matrix*/
+	glm::vec3 InterpolatePositionGLM(float animationTime);
+
+	/*figures out which rotations keys to interpolate b/w and performs the interpolation
+	and returns the rotation matrix*/
+	glm::quat InterpolateRotationGLM(float animationTime);
+
+	/*figures out which scaling keys to interpolate b/w and performs the interpolation
+	and returns the scale matrix*/
+	glm::vec3 InterpolateScalingGLM(float animationTime);
+
 
 
 

@@ -72,7 +72,7 @@ namespace MyMath {
 		glm::mat4 ToMat4(bool normalize = true) const;
 
 		// To glm Quats
-		glm::quat ToGLMQuat() const
+		inline glm::quat ToGLMQuat() const
 		{
 			return glm::quat(s, v.x, v.y, v.z);
 		}
@@ -85,6 +85,10 @@ namespace MyMath {
 	{
 		return quat * constant;
 	}
+    inline MyMath::Quaternion normalize(MyMath::Quaternion const & quat)
+    {
+        return quat.Norm();
+    }
 
 	class VQS {
 	public:

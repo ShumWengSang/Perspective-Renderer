@@ -54,7 +54,7 @@ public:
 #include "Logger.h"
 class Model {
  public:
-  explicit Model(char *path) { loadModel(path); }
+  explicit Model(const char *path) { loadModel(path); }
   void Draw() const;
   Material *material = nullptr;
   int TriangleCount() const;

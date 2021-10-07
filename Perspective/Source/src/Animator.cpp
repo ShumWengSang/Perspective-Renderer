@@ -34,7 +34,7 @@ void Animator::CalculateBoneTransform(const AssimpNodeData* node, MyMath::VQS pa
 
     if (Bone)
     {
-        Bone->Update(currentTime);
+        Bone->Update(currentTime, currentLerpMode);
         nodeTransform = Bone->GetLocalTransform();
     }
 
@@ -59,7 +59,7 @@ const std::vector<MyMath::VQS>& Animator::GetFinalBoneMatrices() const
 
 void Animator::ImGuiDisplay(float dt) const
 {
-    if (ImGui::TreeNode("Animator Widget"))
+    if (ImGui::TreeNode("Animator Controller"))
     {
         if (currentAnimation)
         {
@@ -73,6 +73,30 @@ void Animator::ImGuiDisplay(float dt) const
             ImGui::Text(" \\ ");
             ImGui::SameLine();
             ImGui::TextColored({ 0.0,0.7,0.2,1.0 }, "%.2f", currentAnimation->GetDuration());
+
+
+            static int selected = -1;
+            ImGui::Text("Interpolation Mode ");
+            if (ImGui::Selectable("iVQS", selected == 0))
+            {
+                selected = 0;
+                currentLerpMode = LerpMode::iVQS;
+            }
+            if (ImGui::Selectable("GLM - Lerp_Slerp_Lerp", selected == 1))
+            {
+                selected = 1;
+                currentLerpMode = LerpMode::GLMMix;
+            }
+            if (ImGui::Selectable("VQS - Lerp_Slerp_Lerp", selected == 2))
+            {
+                selected = 2;
+                currentLerpMode = LerpMode::MyMix_L_S_L;
+            }
+            if (ImGui::Selectable("VQS - Lerp_Slerp_Expo", selected == 3))
+            {
+                selected = 3;
+                currentLerpMode = LerpMode::MyMix_L_S_E;
+            }
         }
         else
         {

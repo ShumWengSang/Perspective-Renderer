@@ -15,6 +15,7 @@ static bool renderUI = true;
 
 void Driver();
 #include "Quaternions.h"
+#include <MyMath.h>
 static void MidTerm() {
 	{
 		glm::quat quaternion(1, 2, 34, 5);
@@ -55,9 +56,9 @@ static void MidTerm() {
 	// Addition
 	{
 		glm::quat quaternion(1, 2, 34, 5);
-		glm::quat quaternion2(2,4,6,3);
+		glm::quat quaternion2(2, 4, 6, 3);
 		MyMath::Quaternion myQuat(1, { 2,34,5 });
-		MyMath::Quaternion myQuat2(2, {4, 6, 3});
+		MyMath::Quaternion myQuat2(2, { 4, 6, 3 });
 
 		auto res = quaternion + quaternion2;
 		auto myRes = myQuat + myQuat2;
@@ -120,161 +121,235 @@ static void MidTerm() {
 		}
 	}
 
-	// Magnitude
 	{
-		glm::quat quaternion(1, 2, 34, 5);
-		MyMath::Quaternion myQuat(1, { 2,34,5 });
-		
-		auto res = glm::length(quaternion);
-		auto myRes = myQuat.Magnitude();
-		if (res != myRes)
-		{
-			throw std::runtime_error("Quaternion magnuitde ");
-		}
-	}
-	{
-		// Conjugate
-		glm::quat quaternion(1, 2, 34, 5);
-		MyMath::Quaternion myQuat(1, { 2,34,5 });
 
-		auto res = glm::conjugate(quaternion);
-		auto myRes = myQuat.Conjugate();
-		if (res != myRes.ToGLMQuat())
-		{
-			throw std::runtime_error("Quaternion conjugate");
-		}
-	}
-	{
-		// Inverse
-		glm::quat quaternion(1, 2, 34, 5);
-		MyMath::Quaternion myQuat(1, { 2,34,5 });
 
-		auto res = glm::inverse(quaternion);
-		auto myRes = myQuat.Inverse();
-		if (res != myRes.ToGLMQuat())
+		// Magnitude
 		{
-			throw std::runtime_error("Quaternion inverse");
-		}
-	}
-	{
-		// Rotate
-		glm::quat quaternion(1, 2, 34, 5);
-		glm::vec3 vector{223,65,1};
-		MyMath::Quaternion myQuat(1, { 2,34,5 });
-		float angle = 43;
+			glm::quat quaternion(1, 2, 34, 5);
+			MyMath::Quaternion myQuat(1, { 2,34,5 });
 
-		auto res = glm::rotate(glm::normalize(quaternion), vector);
-		auto myRes = myQuat.Rotate(vector);
-		if (res != myRes)
-		{
-			if((res - myRes).length() < 1.0)
-				throw std::runtime_error("Quaternion rotate");
+			auto res = glm::length(quaternion);
+			auto myRes = myQuat.Magnitude();
+			if (res != myRes)
+			{
+				throw std::runtime_error("Quaternion magnuitde ");
+			}
 		}
-
 		{
-			auto res = glm::rotate(quaternion, vector);
+			// Conjugate
+			glm::quat quaternion(1, 2, 34, 5);
+			MyMath::Quaternion myQuat(1, { 2,34,5 });
+
+			auto res = glm::conjugate(quaternion);
+			auto myRes = myQuat.Conjugate();
+			if (res != myRes.ToGLMQuat())
+			{
+				throw std::runtime_error("Quaternion conjugate");
+			}
+		}
+		{
+			// Inverse
+			glm::quat quaternion(1, 2, 34, 5);
+			MyMath::Quaternion myQuat(1, { 2,34,5 });
+
+			auto res = glm::inverse(quaternion);
+			auto myRes = myQuat.Inverse();
+			if (res != myRes.ToGLMQuat())
+			{
+				throw std::runtime_error("Quaternion inverse");
+			}
+		}
+		{
+			// Rotate
+			glm::quat quaternion(1, 2, 34, 5);
+			glm::vec3 vector{ 223,65,1 };
+			MyMath::Quaternion myQuat(1, { 2,34,5 });
+			float angle = 43;
+
+			auto res = glm::rotate(glm::normalize(quaternion), vector);
 			auto myRes = myQuat.Rotate(vector);
 			if (res != myRes)
 			{
 				if ((res - myRes).length() < 1.0)
 					throw std::runtime_error("Quaternion rotate");
 			}
+
+			{
+				auto res = glm::rotate(quaternion, vector);
+				auto myRes = myQuat.Rotate(vector);
+				if (res != myRes)
+				{
+					if ((res - myRes).length() < 1.0)
+						throw std::runtime_error("Quaternion rotate");
+				}
+			}
 		}
-	}
 
-	// VQS to matrix
-	{
-		glm::vec3 t (10,20,30);
-		MyMath::Quaternion quad (2, {3,1,5});
-		float scale = 4;
-
-		MyMath::VQS test(t,quad,scale);
-
-		glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
-		glm::mat4 rotate = quad.ToMat4(); // rotate
-		glm::mat4 translate = glm::translate(t);
-		glm::mat4 testMat4 = test.ToMat4();
-		glm::mat4 transform = translate * rotate * scaleMat;
-		if (testMat4 != transform)
+		// Slerp
 		{
-			throw std::runtime_error("VQS to Mat4 problems!");
+			glm::quat begin(1, 2, 34, 5);
+			begin = glm::normalize(begin);
+			glm::quat end(23, 53, 13, 6);
+			end = glm::normalize(end);
+			MyMath::Quaternion myBegin(1, { 2,34,5 });
+			MyMath::Quaternion myEnd(23, { 53, 13, 6 });
+			float factor1 = 0.3f, factor2 = 0.5f, factor3 = 0.99f, factor4 = 0.01f;
+
+			glm::quat res1 = glm::slerp(begin, end, factor4);
+			glm::quat res2 = glm::slerp(begin, end, factor1);
+			glm::quat res3 = glm::slerp(begin, end, factor2);
+			glm::quat res4 = glm::slerp(begin, end, factor3);
+
+			MyMath::Quaternion myRes1 = MyMath::Slerp(myBegin, myEnd, factor4);
+			MyMath::Quaternion myRes2 = MyMath::Slerp(myBegin, myEnd, factor1);
+			MyMath::Quaternion myRes3 = MyMath::Slerp(myBegin, myEnd, factor2);
+			MyMath::Quaternion myRes4 = MyMath::Slerp(myBegin, myEnd, factor3);
+
+			if (res1 != myRes1.ToGLMQuat())
+			{
+				throw std::runtime_error("Slerp error");
+			}
+			if (res2 != myRes2.ToGLMQuat())
+			{
+				throw std::runtime_error("Slerp error");
+			}
+			if (res3 != myRes3.ToGLMQuat())
+			{
+				throw std::runtime_error("Slerp error");
+			}
+			if (res4 != myRes4.ToGLMQuat())
+			{
+				throw std::runtime_error("Slerp error");
+			}
+
+			for (float i = 0; i < 1.0f; i += 0.00001)
+			{
+				glm::quat res5 = glm::slerp(begin, end, i);
+				MyMath::Quaternion myRes5 = MyMath::Slerp(myBegin, myEnd, i);
+
+
+				if (res5 != myRes5.ToGLMQuat())
+				{
+					throw std::runtime_error("Slerp error");
+				}
+			}
 		}
-	}
-	// Matrix to VQS
-	{
-		glm::vec3 t(10, 20, 30);
-		MyMath::Quaternion quad(2, { 3,1,5 });
-		MyMath::Quaternion quad2 = quad.Norm();
-		float scale = 4;
-		glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
-		glm::mat4 rotate = quad.ToMat4(); // rotate
 
-		
-
-		glm::mat4 translate = glm::translate(t);
-		glm::mat4 transform = translate * rotate * scaleMat;
-
-		MyMath::VQS myVQS(transform);
-		glm::mat4 trans = myVQS.ToMat4();
-		if (transform != trans)
 		{
-			// Not 100% the same, but is expected because of floating point
-	// operations
-			// throw std::runtime_error("Matrix to VQS");
+			// Lerp
+			float begin = -2;
+			float end = 5;
+			float factor = 0.2, factor2 = 0.4, factor3 = 0.9999;
+			if (MyMath::Lerp(begin, end, factor) != glm::mix(begin, end, factor))
+			{
+				throw std::runtime_error("Slerp error");
+			}
+			if (MyMath::Lerp(begin, end, factor2) != glm::mix(begin, end, factor2))
+			{
+				throw std::runtime_error("Slerp error");
+			}
+			if (MyMath::Lerp(begin, end, factor3) != glm::mix(begin, end, factor3))
+			{
+				throw std::runtime_error("Slerp error");
+			}
+
 		}
-	}
-	// VQS Rotate
-	{
-		glm::vec3 t(10, 20, 30);
-		MyMath::Quaternion quad(2, { 3,1,5 });
-		float scale = 4;
 
-		glm::vec3 t2(10, 5, 3);
-		MyMath::Quaternion quad2(2, { 2,1,5 });
-		float scale2 = 6;
-
-		MyMath::VQS test(t, quad, scale);
-		MyMath::VQS test2(t2, quad2, scale2);
-
-		glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
-		glm::mat4 rotate = quad.ToMat4(); // rotate
-		glm::mat4 translate = glm::translate(t);
-
-		glm::mat4 scaleMat2 = glm::scale(glm::vec3(scale2, scale2, scale2));
-		glm::mat4 rotate2 = quad2.ToMat4(); // rotate
-		glm::mat4 translate2 = glm::translate(t2);
-		
-		glm::mat4 transform = translate * rotate * scaleMat;
-		glm::mat4 transform2 = translate2 * rotate2 * scaleMat2;
-
-		glm::mat4 concatTrans = transform * transform2;
-		MyMath::VQS vqsTrans = test * test2;
-		glm::mat4 vqsMat = vqsTrans.ToMat4();
-		if (concatTrans != vqsMat)
+		// VQS to matrix
 		{
-			// Not 100% the same, but is expected because of floating point
-			// operations
-			// throw std::runtime_error("VQS concatination");
-		}
-	}
-	// VQS inverse
-	{
-		glm::vec3 t(10, 20, 30);
-		MyMath::Quaternion quad(2, { 3,1,5 });
-		float scale = 4;
+			glm::vec3 t(10, 20, 30);
+			MyMath::Quaternion quad(2, { 3,1,5 });
+			float scale = 4;
 
-		MyMath::VQS test(t, quad, scale);
-		MyMath::VQS inverse = test.Inverse();
-		MyMath::VQS identity = test * inverse;
-		glm::mat4 myIden = identity.ToMat4();
-		if (myIden != glm::mat4(1.0f))
+			MyMath::VQS test(t, quad, scale);
+
+			glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
+			glm::mat4 rotate = quad.ToMat4(); // rotate
+			glm::mat4 translate = glm::translate(t);
+			glm::mat4 testMat4 = test.ToMat4();
+			glm::mat4 transform = translate * rotate * scaleMat;
+			if (testMat4 != transform)
+			{
+				throw std::runtime_error("VQS to Mat4 problems!");
+			}
+		}
+		// Matrix to VQS
 		{
-			// Not 100% the same, but is expected because of floating point
-	// operations
-			// throw std::runtime_error("VQS Inverse");
-		}
-	}
+			glm::vec3 t(10, 20, 30);
+			MyMath::Quaternion quad(2, { 3,1,5 });
+			MyMath::Quaternion quad2 = quad.Norm();
+			float scale = 4;
+			glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
+			glm::mat4 rotate = quad.ToMat4(); // rotate
 
+
+
+			glm::mat4 translate = glm::translate(t);
+			glm::mat4 transform = translate * rotate * scaleMat;
+
+			MyMath::VQS myVQS(transform);
+			glm::mat4 trans = myVQS.ToMat4();
+			if (transform != trans)
+			{
+				// Not 100% the same, but is expected because of floating point
+		// operations
+				// throw std::runtime_error("Matrix to VQS");
+			}
+		}
+		// VQS Rotate
+		{
+			glm::vec3 t(10, 20, 30);
+			MyMath::Quaternion quad(2, { 3,1,5 });
+			float scale = 4;
+
+			glm::vec3 t2(10, 5, 3);
+			MyMath::Quaternion quad2(2, { 2,1,5 });
+			float scale2 = 6;
+
+			MyMath::VQS test(t, quad, scale);
+			MyMath::VQS test2(t2, quad2, scale2);
+
+			glm::mat4 scaleMat = glm::scale(glm::vec3(scale, scale, scale));
+			glm::mat4 rotate = quad.ToMat4(); // rotate
+			glm::mat4 translate = glm::translate(t);
+
+			glm::mat4 scaleMat2 = glm::scale(glm::vec3(scale2, scale2, scale2));
+			glm::mat4 rotate2 = quad2.ToMat4(); // rotate
+			glm::mat4 translate2 = glm::translate(t2);
+
+			glm::mat4 transform = translate * rotate * scaleMat;
+			glm::mat4 transform2 = translate2 * rotate2 * scaleMat2;
+
+			glm::mat4 concatTrans = transform * transform2;
+			MyMath::VQS vqsTrans = test * test2;
+			glm::mat4 vqsMat = vqsTrans.ToMat4();
+			if (concatTrans != vqsMat)
+			{
+				// Not 100% the same, but is expected because of floating point
+				// operations
+				// throw std::runtime_error("VQS concatination");
+			}
+		}
+		// VQS inverse
+		{
+			glm::vec3 t(10, 20, 30);
+			MyMath::Quaternion quad(2, { 3,1,5 });
+			float scale = 4;
+
+			MyMath::VQS test(t, quad, scale);
+			MyMath::VQS inverse = test.Inverse();
+			MyMath::VQS identity = test * inverse;
+			glm::mat4 myIden = identity.ToMat4();
+			if (myIden != glm::mat4(1.0f))
+			{
+				// Not 100% the same, but is expected because of floating point
+		// operations
+				// throw std::runtime_error("VQS Inverse");
+			}
+		}
+
+	}
 }
 
 void glfwResizeCallback(GLFWwindow* window, int width, int height)

@@ -54,6 +54,10 @@ namespace MyMath {
 
     glm::vec3 Lerp(const glm::vec3& begin, const glm::vec3& end, float factor);
     float Lerp(float begin, float end, float factor);
+
+    float ExpoLerp(float begin, float end, float factor);
+    glm::vec3 ExpoLerp(const glm::vec3& begin, const glm::vec3& end, float factor);
+
     struct iSlerp {
         int a;
     };
@@ -61,6 +65,8 @@ namespace MyMath {
     struct iVQS {
         int a;
     };
+
+
 };
 
 
