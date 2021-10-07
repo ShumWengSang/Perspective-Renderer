@@ -20,9 +20,6 @@
 #include "FinalPass.h"
 #include "ForwardRendering.h"
 #include "DebugDraw.h"
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
 #include "Model.h"
 #include "TransformSystem.h"
 #include "Animation.h"
@@ -188,6 +185,4 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
             ImGui::TreePop();
         }
     }
-
-
 }

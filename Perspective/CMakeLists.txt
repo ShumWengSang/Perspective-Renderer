@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.17)
 project(Perspective)
 option(BUILD_ANIMATION "Build Animation" ON)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+# set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+
 
 add_subdirectory(Source/deps/)
 
@@ -37,7 +39,6 @@ message("Sources ${SOURCES}")
 add_executable(Perspective ${SOURCES} ${SHADER_CROSS_SOURCES} ${EXT_SOURCES} )
 
 
-
 source_group("Source" FILES ${SOURCES})
 source_group("Cross Shaders" FILES ${SHADER_CROSS_SOURCES})
 
@@ -53,12 +54,32 @@ target_link_libraries(Perspective PRIVATE glm_static)
 target_link_libraries(Perspective PRIVATE tinyobjloader)
 target_link_libraries(Perspective PRIVATE assimp)
 
-set_target_properties( assimp
-    PROPERTIES
+# Set Perspective, assimp, and glfw output to the bin directory
+set_target_properties(assimp glfw Perspective PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
+    )
+
+################ Macro to retrieve all targets #####################
+function(get_all_targets var)
+    set(targets)
+    get_all_targets_recursive(targets ${CMAKE_CURRENT_SOURCE_DIR})
+    set(${var} ${targets} PARENT_SCOPE)
+endfunction()
+
+macro(get_all_targets_recursive targets dir)
+    get_property(subdirectories DIRECTORY ${dir} PROPERTY SUBDIRECTORIES)
+    foreach(subdir ${subdirectories})
+        get_all_targets_recursive(${targets} ${subdir})
+    endforeach()
+
+    get_property(current_targets DIRECTORY ${dir} PROPERTY BUILDSYSTEM_TARGETS)
+    list(APPEND ${targets} ${current_targets})
+endmacro()
+###############################################################
+
+
 
 target_precompile_headers(Perspective PRIVATE "Source/src/stdafx.cpp")
 
@@ -71,4 +92,10 @@ if(MSVC)
     target_link_options(Perspective  PUBLIC /incremental PUBLIC /debug:fastlink)
     set_property(TARGET Perspective PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Perspective)
+    
+    # Now we can put all targets into nice folders for msvc
+    get_all_targets(all_targets)
+    message("All targets: ${all_targets}")
+    list(REMOVE_ITEM all_targets "Perspective")
+    set_target_properties(${all_targets} PROPERTIES FOLDER "External")
 endif()
