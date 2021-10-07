@@ -91,7 +91,7 @@ namespace MyMath {
 		}
 		MyMath::Quaternion GetQuat() const
 		{
-			return qc;
+			return qk;
 		}
 	};
 
@@ -156,6 +156,39 @@ namespace MyMath {
 		}
 	};
 
+	struct iLerp {
+	private:
+		int Count = -1;
+		int currCount = 0;
+		glm::vec3 vc;
+		glm::vec3 vk;
+	public:
+		void iLerpInit(const glm::vec3& begin, const glm::vec3& end, int count)
+		{
+			// iLerp constant
+			vc = (end - begin) / count;
+			vk = begin;
+			currCount = 0;
+			Count = count;
+		}
+
+		bool iLerpStep()
+		{
+			if (++currCount < Count)
+			{
+				vk += vc;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		glm::vec3 GetValue() const
+		{
+			return vk;
+		}
+	};
 
 };
 

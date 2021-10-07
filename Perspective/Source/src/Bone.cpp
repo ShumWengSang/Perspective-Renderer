@@ -46,9 +46,9 @@ void Bone::Update(float animationTime, LerpMode lerpMode) {
 	{
     case LerpMode::MyMix_iL_iS_iL:
     {
-        auto translation = InterpolatePosition(animationTime);
+        auto translation = InterpolateILerpPosition(animationTime);
         auto rotation = InterpolateIncrementalSlerp(animationTime);
-        auto scale = InterpolateScalingExpo(animationTime);
+        auto scale = InterpolateILerpScale(animationTime);
         localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
         break;
     }
@@ -290,3 +290,52 @@ MyMath::Quaternion Bone::InterpolateIncrementalSlerp(float animationTime)
     assert(0);
 }
 
+glm::vec3 Bone::InterpolateILerpPosition(float animationTime) {
+    if (posILerp.iLerpStep())
+    {
+        // We have stepped forward
+        return posILerp.GetValue();
+    }
+    else
+    {
+        if (1 == positions.size())
+            return positions[0].position;
+
+        // We can't step forward, init again. Find VQS for begin and end
+        const int currIndex = GetPositionIndex(animationTime);
+        const auto& currKeyPosition = positions[currIndex];
+        const int nextIndex = currIndex + 1;
+        const auto& nextKeyPosition = positions[nextIndex];
+        const float dt = 0.01666666666;
+
+        posILerp.iLerpInit(currKeyPosition.position, nextKeyPosition.position,
+            (nextKeyPosition.timeStamp - currKeyPosition.timeStamp) * dt
+        );
+        return currKeyPosition.position;
+    }
+}
+
+glm::vec3 Bone::InterpolateILerpScale(float animationTime) {
+    if (scaleILerp.iLerpStep())
+    {
+        // We have stepped forward
+        return scaleILerp.GetValue();
+    }
+    else
+    {
+        if (1 == scales.size())
+            return scales[0].scale;
+
+        // We can't step forward, init again. Find VQS for begin and end
+        const int currIndex = GetScaleIndex(animationTime);
+        const auto& currKeyPosition = scales[currIndex];
+        const int nextIndex = currIndex + 1;
+        const auto& nextKeyPosition = scales[nextIndex];
+        const float dt = 0.01666666666;
+
+        scaleILerp.iLerpInit(currKeyPosition.scale, nextKeyPosition.scale,
+            (nextKeyPosition.timeStamp - currKeyPosition.timeStamp) * dt
+        );
+        return currKeyPosition.scale;
+    }
+}

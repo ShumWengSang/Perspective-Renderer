@@ -102,6 +102,9 @@ and returns the translation matrix*/
 	MyMath::VQS InterpolateIncrementalVQM(float animationTime);
 
 	MyMath::Quaternion InterpolateIncrementalSlerp(float animationTime);
+
+	glm::vec3 InterpolateILerpPosition(float animationTime);
+	glm::vec3 InterpolateILerpScale(float animationTime);
 private:
 	std::vector<KeyPosition> positions;
 	std::vector<KeyRotation> rotations;
@@ -111,6 +114,8 @@ private:
 	MyMath::VQS localTransform{};
 	MyMath::iVQS incrementalVQSFunc;
 	MyMath::iSlerp incrementalSlerp;
+	MyMath::iLerp posILerp;
+	MyMath::iLerp scaleILerp;
 	std::string name{};
 	int id{};
 };
