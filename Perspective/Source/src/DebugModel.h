@@ -27,6 +27,7 @@ public:
     GLsizei indexCount;
     GLenum indexType;
     int transformID = 0;
+
     void Draw() const;
 };
 

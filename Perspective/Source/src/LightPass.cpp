@@ -27,16 +27,15 @@
 #include "GuiSystem.h"
 
 void LightPass::Draw(const LightBuffer &lightBuffer, const GBuffer &gBuffer, Scene &scene) {
-    if (!directionalLightProgram)
-    {
+    if (!directionalLightProgram) {
         ShaderSystem::getInstance().AddProgram("light/directional", this);
     }
 
-    if (!directionalLightUniformBuffer)
-    {
+    if (!directionalLightUniformBuffer) {
         glCreateBuffers(1, &directionalLightUniformBuffer);
         glNamedBufferStorage(directionalLightUniformBuffer, sizeof(DirectionalLight), nullptr, GL_DYNAMIC_STORAGE_BIT);
-        glBindBufferBase(GL_UNIFORM_BUFFER, PredefinedUniformBlockBinding(DirectionalLightBlock), directionalLightUniformBuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, PredefinedUniformBlockBinding(DirectionalLightBlock),
+                         directionalLightUniformBuffer);
     }
 
     // Bind the g-buffer
@@ -82,9 +81,8 @@ void LightPass::ProgramLoaded(GLuint program) {
     glProgramUniform1i(directionalLightProgram, PredefinedUniformLocation(u_g_buffer_depth), 5);
 }
 
-void LightPass::RenderGui(DirectionalLight& light, LightBuffer const & lightBuffer) {
-    if (ImGui::CollapsingHeader("LightPass - "))
-    {
+void LightPass::RenderGui(DirectionalLight &light, LightBuffer const &lightBuffer) {
+    if (ImGui::CollapsingHeader("LightPass - ")) {
         ImGui::ColorEdit3("Light Diffuse Color", glm::value_ptr(light.diffuseColor));
         ImGui::ColorEdit3("Light Ambient Color", glm::value_ptr(light.ambientColor));
         ImGui::ColorEdit3("Light Specular Color", glm::value_ptr(light.specularColor));

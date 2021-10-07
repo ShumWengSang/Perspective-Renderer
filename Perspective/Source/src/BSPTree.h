@@ -19,44 +19,57 @@
 
 #ifndef OPENGLFRAMEWORK_BSPTREE_H
 #define OPENGLFRAMEWORK_BSPTREE_H
+
 #include "Shapes.h"
 
-struct BSPRenderSettings
-{
+struct BSPRenderSettings {
     bool renderNodes = false;
     bool renderPlanes = false;
 };
 
 class CollisionMesh;
-struct BSPNode {
-    BSPNode(BSPNode* pVoid, rapidjson::Value& value);
 
-    BSPNode* Parent = nullptr;
-    Shapes::Plane splitPlane = Shapes::Plane(glm::vec4(0,0,0,0));
+struct BSPNode {
+    BSPNode(BSPNode *pVoid, rapidjson::Value &value);
+
+    BSPNode *Parent = nullptr;
+    Shapes::Plane splitPlane = Shapes::Plane(glm::vec4(0, 0, 0, 0));
     glm::vec3 color;
-    BSPNode * left = nullptr;
-    BSPNode * right = nullptr;
-    std::vector<Shapes::Triangle> Objects;
-    BSPNode(BSPNode* parent, std::vector<Shapes::Triangle> const & vertices, int maxNumTrigs,
-            int depth, bool &depthTerminated);
+    BSPNode *left = nullptr;
+    BSPNode *right = nullptr;
+    std::vector <Shapes::Triangle> Objects;
+
+    BSPNode(
+            BSPNode *parent, std::vector <Shapes::Triangle> const &vertices, int maxNumTrigs, int depth
+            , bool &depthTerminated
+           );
+
     ~BSPNode();
-    void RenderNode(BSPRenderSettings const & settings);
+
+    void RenderNode(BSPRenderSettings const &settings);
+
     bool isLeaf() const;
+
     void Clear();
+
     static int MAX_DEPTH;
     static int Good_Enough_Score;
     static int Plane_Sample_Size;
     static float k_value;
 private:
-    Shapes::Plane PickSplittingPlaneFromPolygon(std::vector<Shapes::Triangle> const & trigs, float k, int depth);
-    Shapes::Plane PickSplittingPlane(std::vector<Shapes::Triangle> const & trigs, float k, int depth);
-    Shapes::Plane PickSplittingPlaneFromRandom(std::vector<Shapes::Triangle> const & trigs);
-    const glm::vec3& ChooseRandomPoint(std::vector<Shapes::Triangle> const &  trigs);
-    const Shapes::Triangle& ChooseRandomTrig(std::vector<Shapes::Triangle> const &  trigs);
+    Shapes::Plane PickSplittingPlaneFromPolygon(std::vector <Shapes::Triangle> const &trigs, float k, int depth);
+
+    Shapes::Plane PickSplittingPlane(std::vector <Shapes::Triangle> const &trigs, float k, int depth);
+
+    Shapes::Plane PickSplittingPlaneFromRandom(std::vector <Shapes::Triangle> const &trigs);
+
+    const glm::vec3 &ChooseRandomPoint(std::vector <Shapes::Triangle> const &trigs);
+
+    const Shapes::Triangle &ChooseRandomTrig(std::vector <Shapes::Triangle> const &trigs);
 
 public:
-    template <typename Writer>
-    inline void Serialize(Writer& writer) const {
+    template<typename Writer>
+    inline void Serialize(Writer &writer) const {
         writer.StartObject();
 
         writer.String(("Color"));
@@ -65,11 +78,11 @@ public:
         writer.String("Plane");
         this->splitPlane.Serialize(writer);
 
-        if(left) {
+        if (left) {
             writer.String(("Left"));
             left->Serialize(writer);
         }
-        if(right) {
+        if (right) {
             writer.String(("Right"));
             right->Serialize(writer);
         }
@@ -86,18 +99,23 @@ public:
 
 class BSPTree {
 public:
-    BSPTree(int sizeEachNode, std::vector<CollisionMesh> const & collisionMeshes);
+    BSPTree(int sizeEachNode, std::vector <CollisionMesh> const &collisionMeshes);
+
     void ImGuiSettings();
+
     void ForwardRenderTree() const;
+
     ~BSPTree();
+
 private:
-    BSPNode* root = nullptr;
+    BSPNode *root = nullptr;
     BSPRenderSettings settings;
 
 public:
-    explicit BSPTree(rapidjson::Document & doc);
-    template <typename Writer>
-    inline void Serialize(Writer& writer) const {
+    explicit BSPTree(rapidjson::Document &doc);
+
+    template<typename Writer>
+    inline void Serialize(Writer &writer) const {
         writer.StartObject();
 
         writer.String("Root");

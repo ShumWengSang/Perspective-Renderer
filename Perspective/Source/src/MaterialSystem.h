@@ -24,27 +24,32 @@ class Material;
 
 class MaterialSystem {
 public:
-    static MaterialSystem& getInstance()
-    {
+    static MaterialSystem &getInstance() {
         static MaterialSystem instance; // Guaranteed to be destroyed.
         // Instantiated on first use.
         return instance;
     }
-    MaterialSystem(MaterialSystem const&) = delete;
-    void operator=(MaterialSystem const&)  = delete;
+
+    MaterialSystem(MaterialSystem const &) = delete;
+
+    void operator=(MaterialSystem const &) = delete;
+
 private:
     MaterialSystem() = default;
 
 public:
-    Material *CreateMaterial(const tinyobj::material_t& materialDescription, const std::string& baseDirectory);
-    const tinyobj::material_t& CreateMaterial(std::string const & name);
-    void ManageMaterial(Material* material);
+    Material *CreateMaterial(const tinyobj::material_t &materialDescription, const std::string &baseDirectory);
+
+    const tinyobj::material_t &CreateMaterial(std::string const &name);
+
+    void ManageMaterial(Material *material);
 
     void Destroy();
+
 private:
     std::vector<Material *> managedMaterials{};
 
-    std::vector<tinyobj::material_t > materials;
+    std::vector<tinyobj::material_t> materials;
     std::map<std::string, int> materialMap;
 };
 

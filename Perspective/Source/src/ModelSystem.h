@@ -19,15 +19,16 @@
 
 #ifndef OPENGLFRAMEWORK_MODELSYSTEM_H
 #define OPENGLFRAMEWORK_MODELSYSTEM_H
+
 #include "Shapes.h"
 
 struct Vertex {
-  glm::vec3 position;
-  glm::vec3 normal;
-  glm::vec2 texCoord;
-  glm::vec4 tangent;  // (w is bitangent's handedness)
-  GLint boneIDs[MAX_BONE_INFLUENCE];
-  float weights[MAX_BONE_INFLUENCE];
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 texCoord;
+    glm::vec4 tangent;  // (w is bitangent's handedness)
+    GLint boneIDs[MAX_BONE_INFLUENCE];
+    float weights[MAX_BONE_INFLUENCE];
 };
 #ifdef TINYOBJLOADER
 
@@ -105,26 +106,33 @@ private:
 };
 
 #elif ASSIMPLOADER
+
 class ModelSystem {
-  // Singleton stuff
- public:
-  static ModelSystem& getInstance() {
-    static ModelSystem instance;  // Guaranteed to be destroyed.
-    // Instantiated on first use.
-    return instance;
-  }
-  ModelSystem(ModelSystem const&) = delete;
-  void operator=(ModelSystem const&) = delete;
+    // Singleton stuff
+public:
+    static ModelSystem &getInstance() {
+        static ModelSystem instance;  // Guaranteed to be destroyed.
+        // Instantiated on first use.
+        return instance;
+    }
 
- private:
-  ModelSystem() = default;
+    ModelSystem(ModelSystem const &) = delete;
 
- public:
-  void Init();
-  void Destroy();
-  void Update();
-  bool IsIdle();
+    void operator=(ModelSystem const &) = delete;
+
+private:
+    ModelSystem() = default;
+
+public:
+    void Init();
+
+    void Destroy();
+
+    void Update();
+
+    bool IsIdle();
 };
+
 #endif
 
 

@@ -28,18 +28,17 @@ void CameraBase::DrawEditorGui() {
 void CameraBase::CommitToGpu() {
     static bool once = false;
 
-    if(!once)
-    {
+    if (!once) {
         cameraBuffer.BindBufferBase(BufferObjectType::Uniform, PredefinedUniformBlockBinding(CameraUniformBlock));
         once = true;
     }
     cameraBuffer.memory.ViewFromWorldMatrix = viewFromWorld;
     cameraBuffer.memory.ProjectFromViewMatrix = projectionFromView;
-    cameraBuffer.memory.camPos = glm::vec4(this->position,1.0);
+    cameraBuffer.memory.camPos = glm::vec4(this->position, 1.0);
     float width = App::GetApp().windowWidth;
     float height = App::GetApp().windowHeight;
 
-    glm::vec4 nearFar = glm::vec4(zNear, zFar, fieldOfView, width/ height);
+    glm::vec4 nearFar = glm::vec4(zNear, zFar, fieldOfView, width / height);
     cameraBuffer.memory.nearFar = nearFar;
 
     cameraBuffer.UpdateGpuBuffer();

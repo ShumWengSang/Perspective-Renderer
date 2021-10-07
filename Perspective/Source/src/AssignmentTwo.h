@@ -19,8 +19,11 @@
 
 #ifndef OPENGLFRAMEWORK_ASSIGNMENTTWO_H
 #define OPENGLFRAMEWORK_ASSIGNMENTTWO_H
+
 #include "App.h"
+
 class TransformSystem;
+
 class Material;
 
 namespace Shapes {
@@ -31,23 +34,30 @@ using Shapes::Shape;
 class AssignmentTwo : public App {
 public:
     AssignmentTwo();
+
     virtual ~AssignmentTwo() = default;
 
     Settings Setup() override;
 
     void Init() override;
+
     void Resize(int width, int height) override;
-    void Draw(Input const & input, float deltaTime, float runningTime) override;
+
+    void Draw(Input const &input, float deltaTime, float runningTime) override;
+
     void Update(const Input &input, float dt);
-    TransformSystem& transformSystem;
+
+    TransformSystem &transformSystem;
 
 private:
-    void LoadModelFromTextFile(std::string fileName, Material* = nullptr);
+    void LoadModelFromTextFile(std::string fileName, Material * = nullptr);
+
     float powerPlantScale = 1.0f / 16000;
     float imGuiPowerPlantScale = 1.0f;
 
-    void AddShape(std::shared_ptr<Shape> shape);
-    std::vector<std::shared_ptr<Shape>> Shapes;
+    void AddShape(std::shared_ptr <Shape> shape);
+
+    std::vector <std::shared_ptr<Shape>> Shapes;
 
     static void RunTestCases();
 };

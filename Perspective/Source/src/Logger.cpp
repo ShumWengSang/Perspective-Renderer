@@ -1,22 +1,21 @@
 #include "stdafx.h"
 #include "Logger.h"
 
-void GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
-{
+void GLDebugMessageCallback(
+        GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message
+        , const void *userParam
+                           ) {
     Log("GL debug message: %s\n", message);
     DEBUG_BREAKPOINT();
 }
 
-void GladPostCallback(const char *name, void *funcptr, int argCount, ...)
-{
+void GladPostCallback(const char *name, void *funcptr, int argCount, ...) {
     // Use the "raw" glad_glGetError to avoid an recursive loop
     GLenum errorCode = glad_glGetError();
 
-    if (errorCode != GL_NO_ERROR)
-    {
+    if (errorCode != GL_NO_ERROR) {
         const char *errorName;
-        switch (errorCode)
-        {
+        switch (errorCode) {
             case GL_INVALID_ENUM:
                 errorName = "GL_INVALID_ENUM";
                 break;
@@ -41,8 +40,7 @@ void GladPostCallback(const char *name, void *funcptr, int argCount, ...)
     }
 }
 
-void glfwErrorCallback(int code, const char * message)
-{
+void glfwErrorCallback(int code, const char *message) {
     LogError("GLFW error %d: %s\n", code, message);
 }
 

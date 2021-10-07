@@ -7,7 +7,9 @@
 
 namespace ShaderStruct {
     using namespace glm;
-    #include "ShaderTypes.h"
+
+#include "ShaderTypes.h"
+
 }
 using namespace ShaderStruct;
 

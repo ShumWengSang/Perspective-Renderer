@@ -16,81 +16,83 @@
  * Creation date: 3/28/2021
  * End Header --------------------------------------------------------*/
 #define DEBUG_DRAW_IMPLEMENTATION
+
 #include "stdafx.h"
 #include "DebugDraw.h"
 #include "Scene.h"
 #include "CameraBase.h"
 #include "Logger.h"
 #include <debug_draw.hpp>
+
 #define errorF Log   // Empty
 // ========================================================
 // Minimal shaders we need for the debug primitives:
 // ========================================================
 
-const char * DDRenderInterfaceCoreGL::linePointVertShaderSrc = "\n"
-                                                               "#version 150\n"
-                                                               "\n"
-                                                               "in vec3 in_Position;\n"
-                                                               "in vec4 in_ColorPointSize;\n"
-                                                               "\n"
-                                                               "out vec4 v_Color;\n"
-                                                               "uniform mat4 u_MvpMatrix;\n"
-                                                               "\n"
-                                                               "void main()\n"
-                                                               "{\n"
-                                                               "    gl_Position  = u_MvpMatrix * vec4(in_Position, 1.0);\n"
-                                                               "    gl_PointSize = in_ColorPointSize.w;\n"
-                                                               "    v_Color      = vec4(in_ColorPointSize.xyz, 1.0);\n"
-                                                               "}\n";
+const char *DDRenderInterfaceCoreGL::linePointVertShaderSrc = "\n"
+                                                              "#version 150\n"
+                                                              "\n"
+                                                              "in vec3 in_Position;\n"
+                                                              "in vec4 in_ColorPointSize;\n"
+                                                              "\n"
+                                                              "out vec4 v_Color;\n"
+                                                              "uniform mat4 u_MvpMatrix;\n"
+                                                              "\n"
+                                                              "void main()\n"
+                                                              "{\n"
+                                                              "    gl_Position  = u_MvpMatrix * vec4(in_Position, 1.0);\n"
+                                                              "    gl_PointSize = in_ColorPointSize.w;\n"
+                                                              "    v_Color      = vec4(in_ColorPointSize.xyz, 1.0);\n"
+                                                              "}\n";
 
-const char * DDRenderInterfaceCoreGL::linePointFragShaderSrc = "\n"
-                                                               "#version 150\n"
-                                                               "\n"
-                                                               "in  vec4 v_Color;\n"
-                                                               "out vec4 out_FragColor;\n"
-                                                               "\n"
-                                                               "void main()\n"
-                                                               "{\n"
-                                                               "    out_FragColor = v_Color;\n"
-                                                               "}\n";
+const char *DDRenderInterfaceCoreGL::linePointFragShaderSrc = "\n"
+                                                              "#version 150\n"
+                                                              "\n"
+                                                              "in  vec4 v_Color;\n"
+                                                              "out vec4 out_FragColor;\n"
+                                                              "\n"
+                                                              "void main()\n"
+                                                              "{\n"
+                                                              "    out_FragColor = v_Color;\n"
+                                                              "}\n";
 
-const char * DDRenderInterfaceCoreGL::textVertShaderSrc = "\n"
-                                                          "#version 150\n"
-                                                          "\n"
-                                                          "in vec2 in_Position;\n"
-                                                          "in vec2 in_TexCoords;\n"
-                                                          "in vec3 in_Color;\n"
-                                                          "\n"
-                                                          "uniform vec2 u_screenDimensions;\n"
-                                                          "\n"
-                                                          "out vec2 v_TexCoords;\n"
-                                                          "out vec4 v_Color;\n"
-                                                          "\n"
-                                                          "void main()\n"
-                                                          "{\n"
-                                                          "    // Map to normalized clip coordinates:\n"
-                                                          "    float x = ((2.0 * (in_Position.x - 0.5)) / u_screenDimensions.x) - 1.0;\n"
-                                                          "    float y = 1.0 - ((2.0 * (in_Position.y - 0.5)) / u_screenDimensions.y);\n"
-                                                          "\n"
-                                                          "    gl_Position = vec4(x, y, 0.0, 1.0);\n"
-                                                          "    v_TexCoords = in_TexCoords;\n"
-                                                          "    v_Color     = vec4(in_Color, 1.0);\n"
-                                                          "}\n";
+const char *DDRenderInterfaceCoreGL::textVertShaderSrc = "\n"
+                                                         "#version 150\n"
+                                                         "\n"
+                                                         "in vec2 in_Position;\n"
+                                                         "in vec2 in_TexCoords;\n"
+                                                         "in vec3 in_Color;\n"
+                                                         "\n"
+                                                         "uniform vec2 u_screenDimensions;\n"
+                                                         "\n"
+                                                         "out vec2 v_TexCoords;\n"
+                                                         "out vec4 v_Color;\n"
+                                                         "\n"
+                                                         "void main()\n"
+                                                         "{\n"
+                                                         "    // Map to normalized clip coordinates:\n"
+                                                         "    float x = ((2.0 * (in_Position.x - 0.5)) / u_screenDimensions.x) - 1.0;\n"
+                                                         "    float y = 1.0 - ((2.0 * (in_Position.y - 0.5)) / u_screenDimensions.y);\n"
+                                                         "\n"
+                                                         "    gl_Position = vec4(x, y, 0.0, 1.0);\n"
+                                                         "    v_TexCoords = in_TexCoords;\n"
+                                                         "    v_Color     = vec4(in_Color, 1.0);\n"
+                                                         "}\n";
 
-const char * DDRenderInterfaceCoreGL::textFragShaderSrc = "\n"
-                                                          "#version 150\n"
-                                                          "\n"
-                                                          "in vec2 v_TexCoords;\n"
-                                                          "in vec4 v_Color;\n"
-                                                          "\n"
-                                                          "uniform sampler2D u_glyphTexture;\n"
-                                                          "out vec4 out_FragColor;\n"
-                                                          "\n"
-                                                          "void main()\n"
-                                                          "{\n"
-                                                          "    out_FragColor = v_Color;\n"
-                                                          "    out_FragColor.a = texture(u_glyphTexture, v_TexCoords).r;\n"
-                                                          "}\n";
+const char *DDRenderInterfaceCoreGL::textFragShaderSrc = "\n"
+                                                         "#version 150\n"
+                                                         "\n"
+                                                         "in vec2 v_TexCoords;\n"
+                                                         "in vec4 v_Color;\n"
+                                                         "\n"
+                                                         "uniform sampler2D u_glyphTexture;\n"
+                                                         "out vec4 out_FragColor;\n"
+                                                         "\n"
+                                                         "void main()\n"
+                                                         "{\n"
+                                                         "    out_FragColor = v_Color;\n"
+                                                         "    out_FragColor.a = texture(u_glyphTexture, v_TexCoords).r;\n"
+                                                         "}\n";
 
 void DDRenderInterfaceCoreGL::drawPointList(const dd::DrawVertex *points, int count, bool depthEnabled) {
     assert(points != nullptr);
@@ -102,12 +104,9 @@ void DDRenderInterfaceCoreGL::drawPointList(const dd::DrawVertex *points, int co
     glUniformMatrix4fv(linePointProgram_MvpMatrixLocation,
                        1, GL_FALSE, glm::value_ptr(mvpMatrix));
 
-    if (depthEnabled)
-    {
+    if (depthEnabled) {
         glEnable(GL_DEPTH_TEST);
-    }
-    else
-    {
+    } else {
         glDisable(GL_DEPTH_TEST);
     }
 
@@ -134,12 +133,9 @@ void DDRenderInterfaceCoreGL::drawLineList(const dd::DrawVertex *lines, int coun
     glUniformMatrix4fv(linePointProgram_MvpMatrixLocation,
                        1, GL_FALSE, glm::value_ptr(mvpMatrix));
 
-    if (depthEnabled)
-    {
+    if (depthEnabled) {
         glEnable(GL_DEPTH_TEST);
-    }
-    else
-    {
+    } else {
         glDisable(GL_DEPTH_TEST);
     }
 
@@ -157,21 +153,13 @@ void DDRenderInterfaceCoreGL::drawLineList(const dd::DrawVertex *lines, int coun
 }
 
 DDRenderInterfaceCoreGL::DDRenderInterfaceCoreGL()
-        : mvpMatrix(glm::mat4(1))
-        , linePointProgram(0)
-        , linePointProgram_MvpMatrixLocation(-1)
-        , textProgram(0)
-        , textProgram_GlyphTextureLocation(-1)
-        , textProgram_ScreenDimensions(-1)
-        , linePointVAO(0)
-        , linePointVBO(0)
-        , textVAO(0)
-        , textVBO(0)
-{
+        : mvpMatrix(glm::mat4(1)), linePointProgram(0), linePointProgram_MvpMatrixLocation(-1), textProgram(0),
+          textProgram_GlyphTextureLocation(-1), textProgram_ScreenDimensions(-1), linePointVAO(0), linePointVBO(0),
+          textVAO(0), textVBO(0) {
     std::printf("\n");
-    std::printf("GL_VENDOR    : %s\n",   glGetString(GL_VENDOR));
-    std::printf("GL_RENDERER  : %s\n",   glGetString(GL_RENDERER));
-    std::printf("GL_VERSION   : %s\n",   glGetString(GL_VERSION));
+    std::printf("GL_VENDOR    : %s\n", glGetString(GL_VENDOR));
+    std::printf("GL_RENDERER  : %s\n", glGetString(GL_RENDERER));
+    std::printf("GL_VERSION   : %s\n", glGetString(GL_VERSION));
     std::printf("GLSL_VERSION : %s\n\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
     std::printf("DDRenderInterfaceCoreGL initializing ...\n");
 
@@ -224,8 +212,7 @@ void DDRenderInterfaceCoreGL::setupShaderPrograms() {
         linkProgram(linePointProgram);
 
         linePointProgram_MvpMatrixLocation = glGetUniformLocation(linePointProgram, "u_MvpMatrix");
-        if (linePointProgram_MvpMatrixLocation < 0)
-        {
+        if (linePointProgram_MvpMatrixLocation < 0) {
             errorF("Unable to get u_MvpMatrix uniform location!");
         }
         checkGLError(__FILE__, __LINE__);
@@ -253,14 +240,12 @@ void DDRenderInterfaceCoreGL::setupShaderPrograms() {
         linkProgram(textProgram);
 
         textProgram_GlyphTextureLocation = glGetUniformLocation(textProgram, "u_glyphTexture");
-        if (textProgram_GlyphTextureLocation < 0)
-        {
+        if (textProgram_GlyphTextureLocation < 0) {
             errorF("Unable to get u_glyphTexture uniform location!");
         }
 
         textProgram_ScreenDimensions = glGetUniformLocation(textProgram, "u_screenDimensions");
-        if (textProgram_ScreenDimensions < 0)
-        {
+        if (textProgram_ScreenDimensions < 0) {
             errorF("Unable to get u_screenDimensions uniform location!");
         }
 
@@ -384,8 +369,7 @@ dd::GlyphTextureHandle DDRenderInterfaceCoreGL::GLToHandle(const GLuint id) {
 
 void DDRenderInterfaceCoreGL::checkGLError(const char *file, const int line) {
     GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR)
-    {
+    while ((err = glGetError()) != GL_NO_ERROR) {
         errorF("%s(%d) : GL_CORE_ERROR=0x%X - ", file, line, err);
     }
 }
@@ -398,8 +382,7 @@ void DDRenderInterfaceCoreGL::compileShader(const GLuint shader) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     checkGLError(__FILE__, __LINE__);
 
-    if (status == GL_FALSE)
-    {
+    if (status == GL_FALSE) {
         GLchar strInfoLog[1024] = {0};
         glGetShaderInfoLog(shader, sizeof(strInfoLog) - 1, nullptr, strInfoLog);
         errorF("\n>>> Shader compiler errors:\n%s", strInfoLog);
@@ -414,8 +397,7 @@ void DDRenderInterfaceCoreGL::linkProgram(const GLuint program) {
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     checkGLError(__FILE__, __LINE__);
 
-    if (status == GL_FALSE)
-    {
+    if (status == GL_FALSE) {
         GLchar strInfoLog[1024] = {0};
         glGetProgramInfoLog(program, sizeof(strInfoLog) - 1, nullptr, strInfoLog);
         errorF("\n>>> Program linker errors:\n%s", strInfoLog);

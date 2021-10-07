@@ -2,25 +2,21 @@
 
 
 #pragma once
+
 #include "Model.h"
 #include "MyMath.h"
-struct AssimpNodeData
-{
+
+struct AssimpNodeData {
     MyMath::VQS transformation;
     std::string name;
     int childrenCount;
     std::vector<AssimpNodeData> children;
 
-    void DisplayImGui(int nodeID) const
-    {
-        if (childrenCount == 0)
-        {
-            ImGui::TextColored({0.8, 0.1,0.1,1.0}, "%s", name.c_str());
-        }
-        else if (ImGui::TreeNode((void*)(intptr_t)nodeID, "%s", name.c_str(), nodeID))
-        {
-            for (int i = 0; i < childrenCount; ++i)
-            {
+    void DisplayImGui(int nodeID) const {
+        if (childrenCount == 0) {
+            ImGui::TextColored({0.8, 0.1, 0.1, 1.0}, "%s", name.c_str());
+        } else if (ImGui::TreeNode((void *) (intptr_t) nodeID, "%s", name.c_str(), nodeID)) {
+            for (int i = 0; i < childrenCount; ++i) {
                 children[i].DisplayImGui(nodeID + i);
             }
             ImGui::TreePop();
@@ -30,41 +26,43 @@ struct AssimpNodeData
 
 //! Read data from assimp and create a heiracrchy of bones
 class Animation {
-    public:
+public:
     Animation() = default;
-    Animation(const std::string& animationPath, Model* model);
-    Animation(const aiScene* scene, const aiAnimation* animation, Model* model);
 
-    Bone* FindBone(const std::string& name);
+    Animation(const std::string &animationPath, Model *model);
 
+    Animation(const aiScene *scene, const aiAnimation *animation, Model *model);
+
+    Bone *FindBone(const std::string &name);
+
+    void ImGuiDisplay(float dt) const;
 
     inline float GetTicksPerSecond() { return ticksPerSecond; }
 
     inline float GetDuration() { return duration; }
 
-    inline const AssimpNodeData& GetRootNode() { return rootNode; }
+    inline const AssimpNodeData &GetRootNode() { return rootNode; }
 
-    inline const std::unordered_map<std::string, BoneInfo>& GetBoneIDMap()
-    {
+    inline const std::unordered_map<std::string, BoneInfo> &GetBoneIDMap() {
         return boneInfoMap;
     }
-    const std::string& GetName() const {return animName;}
-    void ImGuiDisplay(float dt) const;
-    
-    private:
-        // Sometimes there are missing bone data...
-        void ReadMissingBones(const aiAnimation* animation, Model& model);
 
-        void ReadHeirarchyData(AssimpNodeData& dest, const aiNode* src);
+    inline const std::string &GetName() const { return animName; }
+
+private:
+    // Sometimes there are missing bone data that assimp can only get from animation
+    void ReadMissingBones(const aiAnimation *animation, Model &model);
+    // Read data
+    void ReadHeirarchyData(AssimpNodeData &dest, const aiNode *src);
 
 
-    private:
-        float duration;
-        int ticksPerSecond;
-        std::vector<Bone> bones;
-        AssimpNodeData rootNode;
-        std::unordered_map<std::string, BoneInfo> boneInfoMap;
-        std::string animName;
+private:
+    float duration;
+    int ticksPerSecond;
+    std::vector<Bone> bones;
+    AssimpNodeData rootNode;
+    std::unordered_map<std::string, BoneInfo> boneInfoMap;
+    std::string animName;
 };
 
 

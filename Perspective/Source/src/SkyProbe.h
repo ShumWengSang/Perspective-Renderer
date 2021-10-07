@@ -4,8 +4,8 @@
 
 #ifndef OPENGLFRAMEWORK_SKYPROBE_H
 #define OPENGLFRAMEWORK_SKYPROBE_H
-class SkyProbe
-{
+
+class SkyProbe {
 public:
     GLuint skyCube;
 };

@@ -4,8 +4,7 @@
 
 #ifndef OPENGLFRAMEWORK_EMPTYVAO_H
 #define OPENGLFRAMEWORK_EMPTYVAO_H
-namespace EmptyVAO
-{
+namespace EmptyVAO {
     void Draw();
 
 

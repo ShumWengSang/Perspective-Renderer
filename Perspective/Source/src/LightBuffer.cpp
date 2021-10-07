@@ -26,13 +26,12 @@ void LightBuffer::RecreateGpuResources(int width, int height, const GBuffer &gBu
     this->width = width;
     this->height = height;
 
-    TextureSystem& textureSystem = TextureSystem::getInstance();
+    TextureSystem &textureSystem = TextureSystem::getInstance();
 
     glDeleteTextures(1, &lightTexture);
     lightTexture = textureSystem.CreateTexture(width, height, GL_RGBA32F, GL_NEAREST, GL_NEAREST);
 
-    if (!frameBuffer)
-    {
+    if (!frameBuffer) {
         glCreateFramebuffers(1, &frameBuffer);
         glNamedFramebufferDrawBuffer(frameBuffer, PredefinedOutputLocation(o_color));
     }
@@ -43,8 +42,7 @@ void LightBuffer::RecreateGpuResources(int width, int height, const GBuffer &gBu
     // glNamedFramebufferTexture(frameBuffer, GL_DEPTH_ATTACHMENT, gBuffer.depthTexture, 0);
 
     GLenum status = glCheckNamedFramebufferStatus(frameBuffer, GL_DRAW_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
         Log("The Light buffer framebuffer is not complete!");
     }
 

@@ -33,9 +33,9 @@
 
 namespace {
     Scene scene{};
-    Model* model;
-    std::vector<Animation*> animation;
-    Animator* animator;
+    Model *model;
+    std::vector<Animation *> animation;
+    Animator *animator;
 
     GBuffer gBuffer;
     LightBuffer lightBuffer;
@@ -49,10 +49,9 @@ namespace {
     BufferObject<VQS[MAX_BONES]> VQSUniformBlock;
 }
 
-CS460AssignmentOne::~CS460AssignmentOne()
-{
+CS460AssignmentOne::~CS460AssignmentOne() {
     delete model;
-    for(int i = 0; i <animation.size(); ++i)
+    for (int i = 0; i < animation.size(); ++i)
         delete animation[i];
     delete animator;
 }
@@ -73,7 +72,7 @@ void CS460AssignmentOne::Init() {
     MaterialSystem::getInstance().ManageMaterial(phongAnimated);
 
 
-    const std::string modelAndAnimationName = "Common/anim_allAnim_01.fbx";
+    const std::string modelAndAnimationName = "Common/fbx/Dragon_Baked_Actions_fbx_6.1_ASCII.fbx";
     model = new Model(modelAndAnimationName.c_str());
     model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
@@ -86,18 +85,21 @@ void CS460AssignmentOne::Init() {
     // animation = new Animation("Common/alien.fbx", model);
 
     Assimp::Importer importer;
-    const aiScene* ASSIMPScene = importer.ReadFile(modelAndAnimationName, aiProcess_Triangulate);
+    const aiScene *ASSIMPScene = importer.ReadFile(modelAndAnimationName, aiProcess_Triangulate);
     // Get the number of animation
-    int numOfAnimations = ASSIMPScene->mNumAnimations;
-    for (int i = 0; i < numOfAnimations; ++i)
-    {
-        animation.emplace_back(new Animation(ASSIMPScene, ASSIMPScene->mAnimations[i], model));
+    if (ASSIMPScene) {
+        int numOfAnimations = ASSIMPScene->mNumAnimations;
+        for (int i = 0; i < numOfAnimations; ++i) {
+            animation.emplace_back(new Animation(ASSIMPScene, ASSIMPScene->mAnimations[i], model));
+        }
+    } else {
+        LogError("FBX has no animations!");
     }
-    
-    Animation* anim = animation.empty() ? nullptr : animation.back();
+
+    Animation *anim = animation.empty() ? nullptr : animation.back();
     animator = new Animator(anim);
 
-    scene.entities.emplace_back(Entity{ model, animator });
+    scene.entities.emplace_back(Entity{model, animator});
 
 
     // Load the skybox
@@ -138,13 +140,12 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     animator->UpdateAnimation(deltaTime);
 
 
-    const auto& transforms = animator->GetFinalBoneMatrices();
+    const auto &transforms = animator->GetFinalBoneMatrices();
     // Prepare the data for UBO
-    for (int i = 0; i < transforms.size(); ++i)
-    {
-        if(i >= MAX_BONES)
+    for (int i = 0; i < transforms.size(); ++i) {
+        if (i >= MAX_BONES)
             throw std::runtime_error("Too many bones!");
-        auto& vqs = transforms[i];
+        auto &vqs = transforms[i];
         ShaderStruct::VQS mem;
         mem.q = glm::vec4(vqs.q.v.x, vqs.q.v.y, vqs.q.v.z, vqs.q.s);
         mem.s = vqs.s;
@@ -154,7 +155,7 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     // Send to UBO
     VQSUniformBlock.UpdateGpuBuffer();
 
-    for (auto &dirLight : scene.directionalLights) {
+    for (auto &dirLight: scene.directionalLights) {
         dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
     }
     scene.mainCamera->CommitToGpu();
@@ -162,20 +163,16 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     lightPass.Draw(lightBuffer, gBuffer, scene);
     finalPass.Draw(gBuffer, lightBuffer, scene);
     forwardRendering.Draw(scene);
-    
+
     // ImGui
     static int selected = -1;
-    if (ImGui::CollapsingHeader("Animation System"))
-    {
-        if (ImGui::TreeNode("Select Animation to Play"))
-        {
+    if (ImGui::CollapsingHeader("Animation System")) {
+        if (ImGui::TreeNode("Select Animation to Play")) {
 
-            for (int n = 0; n < animation.size(); n++)
-            {
+            for (int n = 0; n < animation.size(); n++) {
                 char buf[64];
                 sprintf(buf, "#%i: [%s]", n + 1, animation[n]->GetName().c_str());
-                if (ImGui::Selectable(buf, selected == n))
-                { 
+                if (ImGui::Selectable(buf, selected == n)) {
                     selected = n;
                     animator->PlayAnimation(animation[n]);
                 }
@@ -183,13 +180,10 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
             ImGui::TreePop();
         }
         animator->ImGuiDisplay(deltaTime);
-        if(ImGui::TreeNode("Display current animation heiarchy"))
-        { 
-            if (selected != -1)
-            {
+        if (ImGui::TreeNode("Display current animation heiarchy")) {
+            if (selected != -1) {
                 animation[selected]->ImGuiDisplay(deltaTime);
-            }
-            else
+            } else
                 ImGui::TextColored({0.7, 0.1, 0.1, 1.0}, "Select an animation to view this");
             ImGui::TreePop();
         }

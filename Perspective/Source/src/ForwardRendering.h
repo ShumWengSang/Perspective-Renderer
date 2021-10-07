@@ -19,25 +19,29 @@
 
 #ifndef OPENGLFRAMEWORK_FORWARDRENDERING_H
 #define OPENGLFRAMEWORK_FORWARDRENDERING_H
+
 #include "ShaderDependant.h"
 #include "DebugLineMaterial.h"
 #include "DebugSystem.h"
 
 class Scene;
+
 class Model;
 
-class ForwardRendering : public ShaderDependant{
+class ForwardRendering : public ShaderDependant {
 public:
-    void Draw(Scene const & scene);
+    void Draw(Scene const &scene);
+
     void ProgramLoaded(GLuint program) override;
-    ~ForwardRendering() {delete cylinder;}
+
+    ~ForwardRendering() { delete cylinder; }
+
 private:
-    DebugLineMaterial* debugLineMaterial;
+    DebugLineMaterial *debugLineMaterial;
     GLuint lineProgram;
-    Model* cylinder = nullptr;
+    Model *cylinder = nullptr;
     GLuint u_color;
 };
-
 
 
 #endif //OPENGLFRAMEWORK_FORWARDRENDERING_H

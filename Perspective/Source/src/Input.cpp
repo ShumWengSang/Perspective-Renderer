@@ -46,8 +46,7 @@ bool Input::WasKeyReleased(int key) const {
 void Input::KeyEventCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     auto input = static_cast<Input *>(glfwGetWindowUserPointer(window));
 
-    switch (action)
-    {
+    switch (action) {
         case GLFW_PRESS:
             input->wasKeyPressed[key] = true;
             input->isKeyDown[key] = true;
@@ -96,8 +95,7 @@ float Input::GetScrollDelta() const {
 void Input::MouseButtonEventCallback(GLFWwindow *window, int button, int action, int mods) {
     auto input = static_cast<Input *>(glfwGetWindowUserPointer(window));
 
-    switch (action)
-    {
+    switch (action) {
         case GLFW_PRESS:
             input->wasButtonPressed[button] = true;
             input->isButtonDown[button] = true;
@@ -123,8 +121,7 @@ void Input::MouseMovementEventCallback(GLFWwindow *window, double xPos, double y
     input->currentXPosition = xPos;
     input->currentYPosition = yPos;
 
-    if (input->lastXPosition == -1.0f)
-    {
+    if (input->lastXPosition == -1.0f) {
         input->lastXPosition = xPos;
         input->lastYPosition = yPos;
     }

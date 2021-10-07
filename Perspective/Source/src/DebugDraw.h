@@ -21,17 +21,16 @@
 #define OPENGLFRAMEWORK_DEBUGDRAW_H
 
 class DDRenderInterfaceCoreGL final
-        : public dd::RenderInterface
-{
+        : public dd::RenderInterface {
 public:
 
     //
     // dd::RenderInterface overrides:
     //
 
-    void drawPointList(const dd::DrawVertex * points, int count, bool depthEnabled) override;
+    void drawPointList(const dd::DrawVertex *points, int count, bool depthEnabled) override;
 
-    void drawLineList(const dd::DrawVertex * lines, int count, bool depthEnabled) override;
+    void drawLineList(const dd::DrawVertex *lines, int count, bool depthEnabled) override;
 
     // These two can also be implemented to perform GL render
     // state setup/cleanup, but we don't use them in this sample.
@@ -54,7 +53,7 @@ public:
 
     static dd::GlyphTextureHandle GLToHandle(const GLuint id);
 
-    static void checkGLError(const char * file, const int line);
+    static void checkGLError(const char *file, const int line);
 
     static void compileShader(const GLuint shader);
 
@@ -67,11 +66,11 @@ public:
 private:
 
     GLuint linePointProgram;
-    GLint  linePointProgram_MvpMatrixLocation;
+    GLint linePointProgram_MvpMatrixLocation;
 
     GLuint textProgram;
-    GLint  textProgram_GlyphTextureLocation;
-    GLint  textProgram_ScreenDimensions;
+    GLint textProgram_GlyphTextureLocation;
+    GLint textProgram_ScreenDimensions;
 
     GLuint linePointVAO;
     GLuint linePointVBO;
@@ -79,11 +78,11 @@ private:
     GLuint textVAO;
     GLuint textVBO;
 
-    static const char * linePointVertShaderSrc;
-    static const char * linePointFragShaderSrc;
+    static const char *linePointVertShaderSrc;
+    static const char *linePointFragShaderSrc;
 
-    static const char * textVertShaderSrc;
-    static const char * textFragShaderSrc;
+    static const char *textVertShaderSrc;
+    static const char *textFragShaderSrc;
 
 }; // class DDRenderInterfaceCoreGL
 
@@ -91,19 +90,21 @@ class Scene;
 
 class DebugDrawSystem {
 public:
-    static DebugDrawSystem& getInstance()
-    {
+    static DebugDrawSystem &getInstance() {
         static DebugDrawSystem instance; // Guaranteed to be destroyed.
         // Instantiated on first use.
         return instance;
     }
+
     void Init();
 
     // Must be called before every frame
-    void Update(Scene const & scene);
+    void Update(Scene const &scene);
+
     void Render();
 
     void Destroy();
+
 private:
     DDRenderInterfaceCoreGL renderInterfaceCoreGl;
 };

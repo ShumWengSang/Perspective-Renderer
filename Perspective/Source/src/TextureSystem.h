@@ -21,8 +21,7 @@
 #define OPENGLFRAMEWORK_TEXTURESYSTEM_H
 
 #pragma region InternalStructures
-struct ImageLoadDescription
-{
+struct ImageLoadDescription {
     std::string filename;
     GLuint texture;
     GLenum format, internalFormat;
@@ -30,9 +29,8 @@ struct ImageLoadDescription
     bool isHdr;
 };
 
-struct LoadedImage
-{
-    void* pixels;
+struct LoadedImage {
+    void *pixels;
     GLenum type;
     int width, height;
 };
@@ -42,18 +40,22 @@ struct LoadedImage
 class TextureSystem {
     // Singleton stuff
 public:
-    static TextureSystem& getInstance()
-    {
+    static TextureSystem &getInstance() {
         static TextureSystem instance; // Guaranteed to be destroyed.
         // Instantiated on first use.
         return instance;
     }
-    TextureSystem(TextureSystem const&) = delete;
-    void operator=(TextureSystem const&)  = delete;
+
+    TextureSystem(TextureSystem const &) = delete;
+
+    void operator=(TextureSystem const &) = delete;
+
 private:
     TextureSystem() = default;
+
 public:
     void Init();
+
     void Destroy();
 
     // Must be called on a regular basis (e.g. in the beginning of every frame)
@@ -61,16 +63,19 @@ public:
 
     bool IsIdle();
 
-    bool IsHdrFile(const std::string& filename);
+    bool IsHdrFile(const std::string &filename);
 
     GLuint CreatePlaceholder(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xFF);
 
-    GLuint CreateTexture(int width, int height, GLenum format,
-            GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR, GLenum magFilter = GL_LINEAR, bool useMips = true);
-    GLuint LoadDataTexture(const std::string& filename, GLenum internalFormat = GL_RGBA8);
+    GLuint CreateTexture(
+            int width, int height, GLenum format, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR
+            , GLenum magFilter = GL_LINEAR, bool useMips = true
+                        );
+
+    GLuint LoadDataTexture(const std::string &filename, GLenum internalFormat = GL_RGBA8);
 
     // We handle cubes differently, we assume user is smart.
-    static GLuint LoadCubeMap(const  std::array<std::string, 6>& fileNames, GLenum internalFormat = GL_RGBA8);
+    static GLuint LoadCubeMap(const std::array<std::string, 6> &fileNames, GLenum internalFormat = GL_RGBA8);
 
 private:
 
@@ -80,14 +85,15 @@ private:
 
     std::atomic_int currentJobsCounter;
 
-    std::thread             backgroundThread;
-    std::mutex              accessMutex;
+    std::thread backgroundThread;
+    std::mutex accessMutex;
     std::condition_variable runCondition;
-    bool                    runBackgroundLoop;
+    bool runBackgroundLoop;
 
 private:
-    static GLuint CreateTextureCube(GLenum internal_format, GLenum format, GLsizei width, GLsizei height,
-                               std::array<stbi_uc*, 6> const& data);
+    static GLuint CreateTextureCube(
+            GLenum internal_format, GLenum format, GLsizei width, GLsizei height, std::array<stbi_uc *, 6> const &data
+                                   );
 
 };
 

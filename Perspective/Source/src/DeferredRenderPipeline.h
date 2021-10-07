@@ -21,6 +21,7 @@
 #define OPENGLFRAMEWORK_DEFERREDRENDERPIPELINE_H
 
 #include "RenderPipelineBase.h"
+
 class DeferredRenderPipeline : public RenderPipelineBase {
 public:
 

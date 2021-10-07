@@ -19,6 +19,7 @@
 
 #ifndef OPENGLFRAMEWORK_FINALPASS_H
 #define OPENGLFRAMEWORK_FINALPASS_H
+
 #include "ShaderDependant.h"
 #include "Uniform.h"
 // This is just here to make sure people know that
@@ -28,23 +29,27 @@
 class AssignmentOne;
 
 template<typename T>
-class FinalPass : public ShaderDependant{
+class FinalPass : public ShaderDependant {
 public:
 
 };
 
 class GBuffer;
+
 class LightBuffer;
+
 class Scene;
 
 template<>
-class FinalPass<AssignmentOne> : public ShaderDependant{
+class FinalPass<AssignmentOne> : public ShaderDependant {
 public:
-    void Draw(const GBuffer &gBuffer, const LightBuffer& lightBuffer, const Scene& scene);
+    void Draw(const GBuffer &gBuffer, const LightBuffer &lightBuffer, const Scene &scene);
+
     void ProgramLoaded(GLuint program) override;
+
 private:
 
-    Uniform<int> copyDepthBuffer {"copyDepthBuffer", 0};
+    Uniform<int> copyDepthBuffer{"copyDepthBuffer", 0};
     GLuint finalProgram;
 };
 

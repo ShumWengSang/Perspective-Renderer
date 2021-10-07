@@ -19,27 +19,33 @@
 
 #ifndef OPENGLFRAMEWORK_CS350_H
 #define OPENGLFRAMEWORK_CS350_H
+
 #include "App.h"
 
 class TransformSystem;
+
 class Material;
 
-class AssignmentOne : public App{
+class AssignmentOne : public App {
 public:
 
     AssignmentOne();
+
     virtual ~AssignmentOne() = default;
 
     Settings Setup() override;
 
     void Init() override;
-    void Resize(int width, int height) override;
-    void Draw(Input const & input, float deltaTime, float runningTime) override;
 
-    TransformSystem& transformSystem;
+    void Resize(int width, int height) override;
+
+    void Draw(Input const &input, float deltaTime, float runningTime) override;
+
+    TransformSystem &transformSystem;
 
 private:
-    void LoadModelFromTextFile(std::string fileName, Material* = nullptr);
+    void LoadModelFromTextFile(std::string fileName, Material * = nullptr);
+
     float powerPlantScale = 1.0f / 16000;
     float imGuiPowerPlantScale = 1.0f;
 };

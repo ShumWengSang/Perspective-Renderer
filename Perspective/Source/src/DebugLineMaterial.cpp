@@ -22,8 +22,7 @@
 
 void DebugLineMaterial::ProgramLoaded(GLuint program) {
     this->program = program;
-    if(program)
-    {
+    if (program) {
         modelMatrixLocation = glGetUniformLocation(program, "u_world_from_local");
         colorLocation = glGetUniformLocation(program, "u_color");
     }
@@ -37,12 +36,10 @@ void DebugLineMaterial::BindUniforms(glm::mat4 ModelMatrix) const {
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 }
 
-void DebugLineMaterial::BindColor(const glm::vec4& color) const
-{
+void DebugLineMaterial::BindColor(const glm::vec4 &color) const {
     glUniform4fv(colorLocation, 1, glm::value_ptr(color));
 }
 
-DebugLineMaterial::DebugLineMaterial()
-{
+DebugLineMaterial::DebugLineMaterial() {
     ShaderSystem::getInstance().AddProgram("material/debugLine", this);
 }

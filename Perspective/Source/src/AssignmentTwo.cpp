@@ -59,7 +59,7 @@ namespace {
 
 App::Settings AssignmentTwo::Setup() {
     Settings settings{};
-    settings.window.size = { 1600, 900 };
+    settings.window.size = {1600, 900};
     settings.window.resizeable = false;
     settings.context.msaaSamples = 1;
     return settings;
@@ -71,7 +71,7 @@ void AssignmentTwo::Init() {
     powerPlantMaterial->ReadMaterialFromFile("Common/PowerPlantFiles/");
     MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
 
-    if(Global::loadFile.empty()) {
+    if (Global::loadFile.empty()) {
         LoadModelFromTextFile("Common/PowerPlantFiles/Section1.txt", powerPlantMaterial);
         LoadModelFromTextFile("Common/PowerPlantFiles/Section2.txt", powerPlantMaterial);
         LoadModelFromTextFile("Common/PowerPlantFiles/Section3.txt", powerPlantMaterial);
@@ -93,12 +93,11 @@ void AssignmentTwo::Init() {
         LoadModelFromTextFile("Common/PowerPlantFiles/Section19.txt", powerPlantMaterial);
         LoadModelFromTextFile("Common/PowerPlantFiles/Section20.txt", powerPlantMaterial);
         LoadModelFromTextFile("Common/PowerPlantFiles/Section21.txt", powerPlantMaterial);
-    }
-    else // Load the model if we have it in command line //"Common/models/sphere.obj"
+    } else // Load the model if we have it in command line //"Common/models/sphere.obj"
     {
         ModelSystem::getInstance().LoadModel(Global::loadFile, [&, powerPlantMaterial](std::vector<Model> models) {
             assert(models.size() == 1);
-            const Model& model = models[0];
+            const Model &model = models[0];
             sphere = model;
             sphere.material = powerPlantMaterial;
             scene.models.emplace_back(sphere);
@@ -119,7 +118,7 @@ void AssignmentTwo::Init() {
                                                                            "Common/textures/front.jpg",
                                                                            "Common/textures/back.jpg"
                                                                    });
-    ShaderStruct::DirectionalLight sunLight {};
+    ShaderStruct::DirectionalLight sunLight{};
     sunLight.worldDirection = glm::vec4(-0.2, -1.0, -0.2, 0);
     sunLight.diffuseColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
     sunLight.specularColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
@@ -128,12 +127,12 @@ void AssignmentTwo::Init() {
 
     scene.mainCamera = std::make_unique<FpsCamera>();
 
-    scene.mainCamera->LookAt({ 0, 0, -20 }, { 0, 0, 0 });
+    scene.mainCamera->LookAt({0, 0, -20}, {0, 0, 0});
 
 }
 
 void AssignmentTwo::Resize(int width, int height) {
-    if(width == 0 || height == 0)
+    if (width == 0 || height == 0)
         return;
 
     scene.mainCamera->Resize(width, height);
@@ -143,8 +142,7 @@ void AssignmentTwo::Resize(int width, int height) {
 
 void AssignmentTwo::Draw(const Input &input, float deltaTime, float runningTime) {
     Update(input, deltaTime);
-    for (auto& dirLight : scene.directionalLights)
-    {
+    for (auto &dirLight: scene.directionalLights) {
         dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
     }
 
@@ -165,20 +163,19 @@ void AssignmentTwo::Draw(const Input &input, float deltaTime, float runningTime)
     }
 }
 
-AssignmentTwo::AssignmentTwo() : transformSystem(TransformSystem::getInstance()){
+AssignmentTwo::AssignmentTwo() : transformSystem(TransformSystem::getInstance()) {
     RunTestCases();
 }
 
-void AssignmentTwo::LoadModelFromTextFile(std::string fileName, Material* mat) {
+void AssignmentTwo::LoadModelFromTextFile(std::string fileName, Material *mat) {
     std::ifstream ifstream(fileName);
-    if(!ifstream.is_open() || ifstream.fail())
-    {
+    if (!ifstream.is_open() || ifstream.fail()) {
         LogError("Reading of file %s failed. Program ending", fileName.c_str());
         return;
     }
 
     // To emulate the 'directory'
-    std::filesystem::path directory (fileName);
+    std::filesystem::path directory(fileName);
     directory.remove_filename();
     std::string direc = directory.string();
     std::string line;
@@ -195,16 +192,15 @@ void AssignmentTwo::LoadModelFromTextFile(std::string fileName, Material* mat) {
 
     Log("Currently loading files decribed in %s in another thread", fileName.c_str());
 
-    while (std::getline(ifstream, line))
-    {
+    while (std::getline(ifstream, line)) {
         // Read each line, each line describes the model.
         // Load each line as a model, add the material to them, and then push back.
         Log("Starting to load model '%s'", (direc + line).c_str());
         ModelSystem::getInstance().LoadModel(direc + line, [&, mat, numberOfLines](std::vector<Model> models) {
             assert(models.size() == 1);
-            Model& model = models[0];
+            Model &model = models[0];
             model.material = mat;
-            Transform& transform = TransformSystem::getInstance().Get(model.transformID);
+            Transform &transform = TransformSystem::getInstance().Get(model.transformID);
             transform.SetLocalScale(this->powerPlantScale);
             TransformSystem::getInstance().UpdateMatrices(model.transformID);
             scene.models.emplace_back(model);
@@ -226,7 +222,7 @@ void AssignmentTwo::Update(const Input &input, float dt) {
     // Broadphase Collision
     static std::vector<
             std::tuple<
-                std::shared_ptr<Shape>, std::shared_ptr<Shape>,Shapes::Collision>
+                    std::shared_ptr<Shape>, std::shared_ptr<Shape>, Shapes::Collision>
     > Collided;
     Collided.reserve(1000);
 
@@ -240,11 +236,10 @@ void AssignmentTwo::Update(const Input &input, float dt) {
     }
 
     // All collided are in Collided
-    for (int i = 0; i < Collided.size(); ++i)
-    {
-        std::shared_ptr<Shape>& a = std::get<0>(Collided[i]);
-        std::shared_ptr<Shape>& b = std::get<1>(Collided[i]);
-        Shapes::Collision& collision = std::get<2>(Collided[i]);
+    for (int i = 0; i < Collided.size(); ++i) {
+        std::shared_ptr<Shape> &a = std::get<0>(Collided[i]);
+        std::shared_ptr<Shape> &b = std::get<1>(Collided[i]);
+        Shapes::Collision &collision = std::get<2>(Collided[i]);
         Log("%s and %s are colliding! \n", typeid(a).name(), typeid(b).name());
     }
     Collided.clear();

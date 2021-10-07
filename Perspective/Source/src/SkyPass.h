@@ -23,17 +23,20 @@
 #include "ShaderDependant.h"
 
 class LightBuffer;
+
 class GBuffer;
+
 class Scene;
 
 class SkyPass : public ShaderDependant {
 public:
-    void Draw(const LightBuffer& lightBuffer, const GBuffer& gBuffer, Scene& scene);
+    void Draw(const LightBuffer &lightBuffer, const GBuffer &gBuffer, Scene &scene);
+
     void ProgramLoaded(GLuint program) override;
 
 private:
-    GLuint framebuffer{ 0 };
-    GLuint skyProgram{ 0 };
+    GLuint framebuffer{0};
+    GLuint skyProgram{0};
 };
 
 

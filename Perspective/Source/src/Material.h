@@ -19,6 +19,7 @@
 
 #ifndef OPENGLFRAMEWORK_MATERIAL_H
 #define OPENGLFRAMEWORK_MATERIAL_H
+
 #include "ShaderDependant.h"
 
 class Transform;
@@ -29,8 +30,10 @@ public:
     bool cullBackface = true;
 
     GLuint program = 0;
+
     virtual void ProgramLoaded(GLuint program) = 0;
-    virtual void BindUniforms(Transform& transform, const Transform& prevTransform) const = 0;
+
+    virtual void BindUniforms(Transform &transform, const Transform &prevTransform) const = 0;
 };
 
 

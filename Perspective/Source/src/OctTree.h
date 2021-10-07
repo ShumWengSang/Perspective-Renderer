@@ -24,8 +24,7 @@
 
 class CollisionMesh;
 
-struct OctTreeRenderSettings
-{
+struct OctTreeRenderSettings {
     bool renderAABB = true;
     bool renderLines = false;
     bool renderRootPoints = false;
@@ -35,11 +34,10 @@ struct OctTreeRenderSettings
     int renderLevel = 0;
 };
 
-struct OctTreeNode
-{
-    std::vector<Shapes::Triangle> Objects;
-    std::vector<OctTreeNode*> Nodes;
-    OctTreeNode* Parent = nullptr;
+struct OctTreeNode {
+    std::vector <Shapes::Triangle> Objects;
+    std::vector<OctTreeNode *> Nodes;
+    OctTreeNode *Parent = nullptr;
     glm::vec4 color;
     Shapes::AABB boundingVolume;
     int depth = 0;
@@ -50,26 +48,31 @@ struct OctTreeNode
     int numberGenerated = 0;
     bool showRed = false;
 
-    OctTreeNode(OctTreeNode* parent, std::vector<Shapes::Triangle> const & vertices, int maxNumTrigs,
-                Shapes::AABB const & boundingVolume, int depth, bool &depthTerminated);
-    OctTreeNode(OctTreeNode* parent, rapidjson::Value& doc, int depth);
+    OctTreeNode(
+            OctTreeNode *parent, std::vector <Shapes::Triangle> const &vertices, int maxNumTrigs
+            , Shapes::AABB const &boundingVolume, int depth, bool &depthTerminated
+               );
+
+    OctTreeNode(OctTreeNode *parent, rapidjson::Value &doc, int depth);
+
     ~OctTreeNode();
 
     bool isLeaf() const;
 
     void Clear();
 
-    std::vector<Shapes::AABB> CreateBoundingVolumes(const Shapes::AABB& parentBoundingVolume) const;
+    std::vector <Shapes::AABB> CreateBoundingVolumes(const Shapes::AABB &parentBoundingVolume) const;
 
-    void RenderNode(OctTreeRenderSettings const & settings) const;
+    void RenderNode(OctTreeRenderSettings const &settings) const;
 
-    void GetBoundingBoxes(std::vector<Shapes::AABB> &output);
+    void GetBoundingBoxes(std::vector <Shapes::AABB> &output);
 
     bool isColliding(Shapes::AABB const &aabb, std::vector<OctTreeNode *> &result) const;
+
     static int MAX_DEPTH;
 
-    template <typename Writer>
-    inline void Serialize(Writer& writer) const {
+    template<typename Writer>
+    inline void Serialize(Writer &writer) const {
         writer.StartObject();
 
         writer.String(("Color"));
@@ -89,7 +92,7 @@ struct OctTreeNode
         writer.String(("Child Nodes"));
         writer.StartArray();
         for (auto dependentItr = Nodes.begin(); dependentItr != Nodes.end(); ++dependentItr) {
-            if(*dependentItr)
+            if (*dependentItr)
                 (*dependentItr)->Serialize(writer);
         }
         writer.EndArray();
@@ -100,18 +103,23 @@ struct OctTreeNode
 
 class OctTree {
 public:
-    OctTree(int sizeEachNode, std::vector<CollisionMesh> const & collisionMeshes);
+    OctTree(int sizeEachNode, std::vector <CollisionMesh> const &collisionMeshes);
+
     ~OctTree();
+
     void ForwardRenderTree() const;
+
     void ImGuiSettings();
+
 private:
-    std::vector<Shapes::Triangle> AllTriangle;
+    std::vector <Shapes::Triangle> AllTriangle;
     OctTreeNode *root;
     OctTreeRenderSettings settings;
 public:
-    explicit OctTree(rapidjson::Document & doc);
-    template <typename Writer>
-    inline void Serialize(Writer& writer) const {
+    explicit OctTree(rapidjson::Document &doc);
+
+    template<typename Writer>
+    inline void Serialize(Writer &writer) const {
         writer.StartObject();
 
 /*        writer.String(("AllTriangle"));

@@ -19,14 +19,16 @@
 
 #ifndef OPENGLFRAMEWORK_FPSCAMERA_H
 #define OPENGLFRAMEWORK_FPSCAMERA_H
+
 #include "CameraBase.h"
 
 class FpsCamera : public CameraBase {
 public:
     FpsCamera() = default;
+
     ~FpsCamera() = default;
 
-    void Update(const Input& input, float dt) override;
+    void Update(const Input &input, float dt) override;
 
 private:
     glm::vec3 velocity{};
@@ -38,22 +40,22 @@ private:
 
     //
 
-    glm::vec3 pitchYawRoll{ 0.0f };
+    glm::vec3 pitchYawRoll{0.0f};
 
     float rotationMultiplier = 30.0f;
     float rotationDampening = 0.000005f;
 
-    glm::quat bankingOrientation{ 1, 0, 0, 0 };
-    const float baselineBankAngle{ glm::radians(30.0f) };
+    glm::quat bankingOrientation{1, 0, 0, 0};
+    const float baselineBankAngle{glm::radians(30.0f)};
 
     //
 
-    float fieldOfView{ glm::radians(60.0f) };
-    float targetFieldOfView{ fieldOfView };
+    float fieldOfView{glm::radians(60.0f)};
+    float targetFieldOfView{fieldOfView};
 
-    const float zoomSensitivity{ 0.15f };
-    const float minFieldOfView{ glm::radians(15.0f) };
-    const float maxFieldOfView{ glm::radians(60.0f) };
+    const float zoomSensitivity{0.15f};
+    const float minFieldOfView{glm::radians(15.0f)};
+    const float maxFieldOfView{glm::radians(60.0f)};
 };
 
 

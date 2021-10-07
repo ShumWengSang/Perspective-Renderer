@@ -8,7 +8,6 @@
 struct LoadedModel;
 
 
-
 namespace Shapes {
 
 
@@ -19,12 +18,6 @@ namespace Shapes {
     }
 
     Point3D IntersectEdgeAgainstPlane(Point3D a, Point3D b, Plane plane);
-
-
-
-
-
-
 
 
     template<>
@@ -38,15 +31,19 @@ namespace Shapes {
     template<>
     bool CheckCollision<AABB, AABB>
             (Shape const &a, Shape const &b, Collision &output);
+
     template<>
     bool CheckCollision<BoundingSphere, Point3D>
             (Shape const &a, Shape const &b, Collision &output);
+
     template<>
     bool CheckCollision<AABB, Point3D>
             (Shape const &a, Shape const &b, Collision &output);
+
     template<>
     bool CheckCollision<Triangle, Point3D>
             (Shape const &a, Shape const &b, Collision &output);
+
     template<>
     bool CheckCollision<Plane, Point3D>
             (Shape const &a, Shape const &b, Collision &output);
@@ -90,17 +87,20 @@ namespace Shapes {
 
 }
 
-class CollisionMesh
-{
+class CollisionMesh {
 public:
     CollisionMesh() = default;
-    void AddModel(LoadedModel const & model);
-    void AddModel(LoadedModel const & model, int transformID);
+
+    void AddModel(LoadedModel const &model);
+
+    void AddModel(LoadedModel const &model, int transformID);
 
 private:
-    std::vector<Shapes::Triangle> vertices;
+    std::vector <Shapes::Triangle> vertices;
     Shapes::AABB boundingBox;
+
     friend class OctTree;
+
     friend class BSPTree;
 };
 

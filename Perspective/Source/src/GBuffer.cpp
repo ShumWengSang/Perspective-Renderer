@@ -33,7 +33,7 @@ void GBuffer::RecreateGpuResources(int width, int height) {
     glDeleteTextures(1, &normalTexture);
     glDeleteTextures(1, &depthTexture);
 
-    TextureSystem& textureSystem = TextureSystem::getInstance();
+    TextureSystem &textureSystem = TextureSystem::getInstance();
 
     diffuseTexture = textureSystem.CreateTexture(width, height, GL_RGB16F, GL_NEAREST, GL_NEAREST, false);
     ambientTexture = textureSystem.CreateTexture(width, height, GL_RGBA8, GL_NEAREST, GL_NEAREST, false);
@@ -43,8 +43,8 @@ void GBuffer::RecreateGpuResources(int width, int height) {
     depthTexture = textureSystem.CreateTexture(width, height, GL_DEPTH_COMPONENT32F, GL_NEAREST, GL_NEAREST, false);
 
     // Setup the swizzle for the depth textures so all color channels are depth
-    GLenum depthSwizzle[] = { GL_RED, GL_RED, GL_RED, GL_ALPHA };
-    glTextureParameteriv(depthTexture, GL_TEXTURE_SWIZZLE_RGBA, (GLint *)depthSwizzle);
+    GLenum depthSwizzle[] = {GL_RED, GL_RED, GL_RED, GL_ALPHA};
+    glTextureParameteriv(depthTexture, GL_TEXTURE_SWIZZLE_RGBA, (GLint *) depthSwizzle);
 
     GLenum drawBuffers[] = {
             PredefinedOutputLocation(o_g_buffer_diffuse),
@@ -53,8 +53,7 @@ void GBuffer::RecreateGpuResources(int width, int height) {
             PredefinedOutputLocation(o_g_buffer_viewPos),
             PredefinedOutputLocation(o_g_buffer_normal)
     };
-    if (!frameBuffer)
-    {
+    if (!frameBuffer) {
         glCreateFramebuffers(1, &frameBuffer);
 
         int numDrawBuffers = sizeof(drawBuffers) / sizeof(GLenum);
@@ -76,8 +75,7 @@ void GBuffer::RecreateGpuResources(int width, int height) {
     glNamedFramebufferTexture(frameBuffer, GL_DEPTH_ATTACHMENT, depthTexture, 0);
 
     GLenum status = glCheckNamedFramebufferStatus(frameBuffer, GL_DRAW_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
         LogError("The G-buffer framebuffer is not complete!");
     }
 }
@@ -87,9 +85,8 @@ void GBuffer::RenderToDebugTextures() const {
 }
 
 void GBuffer::RenderGui(const std::string &message) const {
-    if (ImGui::CollapsingHeader(("G-Buffer - " + message).c_str()))
-    {
-        GuiSystem& guiSystem = GuiSystem::getInstance();
+    if (ImGui::CollapsingHeader(("G-Buffer - " + message).c_str())) {
+        GuiSystem &guiSystem = GuiSystem::getInstance();
         ImGui::Text("Diffuse:");
         guiSystem.Texture(diffuseTexture);
         ImGui::Text("View Space Position:");

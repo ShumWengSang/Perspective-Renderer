@@ -25,12 +25,14 @@
 class Transform {
 public:
     static const int NoParent = -1;
+
     Transform() = default;
+
     ~Transform() = default;
 
     glm::vec3 position{};
     glm::vec3 orientation{};
-    glm::vec3 scale{ 1.0f };
+    glm::vec3 scale{1.0f};
 
     glm::mat4 matrix{1.0f};
     glm::mat4 inverseMatrix{1.0f};
@@ -61,24 +63,27 @@ public:
     void Destroy();
 
     int Create();
-    Transform& Get(int transformID);
-    const Transform& GetPrevious(int transformID);
+
+    Transform &Get(int transformID);
+
+    const Transform &GetPrevious(int transformID);
 
     void UpdateMatrices(int transformID);
 
-    static TransformSystem& getInstance()
-    {
+    static TransformSystem &getInstance() {
         static TransformSystem instance; // Guaranteed to be destroyed.
         // Instantiated on first use.
         return instance;
     }
 
-    TransformSystem(TransformSystem const&) = delete;
-    void operator=(TransformSystem const&)  = delete;
+    TransformSystem(TransformSystem const &) = delete;
+
+    void operator=(TransformSystem const &) = delete;
+
 private:
     TransformSystem() = default;
 
-    inline static const glm::mat4 identity { 1.0f };
+    inline static const glm::mat4 identity{1.0f};
     inline static int nextIndex = 0;
     inline static std::array<Transform, MAX_NUM_TRANSFORMS> transforms;
     inline static std::array<Transform, MAX_NUM_TRANSFORMS> oldTransforms;

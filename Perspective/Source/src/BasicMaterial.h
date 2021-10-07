@@ -19,11 +19,13 @@
 
 #ifndef OPENGLFRAMEWORK_BASICMATERIAL_H
 #define OPENGLFRAMEWORK_BASICMATERIAL_H
+
 #include "Material.h"
 
-class BasicMaterial : public Material{
+class BasicMaterial : public Material {
 public:
     BasicMaterial();
+
     ~BasicMaterial() = default;
 
     glm::vec3 baseColor;
@@ -31,7 +33,8 @@ public:
     float metallic;
 
     void ProgramLoaded(GLuint program) override;
-    void BindUniforms(Transform& transform, const Transform& prevTransform) const override;
+
+    void BindUniforms(Transform &transform, const Transform &prevTransform) const override;
 
 private:
 

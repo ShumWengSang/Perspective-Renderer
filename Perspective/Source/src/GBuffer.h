@@ -45,7 +45,7 @@ public:
 
     void RenderToDebugTextures() const;
 
-    void RenderGui(const std::string& message) const;
+    void RenderGui(const std::string &message) const;
 };
 
 

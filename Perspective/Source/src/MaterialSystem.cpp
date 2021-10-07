@@ -46,8 +46,9 @@ static void usemtl_cb(void *user_data, const char *name, int material_idx) {
     }
 }
 
-static void mtllib_cb(void *user_data, const tinyobj::material_t *materials,
-        int num_materials) {
+static void mtllib_cb(
+        void *user_data, const tinyobj::material_t *materials, int num_materials
+                     ) {
 //    MyMesh *mesh = reinterpret_cast<MyMesh *>(user_data);
     printf("mtllib. # of materials = %d\n", num_materials);
 
@@ -55,6 +56,7 @@ static void mtllib_cb(void *user_data, const tinyobj::material_t *materials,
 //        mesh->materials.push_back(materials[i]);
 //    }
 }
+
 #pragma endregion
 
 Material *
@@ -114,13 +116,12 @@ void MaterialSystem::ManageMaterial(Material *material) {
 }
 
 void MaterialSystem::Destroy() {
-    for (Material *material : managedMaterials)
-    {
+    for (Material *material: managedMaterials) {
         delete material;
     }
 }
 
-const tinyobj::material_t& MaterialSystem::CreateMaterial(const std::string &fileDirectory) {
+const tinyobj::material_t &MaterialSystem::CreateMaterial(const std::string &fileDirectory) {
     std::ifstream ifs(fileDirectory);
     std::string err;
     tinyobj::LoadMtl(&materialMap, &materials, &ifs, &err);

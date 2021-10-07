@@ -19,18 +19,22 @@
 
 #ifndef OPENGLFRAMEWORK_SCENE_H
 #define OPENGLFRAMEWORK_SCENE_H
+
 #include "DirectionalLight.h"
 #include "SkyProbe.h"
 #include "DebugSystem.h"
 
 class CameraBase;
+
 class Model;
+
 class DebugModel;
+
 class Animator;
 
 struct Entity {
-    Model* model;
-    Animator* animator;
+    Model *model;
+    Animator *animator;
 };
 
 class Scene {

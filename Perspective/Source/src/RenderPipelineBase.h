@@ -21,12 +21,15 @@
 #define OPENGLFRAMEWORK_RENDERPIPELINEBASE_H
 
 class Scene;
+
 class Input;
 
 class RenderPipelineBase {
 public:
     virtual void Resize(int width, int height) = 0;
-    virtual void Render(Scene& scene, Input const & input, float deltaTime, float runningTime) = 0;
+
+    virtual void Render(Scene &scene, Input const &input, float deltaTime, float runningTime) = 0;
+
 protected:
     int width;
     int height;

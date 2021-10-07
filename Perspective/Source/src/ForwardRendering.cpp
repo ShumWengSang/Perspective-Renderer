@@ -26,44 +26,39 @@
 #include "Animator.h"
 #include "MaterialSystem.h"
 
-void ForwardRendering::Draw(const Scene& scene) {
-	static bool once = false;
-	if (!once) {
-		this->debugLineMaterial = (new DebugLineMaterial());
-		MaterialSystem::getInstance().ManageMaterial(debugLineMaterial);
+void ForwardRendering::Draw(const Scene &scene) {
+    static bool once = false;
+    if (!once) {
+        this->debugLineMaterial = (new DebugLineMaterial());
+        MaterialSystem::getInstance().ManageMaterial(debugLineMaterial);
 
-		cylinder = new Model("Common/cylinder.fbx");
-		once = true;
-	}
-	TransformSystem& transformSystem = TransformSystem::getInstance();
-	static bool debugOptions[DebugSystem::DebugType::All] = { false, false };
+        cylinder = new Model("Common/cylinder.fbx");
+        once = true;
+    }
+    TransformSystem &transformSystem = TransformSystem::getInstance();
+    static bool debugOptions[DebugSystem::DebugType::All] = {false, false};
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	if (scene.entities[0].animator->GetAnimation() != nullptr)
-	{
-		glUseProgram(this->debugLineMaterial->program);
-		Transform& trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
+    if (scene.entities[0].animator->GetAnimation() != nullptr) {
+        glUseProgram(this->debugLineMaterial->program);
+        Transform &trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
 
-		{
-			auto finalMatrices = scene.entities[0].animator->DrawBones(MyMath::VQS(trans.matrix));
+        {
+            auto finalMatrices = scene.entities[0].animator->DrawBones(MyMath::VQS(trans.matrix));
 
-			for (int i = 0; i < finalMatrices.size(); ++i)
-			{
-				this->debugLineMaterial->BindUniforms(finalMatrices[i].ToMat4());
-				if (i == 0)
-				{
-					debugLineMaterial->BindColor(glm::vec4{ 0.7,0.1,0.1,1.0 });
-				}
-				else
-				{
-					debugLineMaterial->BindColor(glm::vec4{ 0.2,0.8,0.27,1.0 });
-				}
-				cylinder->Draw();
-			}
-		}
-	}
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            for (int i = 0; i < finalMatrices.size(); ++i) {
+                this->debugLineMaterial->BindUniforms(finalMatrices[i].ToMat4());
+                if (i == 0) {
+                    debugLineMaterial->BindColor(glm::vec4{0.7, 0.1, 0.1, 1.0});
+                } else {
+                    debugLineMaterial->BindColor(glm::vec4{0.2, 0.8, 0.27, 1.0});
+                }
+                cylinder->Draw();
+            }
+        }
+    }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void ForwardRendering::ProgramLoaded(GLuint program) {

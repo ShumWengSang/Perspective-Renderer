@@ -72,7 +72,7 @@ namespace {
 
 App::Settings AssignmentFour::Setup() {
     Settings settings{};
-    settings.window.size = { 1600, 900 };
+    settings.window.size = {1600, 900};
     settings.window.resizeable = false;
     settings.context.msaaSamples = 1;
     return settings;
@@ -85,7 +85,7 @@ void AssignmentFour::Init() {
     MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
 
     // Load the sphere to throw into the scene
-    
+
 
 
     // Load the skybox
@@ -97,7 +97,7 @@ void AssignmentFour::Init() {
                                                                            "Common/textures/front.jpg",
                                                                            "Common/textures/back.jpg"
                                                                    });
-    ShaderStruct::DirectionalLight sunLight {};
+    ShaderStruct::DirectionalLight sunLight{};
     sunLight.worldDirection = glm::vec4(-0.2, -1.0, -0.2, 0);
     sunLight.diffuseColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
     sunLight.specularColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
@@ -106,12 +106,12 @@ void AssignmentFour::Init() {
 
     scene.mainCamera = std::make_unique<FpsCamera>();
 
-    scene.mainCamera->LookAt({ 0, 0, -20 }, { 0, 0, 0 });
+    scene.mainCamera->LookAt({0, 0, -20}, {0, 0, 0});
 
 }
 
 void AssignmentFour::Resize(int width, int height) {
-    if(width == 0 || height == 0)
+    if (width == 0 || height == 0)
         return;
 
     scene.mainCamera->Resize(width, height);
@@ -123,46 +123,39 @@ void AssignmentFour::Draw(const Input &input, float deltaTime, float runningTime
     glm::vec3 zero(0);
     glm::vec3 one(1);
     dd::cross(glm::value_ptr(zero), 5);
-    if (ImGui::CollapsingHeader("Assignment Three Options - "))
-    {
+    if (ImGui::CollapsingHeader("Assignment Three Options - ")) {
         static int TrigEachNode = 1000;
         ImGui::InputInt("Trig Each Node", &TrigEachNode);
         ImGui::NewLine();
 
-        if(ImGui::SmallButton("Generate Oct Tree"))
-        {
+        if (ImGui::SmallButton("Generate Oct Tree")) {
             octTree.reset(new OctTree(TrigEachNode, {factoryCollisionMesh}));
         }
         ImGui::SameLine();
-        if(ImGui::SmallButton("Load Oct Tree from JSON"))
-        {
+        if (ImGui::SmallButton("Load Oct Tree from JSON")) {
             octTree.reset(OctTreeFromJSON());
-            if(octTree)
-            {
+            if (octTree) {
                 Log("Successfully loaded oct tree from json file.");
             }
         }
         ImGui::InputInt("OctTree depth", &OctTreeNode::MAX_DEPTH);
 
-        if(octTree) {
+        if (octTree) {
             octTree->ImGuiSettings();
-            if(ImGui::SmallButton("Serialize Oct Tree"))
-            {
+            if (ImGui::SmallButton("Serialize Oct Tree")) {
                 SerializeOctTree(octTree.get());
             }
         }
         ImGui::NewLine();
-        ImGui::NewLine();        if(ImGui::SmallButton("Generate BSP Tree"))
-        {
+        ImGui::NewLine();
+        if (ImGui::SmallButton("Generate BSP Tree")) {
             bspTree.reset(new BSPTree(TrigEachNode, {factoryCollisionMesh}));
         }
 
         ImGui::SameLine();
-        if(ImGui::SmallButton("Load BSP Tree from JSON"))
-        {
+        if (ImGui::SmallButton("Load BSP Tree from JSON")) {
             bspTree.reset(BSTTreeFromJSON());
-            if(bspTree)
-            {
+            if (bspTree) {
                 Log("Successfully loaded oct tree from json file.");
             }
         }
@@ -171,11 +164,9 @@ void AssignmentFour::Draw(const Input &input, float deltaTime, float runningTime
         ImGui::InputInt("Random Split Lower Bound", &BSPNode::Good_Enough_Score);
         ImGui::InputInt("Plane Split Sampling Size", &BSPNode::Plane_Sample_Size);
 
-        if(bspTree)
-        {
+        if (bspTree) {
             bspTree->ImGuiSettings();
-            if(ImGui::SmallButton("Serialize BSP Tree"))
-            {
+            if (ImGui::SmallButton("Serialize BSP Tree")) {
                 SerializeBSTTree(bspTree.get());
             }
         }
@@ -183,8 +174,7 @@ void AssignmentFour::Draw(const Input &input, float deltaTime, float runningTime
     ImGui::NewLine();
 
     Update(input, deltaTime);
-    for (auto& dirLight : scene.directionalLights)
-    {
+    for (auto &dirLight: scene.directionalLights) {
         dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
     }
 
@@ -195,9 +185,9 @@ void AssignmentFour::Draw(const Input &input, float deltaTime, float runningTime
     LightPass::RenderGui(scene.directionalLights[0], lightBuffer);
     finalPass.Draw(gBuffer, lightBuffer, scene);
 
-    if(octTree)
+    if (octTree)
         octTree->ForwardRenderTree();
-    if(bspTree)
+    if (bspTree)
         bspTree->ForwardRenderTree();
     // Now we do forward rendering
 
@@ -209,23 +199,22 @@ void AssignmentFour::Draw(const Input &input, float deltaTime, float runningTime
     }
 }
 
-AssignmentFour::AssignmentFour() : transformSystem(TransformSystem::getInstance()){
+AssignmentFour::AssignmentFour() : transformSystem(TransformSystem::getInstance()) {
 
 }
 
-void AssignmentFour::LoadModelFromTextFile(std::string fileName, Material* mat) {
+void AssignmentFour::LoadModelFromTextFile(std::string fileName, Material *mat) {
 
     static_assert(true, "DEPRECATED");
 
     std::ifstream ifstream(fileName);
-    if(!ifstream.is_open() || ifstream.fail())
-    {
+    if (!ifstream.is_open() || ifstream.fail()) {
         LogError("Reading of file %s failed. Program ending", fileName.c_str());
         return;
     }
 
     // To emulate the 'directory'
-    std::filesystem::path directory (fileName);
+    std::filesystem::path directory(fileName);
     directory.remove_filename();
     std::string direc = directory.string();
     std::string line;

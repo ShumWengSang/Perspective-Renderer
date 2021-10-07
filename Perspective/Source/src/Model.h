@@ -47,45 +47,57 @@ public:
     DebugModel faceNormal;
 };
 #elif ASSIMPLOADER
+
 #include "Mesh.h"
 #include "Material.h"
 #include "Bone.h"
 #include "MyMath.h"
 #include "Logger.h"
+
 class Model {
- public:
-  explicit Model(const char *path) { loadModel(path); }
-  void Draw() const;
-  Material *material = nullptr;
-  int TriangleCount() const;
-  int transformID = 0;
+public:
+    explicit Model(const char *path) { loadModel(path); }
 
-  auto& GetBoneInfoMap() { return boneInfoMap; }
-  int& GetBoneCounter() { return boneCounter; }
+    void Draw() const;
 
- private:
-  // model data
-  std::vector<Mesh> meshes;
-  std::string directory;
+    Material *material = nullptr;
+
+    int TriangleCount() const;
+
+    int transformID = 0;
+
+    auto &GetBoneInfoMap() { return boneInfoMap; }
+
+    int &GetBoneCounter() { return boneCounter; }
+
+private:
+    // model data
+    std::vector<Mesh> meshes;
+    std::string directory;
 
 
-  void loadModel(const std::string & path);
-  void processNode(aiNode *node, const aiScene *scene);
-  Mesh processMesh(aiMesh *mesh, const aiScene *scene);
-  std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
-                                       std::string const &typeName);
+    void loadModel(const std::string &path);
+
+    void processNode(aiNode *node, const aiScene *scene);
+
+    Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+
+    std::vector<Texture> loadMaterialTextures(
+            aiMaterial *mat, aiTextureType type, std::string const &typeName
+                                             );
 
     // Bones
 
-  std::unordered_map<std::string, BoneInfo> boneInfoMap;
-  int boneCounter = 0;
+    std::unordered_map<std::string, BoneInfo> boneInfoMap;
+    int boneCounter = 0;
 
-  void SetVertexBoneData(Vertex& vertex, int boneID, float weight);
+    void SetVertexBoneData(Vertex &vertex, int boneID, float weight);
 
-  void ExtractBoneWeight(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
+    void ExtractBoneWeight(std::vector<Vertex> &vertices, aiMesh *mesh, const aiScene *scene);
 
 
 };
+
 #endif
 
 #endif //OPENGLFRAMEWORK_MODEL_H

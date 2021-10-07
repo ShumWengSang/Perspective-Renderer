@@ -26,8 +26,7 @@
 
 void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &lightBuffer, const Scene &scene) {
     static bool once = false;
-    if(!once)
-    {
+    if (!once) {
         ShaderSystem::getInstance().AddProgram("quad.vert.glsl", "final.frag.glsl", this);
         once = true;
     }
@@ -48,7 +47,7 @@ void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &l
     }
     glDepthFunc(GL_LEQUAL);
     //glEnable(GL_DEPTH_TEST);
-    ImGui::Checkbox("Copy Depth Buffer", (bool*)(&copyDepthBuffer.value));
+    ImGui::Checkbox("Copy Depth Buffer", (bool *) (&copyDepthBuffer.value));
 /*    if(copyDepthBuffer.value)
     {
         glBlitNamedFramebuffer(gBuffer.frameBuffer, 0, 0, 0, gBuffer.width, gBuffer.height, 0, 0, gBuffer.width, gBuffer.height,
@@ -58,8 +57,7 @@ void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &l
 
 void FinalPass<AssignmentOne>::ProgramLoaded(GLuint program) {
     finalProgram = program;
-    if(finalProgram && program == finalProgram)
-    {
+    if (finalProgram && program == finalProgram) {
         glProgramUniform1i(finalProgram, PredefinedUniformLocation(u_texture), 0);
         glProgramUniform1i(finalProgram, PredefinedUniformLocation(u_textureCube), 1);
         glProgramUniform1i(finalProgram, PredefinedUniformLocation(u_g_buffer_depth), 2);

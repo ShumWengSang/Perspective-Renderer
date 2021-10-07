@@ -19,14 +19,17 @@
 
 #ifndef OPENGLFRAMEWORK_GEOMETRYPASS_H
 #define OPENGLFRAMEWORK_GEOMETRYPASS_H
+
 #include "ShaderDependant.h"
 
 class GBuffer;
+
 class Scene;
 
 class GeometryPass : public ShaderDependant {
 public:
-    void Draw(const GBuffer& gBuffer, Scene& scene);
+    void Draw(const GBuffer &gBuffer, Scene &scene);
+
     void ProgramLoaded(GLuint program) override;
 
     bool performDepthPrepass = false;

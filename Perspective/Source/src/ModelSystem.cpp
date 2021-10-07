@@ -609,7 +609,11 @@ Model ModelSystem::RegisterModel(const LoadedModel &loadedModel) {
 }
 
 #elif ASSIMPLOADER
+
 void ModelSystem::Init() {}
+
 void ModelSystem::Destroy() {}
+
 void ModelSystem::Update() {}
+
 #endif

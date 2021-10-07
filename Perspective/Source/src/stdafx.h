@@ -13,6 +13,7 @@
 
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -86,8 +87,7 @@ constexpr int MAX_BONES = 200;
 // Our own classes
 #include "Queue.h"
 
-enum LerpMode
-{
+enum LerpMode {
     MyMix_iL_iS_iL,
     MyMix_L_iSlerp_E,
     MyMix_L_S_L,

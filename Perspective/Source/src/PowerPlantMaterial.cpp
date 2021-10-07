@@ -23,8 +23,7 @@
 
 void PowerPlantMaterial::ProgramLoaded(GLuint program) {
     this->program = program;
-    if (program)
-    {
+    if (program) {
         modelMatrixLocation = glGetUniformLocation(program, "u_world_from_local");
     }
 }

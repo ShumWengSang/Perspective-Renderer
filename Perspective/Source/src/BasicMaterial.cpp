@@ -19,15 +19,15 @@
 #include "BasicMaterial.h"
 #include "TransformSystem.h"
 #include "ShaderSystem.h"
+
 BasicMaterial::BasicMaterial() {
-    ShaderSystem& shaderSystem = ShaderSystem::getInstance();
+    ShaderSystem &shaderSystem = ShaderSystem::getInstance();
     shaderSystem.AddProgram("material/basic", this);
 }
 
 void BasicMaterial::ProgramLoaded(GLuint program) {
     this->program = program;
-    if (program)
-    {
+    if (program) {
         modelMatrixLocation = glGetUniformLocation(program, "u_world_from_local");
 
         baseColorLocation = glGetUniformLocation(program, "u_base_color");

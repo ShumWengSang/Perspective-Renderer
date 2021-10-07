@@ -19,6 +19,7 @@
 
 #ifndef OPENGLFRAMEWORK_CAMERABASE_H
 #define OPENGLFRAMEWORK_CAMERABASE_H
+
 #include "BufferObject.hpp"
 #include "CameraUniforms.h"
 

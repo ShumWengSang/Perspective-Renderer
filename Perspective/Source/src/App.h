@@ -20,38 +20,40 @@
 
 #ifndef OPENGLFRAMEWORK_APP_H
 #define OPENGLFRAMEWORK_APP_H
+
 class Input;
+
 class App;
-namespace AppSelector
-{
+namespace AppSelector {
     std::unique_ptr<App> ConstructApp();
 }
 
 class App {
 public:
-    struct Settings
-    {
+    struct Settings {
         Settings() = default;
 
-        struct
-        {
-            std::string title{ "Perspective Renderer" };
+        struct {
+            std::string title{"Perspective Renderer"};
 
-            struct { int width; int height; } size;
+            struct {
+                int width;
+                int height;
+            } size;
             bool fullscreen = false;
 
             bool resizeable = false;
             bool vsync = true;
         } window;
 
-        struct
-        {
+        struct {
             int msaaSamples = 0;
         } context;
     };
 
 public:
     App() = default;
+
     virtual ~App() = default;
 
     int windowWidth = 0;
@@ -73,13 +75,14 @@ public:
     // Drawing / main loop
 
     // Called every new frame
-    virtual void Draw(Input const & input, float deltaTime, float runningTime) = 0;
+    virtual void Draw(Input const &input, float deltaTime, float runningTime) = 0;
 
     // We can only have on App in the game right?
-    static App& GetApp();
+    static App &GetApp();
 
 private:
-    inline static App* CurrApp;
+    inline static App *CurrApp;
+
     friend std::unique_ptr<App> AppSelector::ConstructApp();
 };
 

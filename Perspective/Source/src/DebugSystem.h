@@ -19,19 +19,24 @@
 
 #ifndef OPENGLFRAMEWORK_DEBUGSYSTEM_H
 #define OPENGLFRAMEWORK_DEBUGSYSTEM_H
+
 #include "DebugModel.h"
+
 class DebugSystem {
 public:
-    enum DebugType : int
-    {
+    enum DebugType : int {
         Face_Normal = 0,
         Vertex_Normal = 1,
         All
     };
-    void AddDebugModel(DebugType type, DebugModel const & model);
-    const std::unordered_map<DebugType, std::vector<DebugModel>>& GetDebugModels() const;
+
+    void AddDebugModel(DebugType type, DebugModel const &model);
+
+    const std::unordered_map<DebugType, std::vector<DebugModel>> &GetDebugModels() const;
+
 private:
     std::unordered_map<DebugType, std::vector<DebugModel>> debugModels;
+
     friend class ForwardRendering;
 };
 

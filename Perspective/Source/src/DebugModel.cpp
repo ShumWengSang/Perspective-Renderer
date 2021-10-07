@@ -19,8 +19,7 @@
 #include "DebugModel.h"
 
 void DebugModel::Draw() const {
-    if (vao)
-    {
+    if (vao) {
         glBindVertexArray(vao);
         glDrawElements(GL_LINES, indexCount, indexType, nullptr);
     }

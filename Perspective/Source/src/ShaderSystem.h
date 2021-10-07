@@ -28,47 +28,43 @@ class ShaderDependant;
 #endif
 
 #pragma region Internal Data
-struct Shader
-{
+
+struct Shader {
     GLenum type;
     std::string filename;
 
-    Shader(GLenum type, const std::string& filename) : type(type), filename(filename) {}
+    Shader(GLenum type, const std::string &filename) : type(type), filename(filename) {}
 };
 
-struct Program
-{
+struct Program {
     size_t fixedLocation;
     std::vector<Shader> shaders{};
 
-    bool operator==(const Program& other) const
-    {
+    bool operator==(const Program &other) const {
         return fixedLocation == other.fixedLocation;
     }
 };
 
 template<>
-struct std::hash<Program>
-{
-    std::size_t operator()(const Program& program) const
-    {
+struct std::hash<Program> {
+    std::size_t operator()(const Program &program) const {
         return program.fixedLocation;
     }
 };
 
-struct GlslFile
-{
+struct GlslFile {
     std::string filename;
     std::time_t timestamp = 0;
     std::unordered_set<Program> dependablePrograms{};
 
     GlslFile() {}
-    explicit GlslFile(const std::string& filename) : filename(filename) {}
+
+    explicit GlslFile(const std::string &filename) : filename(filename) {}
 };
+
 #pragma endregion
 
-struct ShaderErrorReport
-{
+struct ShaderErrorReport {
     std::string shaderName;
     std::string errorMessage;;
     std::string preprocessedSource;
@@ -77,14 +73,16 @@ struct ShaderErrorReport
 
 class ShaderSystem {
 public:
-    static ShaderSystem& getInstance()
-    {
+    static ShaderSystem &getInstance() {
         static ShaderSystem instance; // Guaranteed to be destroyed.
         // Instantiated on first use.
         return instance;
     }
-    ShaderSystem(ShaderSystem const&) = delete;
-    void operator=(ShaderSystem const&)  = delete;
+
+    ShaderSystem(ShaderSystem const &) = delete;
+
+    void operator=(ShaderSystem const &) = delete;
+
 private:
     ShaderSystem() = default;
 
@@ -99,27 +97,39 @@ public:
 
     // Add a shader program with the specified file name (*.vert.glsl and *.frag.glsl assumed)
     // Supply a shader depandant if there is some object that should be updated with this program
-    GLuint* AddProgram(const std::string& name, ShaderDependant *shaderDependant = nullptr);
+    GLuint *AddProgram(const std::string &name, ShaderDependant *shaderDependant = nullptr);
 
     // Add a shader program with the specified names for the vertex and fragment shaders
     // Supply a shader depandant if there is some object that should be updated with this program
-    GLuint* AddProgram(const std::string& vertName, const std::string& fragName, ShaderDependant *shaderDependant = nullptr);
+    GLuint *
+    AddProgram(const std::string &vertName, const std::string &fragName, ShaderDependant *shaderDependant = nullptr);
 
-    void AddProgram(GLuint** programOut, const std::string& vertName, const std::string& fragName, ShaderDependant *shaderDependant = nullptr);
-    void AddComputeProgram(GLuint** programOut, const std::string& name, ShaderDependant *shaderDependant = nullptr);
+    void AddProgram(
+            GLuint **programOut, const std::string &vertName, const std::string &fragName
+            , ShaderDependant *shaderDependant = nullptr
+                   );
 
-    GLuint* AddComputeProgram(const std::string& name, ShaderDependant *shaderDependant = nullptr);
+    void AddComputeProgram(GLuint **programOut, const std::string &name, ShaderDependant *shaderDependant = nullptr);
 
-private:
-    void AddManagedFile(const std::string& filename, const Program& dependableProgram);
-    std::time_t GetTimestamp(const GlslFile& file) const;
-    bool FileReadable(const std::string& filename) const;
-    void ReadFileWithIncludes(const std::string& filename, const Program& dependableProgram, std::stringstream& sourceBuffer);
-    void ReadFileWithIncludesTMP(const std::string& filename, std::stringstream& sourceBuffer);
-    void UpdateProgram(Program& program);
+    GLuint *AddComputeProgram(const std::string &name, ShaderDependant *shaderDependant = nullptr);
 
 private:
-    std::string shaderDirectory{ "shaders/" };
+    void AddManagedFile(const std::string &filename, const Program &dependableProgram);
+
+    std::time_t GetTimestamp(const GlslFile &file) const;
+
+    bool FileReadable(const std::string &filename) const;
+
+    void ReadFileWithIncludes(
+            const std::string &filename, const Program &dependableProgram, std::stringstream &sourceBuffer
+                             );
+
+    void ReadFileWithIncludesTMP(const std::string &filename, std::stringstream &sourceBuffer);
+
+    void UpdateProgram(Program &program);
+
+private:
+    std::string shaderDirectory{"shaders/"};
 
     std::unordered_map<std::string, GlslFile> managedFiles;
 

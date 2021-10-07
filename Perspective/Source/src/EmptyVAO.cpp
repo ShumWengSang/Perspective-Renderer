@@ -7,8 +7,7 @@
 
 void EmptyVAO::Draw() {
     static GLuint emptyVertex = 0;
-    if(!emptyVertex)
-    {
+    if (!emptyVertex) {
         glCreateVertexArrays(1, &emptyVertex);
     }
     GLint lastBoundVertexArray;

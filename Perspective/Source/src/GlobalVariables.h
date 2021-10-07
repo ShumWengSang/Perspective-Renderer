@@ -5,8 +5,7 @@
 #ifndef OPENGLFRAMEWORK_GLOBALVARIABLES_H
 #define OPENGLFRAMEWORK_GLOBALVARIABLES_H
 
-namespace Global
-{
+namespace Global {
     inline std::string loadFile;
 }
 

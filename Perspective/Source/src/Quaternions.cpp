@@ -20,15 +20,13 @@
 
 MyMath::Quaternion::Quaternion() : s(1), v(0) {}
 
-MyMath::Quaternion::Quaternion(const glm::quat& quat) : s(quat.w), v({quat.x, quat.y, quat.z})
-{
+MyMath::Quaternion::Quaternion(const glm::quat &quat) : s(quat.w), v({quat.x, quat.y, quat.z}) {
 }
 
-MyMath::Quaternion::Quaternion(float S, const glm::vec3& V)
-    : s(S), v(V) {}
+MyMath::Quaternion::Quaternion(float S, const glm::vec3 &V)
+        : s(S), v(V) {}
 
-MyMath::Quaternion::Quaternion(glm::mat4 const& mat)
-{
+MyMath::Quaternion::Quaternion(glm::mat4 const &mat) {
     s = 0.5 * sqrt(mat[0][0] + mat[1][1] + mat[2][2] + 1);
     v.x = (mat[2][1] - mat[1][2]) / (4 * s);
     v.y = (mat[0][2] - mat[2][0]) / (4 * s);
@@ -57,7 +55,7 @@ MyMath::Quaternion MyMath::Quaternion::operator+(const MyMath::Quaternion &rhs) 
 //    return Quaternion(scalar, vector);
 //}
 
-void MyMath::Quaternion::operator*=(const MyMath::Quaternion &q) { 
+void MyMath::Quaternion::operator*=(const MyMath::Quaternion &q) {
     auto olds = s;
     s = s * q.s - glm::dot(v, q.v);
     v = q.v * olds + v * q.s + glm::cross(v, q.v);
@@ -177,7 +175,7 @@ glm::vec3 MyMath::Quaternion::Rotate(glm::vec3 point) const {
 
 glm::mat4 MyMath::Quaternion::ToMat4(bool normalize) const {
     Quaternion norm = *this;
-    if(normalize)
+    if (normalize)
         norm = this->Norm();
 
     glm::mat4 result(1.0f);
@@ -198,14 +196,12 @@ glm::mat4 MyMath::Quaternion::ToMat4(bool normalize) const {
 }
 
 MyMath::VQS::VQS(const glm::vec3 &V, const MyMath::Quaternion &Q, const float S)
-        : v(V), q(Q), s(S) 
-        {}
+        : v(V), q(Q), s(S) {}
 
-MyMath::VQS::VQS(const glm::mat4& transformation)
-{
+MyMath::VQS::VQS(const glm::mat4 &transformation) {
     v = glm::vec3(transformation[3]);
     s = glm::length(transformation[0]);
-    q = MyMath::Quaternion (glm::quat_cast(transformation / s));
+    q = MyMath::Quaternion(glm::quat_cast(transformation / s));
 
 }
 
@@ -227,10 +223,9 @@ MyMath::VQS MyMath::VQS::Inverse() const {
     return VQS(V, Q, S);
 }
 
-glm::mat4 MyMath::VQS::ToMat4() const
-{
+glm::mat4 MyMath::VQS::ToMat4() const {
     glm::mat4 t = glm::translate(v);
-    glm::mat4 scale = glm::scale(glm::vec3(s,s,s));
+    glm::mat4 scale = glm::scale(glm::vec3(s, s, s));
     // Scale first, then rotate, then translate
     return t * q.ToMat4() * scale;
 }

@@ -21,71 +21,85 @@
 #define OPENGLFRAMEWORK_GUISYSTEM_H
 
 #pragma region Internal
+
 // Taken from ImGui Example
-struct ExampleAppConsole
-{
-    char                  InputBuf[256];
-    ImVector<char*>       Items;
-    ImVector<const char*> Commands;
-    ImVector<char*>       History;
-    int                   HistoryPos;    // -1: new line, 0..History.Size-1 browsing history.
-    ImGuiTextFilter       Filter;
-    bool                  AutoScroll;
-    bool                  ScrollToBottom;
+struct ExampleAppConsole {
+    char InputBuf[256];
+    ImVector<char *> Items;
+    ImVector<const char *> Commands;
+    ImVector<char *> History;
+    int HistoryPos;    // -1: new line, 0..History.Size-1 browsing history.
+    ImGuiTextFilter Filter;
+    bool AutoScroll;
+    bool ScrollToBottom;
 
     ExampleAppConsole();
+
     ~ExampleAppConsole();
 
     // Portable helpers
-    static int   Stricmp(const char* s1, const char* s2);
-    static int   Strnicmp(const char* s1, const char* s2, int n);
-    static char* Strdup(const char* s);
-    static void  Strtrim(char* s);
+    static int Stricmp(const char *s1, const char *s2);
 
-    void    ClearLog();
+    static int Strnicmp(const char *s1, const char *s2, int n);
 
-    void    AddLog(const char* fmt, ...);
-    void    AddError(const char* fmt, ...);
+    static char *Strdup(const char *s);
 
-    void    Draw(const char* title, bool* p_open);
+    static void Strtrim(char *s);
 
-    void    ExecCommand(const char* command_line);
+    void ClearLog();
+
+    void AddLog(const char *fmt, ...);
+
+    void AddError(const char *fmt, ...);
+
+    void Draw(const char *title, bool *p_open);
+
+    void ExecCommand(const char *command_line);
 
     // In C++11 you'd be better off using lambdas for this sort of forwarding callbacks
-    static int TextEditCallbackStub(ImGuiInputTextCallbackData* data);
+    static int TextEditCallbackStub(ImGuiInputTextCallbackData *data);
 
-    int     TextEditCallback(ImGuiInputTextCallbackData* data);
+    int TextEditCallback(ImGuiInputTextCallbackData *data);
 };
+
 #pragma endregion
+
 class Input;
 
 class GuiSystem {
 public:
-    static GuiSystem& getInstance()
-    {
+    static GuiSystem &getInstance() {
         static GuiSystem instance; // Guaranteed to be destroyed.
         // Instantiated on first use.
         return instance;
     }
-    GuiSystem(GuiSystem const&) = delete;
-    void operator=(GuiSystem const&)  = delete;
+
+    GuiSystem(GuiSystem const &) = delete;
+
+    void operator=(GuiSystem const &) = delete;
+
 private:
     GuiSystem();
+
 public:
     void Init(GLFWwindow *window);
+
     void Destroy();
 
     void NewFrame();
+
     void RenderDrawData(ImDrawData *data);
 
     // Utilities
     void Texture(GLuint texture, float aspectRatio = 16.0f / 9.0f);
 
     // Add to ImGui Gui
-    void AddGui(std::string const & name, std::function<void(void)> const & GuiFunction);
+    void AddGui(std::string const &name, std::function<void(void)> const &GuiFunction);
 
-    static bool IsUsingMouse() ;
-    static bool IsUsingKeyboard() ;
+    static bool IsUsingMouse();
+
+    static bool IsUsingKeyboard();
+
     ExampleAppConsole console;
 private:
     GLFWwindow *window;
@@ -95,7 +109,7 @@ private:
     GLuint indexBuffer;
     GLuint fontTexture;
 
-    GLFWcursor *cursors[ImGuiMouseCursor_COUNT] = { 0 };
+    GLFWcursor *cursors[ImGuiMouseCursor_COUNT] = {0};
 
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -109,6 +123,7 @@ private:
     bool mainDockspace = true;
 public:
     void DockspaceBegin();
+
     void DockspaceEnd();
 
 };

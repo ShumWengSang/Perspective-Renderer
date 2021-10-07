@@ -19,11 +19,15 @@
 
 #ifndef OPENGLFRAMEWORK_ASSIGNMENFOUR_H
 #define OPENGLFRAMEWORK_ASSIGNMENFOUR_H
+
 #include "App.h"
 
 class TransformSystem;
+
 class Material;
+
 class OctTree;
+
 class BSPTree;
 
 namespace Shapes {
@@ -34,30 +38,40 @@ using Shapes::Shape;
 class AssignmentFour : public App {
 public:
     AssignmentFour();
+
     virtual ~AssignmentFour() = default;
 
     Settings Setup() override;
 
     void Init() override;
+
     void Resize(int width, int height) override;
-    void Draw(Input const & input, float deltaTime, float runningTime) override;
+
+    void Draw(Input const &input, float deltaTime, float runningTime) override;
+
     void Update(const Input &input, float dt);
-    TransformSystem& transformSystem;
+
+    TransformSystem &transformSystem;
 
 private:
-    void LoadModelFromTextFile(std::string fileName, Material* = nullptr);
+    void LoadModelFromTextFile(std::string fileName, Material * = nullptr);
+
     float powerPlantScale = 1.0f / 16000;
     float imGuiPowerPlantScale = 1.0f;
 
-    void AddShape(std::shared_ptr<Shape> shape);
-    std::vector<std::shared_ptr<Shape>> Shapes;
+    void AddShape(std::shared_ptr <Shape> shape);
 
-    void SerializeOctTree(OctTree const * octTree) const;
-    OctTree* OctTreeFromJSON();
-    void SerializeBSTTree(BSPTree const * bstTree) const;
-    BSPTree* BSTTreeFromJSON();
+    std::vector <std::shared_ptr<Shape>> Shapes;
 
-    glm::vec4 sphereDirection {0,0,1,0};
+    void SerializeOctTree(OctTree const *octTree) const;
+
+    OctTree *OctTreeFromJSON();
+
+    void SerializeBSTTree(BSPTree const *bstTree) const;
+
+    BSPTree *BSTTreeFromJSON();
+
+    glm::vec4 sphereDirection{0, 0, 1, 0};
     float velocity = 10.0f;
     bool sphereUpdating = true;
 };

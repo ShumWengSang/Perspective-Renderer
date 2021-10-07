@@ -18,7 +18,10 @@
 #include "stdafx.h"
 #include "DebugSystem.h"
 #include "DebugModel.h"
+
 #
+
+
 void DebugSystem::AddDebugModel(DebugSystem::DebugType type, const DebugModel &model) {
     debugModels[type].emplace_back(model);
 }

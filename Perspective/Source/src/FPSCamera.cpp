@@ -25,7 +25,7 @@ void FpsCamera::Update(const Input &input, float dt) {
     // We do impulse physics
     using namespace glm;
 
-    vec3 acceleration {0.0f};
+    vec3 acceleration{0.0f};
 
     if (input.IsKeyDown(GLFW_KEY_W)) acceleration.z += 1;
     if (input.IsKeyDown(GLFW_KEY_S)) acceleration.z -= 1;
@@ -37,20 +37,14 @@ void FpsCamera::Update(const Input &input, float dt) {
     if (input.IsKeyDown(GLFW_KEY_LEFT_SHIFT)) acceleration.y -= 1;
 
     // Normal slowdown (decelerate based on division)
-    if (length2(acceleration) > 0.01f && !GuiSystem::IsUsingKeyboard())
-    {
+    if (length2(acceleration) > 0.01f && !GuiSystem::IsUsingKeyboard()) {
         acceleration = normalize(acceleration) * (maxSpeed / timeToMaxSpeed) * dt;
         velocity += rotate(orientation, acceleration);
-    }
-    else
-    {
+    } else {
         // We are at the threshold where acceleration turns to deceleration
-        if(length2(velocity) < stopThreshold)
-        {
-            velocity = vec3(0,0,0);
-        }
-        else
-        {
+        if (length2(velocity) < stopThreshold) {
+            velocity = vec3(0, 0, 0);
+        } else {
             vec3 deaccel = -normalize(velocity) * (maxSpeed / timeFromMaxSpeed) * dt;
             velocity += deaccel;
         }
@@ -58,17 +52,15 @@ void FpsCamera::Update(const Input &input, float dt) {
 
     // Velocity movement
     float speed = length(velocity);
-    if (speed > 0.0f)
-    {
+    if (speed > 0.0f) {
         speed = clamp(speed, 0.0f, maxSpeed);
         velocity = normalize(velocity) * speed;
         position += velocity * dt;
     }
 
     // Now calculate rotation velocity from mouse
-    if(input.IsButtonDown(GLFW_MOUSE_BUTTON_2) && !GuiSystem::IsUsingMouse())
-    {
-        vec2 screenSize = { App::GetApp().windowWidth, App::GetApp().windowHeight};
+    if (input.IsButtonDown(GLFW_MOUSE_BUTTON_2) && !GuiSystem::IsUsingMouse()) {
+        vec2 screenSize = {App::GetApp().windowWidth, App::GetApp().windowHeight};
         // Screen size independent but also aspect ratio dependent!
         vec2 mouseDelta = input.GetMouseDelta() / screenSize.x;
 
@@ -82,8 +74,7 @@ void FpsCamera::Update(const Input &input, float dt) {
     // Calculate banking due to movement
     vec3 right = rotate(orientation, vec3(1, 0, 0));
     forward = rotate(orientation, vec3(0, 0, 1));
-    if (speed > 0.0f)
-    {
+    if (speed > 0.0f) {
         auto direction = velocity / speed;
         float speedAlongRight = dot(direction, right) * speed;
         float signOrZeroSpeed = float(speedAlongRight > 0.0f) - float(speedAlongRight < 0.0f);
@@ -93,7 +84,8 @@ void FpsCamera::Update(const Input &input, float dt) {
         float signOrZeroRotation = float(rotationAlongY > 0.0f) - float(rotationAlongY < 0.0f);
         float bankAmountRotation = clamp(std::abs(rotationAlongY) * 100.0f, 0.0f, 3.0f);
 
-        float targetBank = ((signOrZeroSpeed * -bankAmountSpeed) + (signOrZeroRotation * -bankAmountRotation)) * baselineBankAngle;
+        float targetBank =
+                ((signOrZeroSpeed * -bankAmountSpeed) + (signOrZeroRotation * -bankAmountRotation)) * baselineBankAngle;
         pitchYawRoll.z = mix(pitchYawRoll.z, targetBank, 1.0f - pow(0.35f, dt));
     }
 
@@ -109,8 +101,7 @@ void FpsCamera::Update(const Input &input, float dt) {
     bankingOrientation = angleAxis(pitchYawRoll.z, forward);
 
     // Apply zoom
-    if (!GuiSystem::IsUsingMouse())
-    {
+    if (!GuiSystem::IsUsingMouse()) {
         targetFieldOfView += -input.GetScrollDelta() * zoomSensitivity;
         targetFieldOfView = clamp(targetFieldOfView, minFieldOfView, maxFieldOfView);
     }

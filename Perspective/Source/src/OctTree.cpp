@@ -30,16 +30,14 @@ OctTree::OctTree(int sizeEachNode, const std::vector<CollisionMesh> &collisionMe
 
     // Get the total of all collision mesh
 
-    glm::vec3 min {INFINITY};
-    glm::vec3 max {-INFINITY};
-    for(int i = 0; i < collisionMeshes.size(); ++i)
-    {
+    glm::vec3 min{INFINITY};
+    glm::vec3 max{-INFINITY};
+    for (int i = 0; i < collisionMeshes.size(); ++i) {
         AllTriangle.insert(AllTriangle.end(), collisionMeshes[i].vertices.begin(), collisionMeshes[i].vertices.end());
     }
 
     // Get min max for Octtree
-    for(int i = 0; i < AllTriangle.size(); ++i)
-    {
+    for (int i = 0; i < AllTriangle.size(); ++i) {
         min.x = fmin(min.x, AllTriangle[i].v1.x);
         min.y = fmin(min.y, AllTriangle[i].v1.y);
         min.z = fmin(min.z, AllTriangle[i].v1.z);
@@ -69,12 +67,9 @@ OctTree::OctTree(int sizeEachNode, const std::vector<CollisionMesh> &collisionMe
     // Generate Oct Tree
     this->root = new OctTreeNode(nullptr, AllTriangle, sizeEachNode, boundingVolume, 0, depthTerminate);
 
-    if(depthTerminate)
-    {
+    if (depthTerminate) {
         Log("Oct Tree creation terminated due to max depth!");
-    }
-    else
-    {
+    } else {
         Log("Oct Tree has finished creation!");
     }
 }
@@ -86,8 +81,8 @@ OctTree::~OctTree() {
 }
 
 void OctTree::ForwardRenderTree() const {
-    static glm::vec3 green = glm::vec3(0,1,0);
-    if(settings.renderRootPoints) {
+    static glm::vec3 green = glm::vec3(0, 1, 0);
+    if (settings.renderRootPoints) {
         for (int i = 0; i < AllTriangle.size(); ++i) {
             dd::point(glm::value_ptr(AllTriangle[i].v1), glm::value_ptr(green), 5);
             dd::point(glm::value_ptr(AllTriangle[i].v2), glm::value_ptr(green), 5);
@@ -95,12 +90,12 @@ void OctTree::ForwardRenderTree() const {
         }
     }
 
-    if(root)
+    if (root)
         root->RenderNode(settings);
 }
 
 void OctTree::ImGuiSettings() {
-    if(ImGui::TreeNode("Oct Tree Rendering Settings")) {
+    if (ImGui::TreeNode("Oct Tree Rendering Settings")) {
         ImGui::Checkbox("renderAABB", &settings.renderAABB);
         ImGui::Checkbox("renderLines", &settings.renderLines);
         ImGui::Checkbox("renderRootPoints", &settings.renderRootPoints);
@@ -137,47 +132,41 @@ OctTreeNode::OctTreeNode(
     std::vector<Shapes::Triangle> tempInBoundsTriangles;
     tempInBoundsTriangles.reserve(maxNumTrigs);
     // Check if each triangle is within our bounds
-    for(int i = 0; i < triangles.size(); ++i)
-    {
+    for (int i = 0; i < triangles.size(); ++i) {
         // Send them into a collision function to check against our bounds, return a std::vector<Triangle>
         std::vector<Shapes::Triangle> result = triangles[i].BoundingVolumeCut(boundingVolume);
 
-        if(!result.empty())
-        {
+        if (!result.empty()) {
             // Put result into temp array
             tempInBoundsTriangles.insert(tempInBoundsTriangles.end(), result.begin(), result.end());
             this->numberInBox += result.size();
-        }
-        else
-        {
+        } else {
             this->numberOutBox++;
         }
     }
-    numberGenerated = std::max<int>(0,(numberInBox + numberOutBox) - triangles.size());
+    numberGenerated = std::max<int>(0, (numberInBox + numberOutBox) - triangles.size());
     // Log("%*s This node has %d in box and %d out of the box. Generated %d\n", depth, "", numberInBox, numberOutBox, numberGenerated);
 
     // If there are too many triangles in our node
-    if(numberInBox > maxNumTrigs)
-    {
+    if (numberInBox > maxNumTrigs) {
         // We split them up
         std::vector<Shapes::AABB> tempBounds = CreateBoundingVolumes(boundingVolume);
         Nodes.resize(8, nullptr);
 
-        for(int i = 0; i < 8; ++i) {
-            Nodes[i] = new OctTreeNode(this, tempInBoundsTriangles, maxNumTrigs, tempBounds[i], depth + 1, depthTerminated);
+        for (int i = 0; i < 8; ++i) {
+            Nodes[i] = new OctTreeNode(this, tempInBoundsTriangles, maxNumTrigs, tempBounds[i], depth + 1,
+                                       depthTerminated);
             // If nothing inside node
-            if(Nodes[i]->numberInBox == 0)
-            {
+            if (Nodes[i]->numberInBox == 0) {
                 // Delete node
                 delete Nodes[i];
                 Nodes[i] = nullptr;
             }
         }
-    }
-    else // Then we are a leaf node.
+    } else // Then we are a leaf node.
     {
         // Change color too
-        color = glm::vec4(glm::linearRand(glm::vec3(0,0,0), glm::vec3(1,1,1)), 1);
+        color = glm::vec4(glm::linearRand(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1)), 1);
         Objects = std::move(tempInBoundsTriangles);
     }
 }
@@ -187,16 +176,15 @@ bool OctTreeNode::isLeaf() const {
 }
 
 void OctTreeNode::Clear() {
-    for(int i = 0; i < Nodes.size(); ++i)
-    {
+    for (int i = 0; i < Nodes.size(); ++i) {
         delete Nodes[i];
         Nodes[i] = nullptr;
     }
 }
 
 std::vector<Shapes::AABB> OctTreeNode::CreateBoundingVolumes(const Shapes::AABB &parentBoundingVolume) const {
-    (void)parentBoundingVolume;
-    auto [Min, Max] = boundingVolume.GetMinMax();
+    (void) parentBoundingVolume;
+    auto[Min, Max] = boundingVolume.GetMinMax();
     glm::vec3 maxPointHalf = (Max - Min) * 0.5f;
     std::vector<Shapes::AABB> res(8, Shapes::AABB());
 
@@ -210,7 +198,7 @@ std::vector<Shapes::AABB> OctTreeNode::CreateBoundingVolumes(const Shapes::AABB 
                           glm::vec3(Max.x, Max.y + maxPointHalf.y, Max.z) - maxPointHalf, 0);
 
     res[3] = Shapes::AABB(glm::vec3(Min.x + maxPointHalf.x, Min.y + maxPointHalf.y, Min.z),
-                          glm::vec3(Max.x+ maxPointHalf.x, Max.y + maxPointHalf.y, Max.z) - maxPointHalf, 0);
+                          glm::vec3(Max.x + maxPointHalf.x, Max.y + maxPointHalf.y, Max.z) - maxPointHalf, 0);
 
     res[4] = Shapes::AABB(glm::vec3(Min.x, Min.y, Min.z + maxPointHalf.z),
                           glm::vec3(Max.x, Max.y, Max.z + maxPointHalf.z) - maxPointHalf, 0);
@@ -221,29 +209,28 @@ std::vector<Shapes::AABB> OctTreeNode::CreateBoundingVolumes(const Shapes::AABB 
     res[6] = Shapes::AABB(glm::vec3(Min.x, Min.y + maxPointHalf.y, Min.z + maxPointHalf.z),
                           glm::vec3(Max.x, Max.y + maxPointHalf.y, Max.z + maxPointHalf.z) - maxPointHalf, 0);
 
-    res[7] = Shapes::AABB(glm::vec3(Min.x + maxPointHalf.x, Min.y + maxPointHalf.y, Min.z + + maxPointHalf.z),
-                          glm::vec3(Max.x + maxPointHalf.x, Max.y + maxPointHalf.y, Max.z + maxPointHalf.z) - maxPointHalf, 0);
+    res[7] = Shapes::AABB(glm::vec3(Min.x + maxPointHalf.x, Min.y + maxPointHalf.y, Min.z + +maxPointHalf.z),
+                          glm::vec3(Max.x + maxPointHalf.x, Max.y + maxPointHalf.y, Max.z + maxPointHalf.z) -
+                          maxPointHalf, 0);
 
     return res;
 }
 
-void OctTreeNode::RenderNode(OctTreeRenderSettings const & settings) const {
+void OctTreeNode::RenderNode(OctTreeRenderSettings const &settings) const {
 
-    static std::array<glm::vec3, 1024>  ColorArray;
+    static std::array<glm::vec3, 1024> ColorArray;
     static bool firstTime = false;
     // Initialize each level with a color!
-    if(!firstTime)
-    {
+    if (!firstTime) {
         firstTime = true;
-        for(int i = 0; i < ColorArray.size(); i++)
-        {
-            ColorArray[i] = glm::linearRand(glm::vec3(0,0,0), glm::vec3(1,1,1));
+        for (int i = 0; i < ColorArray.size(); i++) {
+            ColorArray[i] = glm::linearRand(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
         }
     }
 
     glm::vec3 color = showRed ? glm::vec3(1, 0, 0) : ColorArray[depth];
 
-    if(settings.renderLevel == 0 || (settings.renderLevel - 1 ) == depth) {
+    if (settings.renderLevel == 0 || (settings.renderLevel - 1) == depth) {
         if (settings.renderAABB) {
             if (settings.renderOnlyLeaf) {
                 if (this->isLeaf()) {
@@ -314,27 +301,22 @@ void OctTreeNode::RenderNode(OctTreeRenderSettings const & settings) const {
 
 void OctTreeNode::GetBoundingBoxes(std::vector<Shapes::AABB> &output) {
     // If we are leaf, we add our box in, else we continue in
-    if(this->isLeaf())
-    {
+    if (this->isLeaf()) {
         output.emplace_back(this->boundingVolume);
-    }
-    else
-    {
-        for(auto child : Nodes)
-        {
-            if(child)
-            {
+    } else {
+        for (auto child: Nodes) {
+            if (child) {
                 GetBoundingBoxes(output);
             }
         }
     }
 }
 
-OctTreeNode::OctTreeNode(OctTreeNode* parent, rapidjson::Value &value, int depth) : Parent(parent), depth(depth) {
+OctTreeNode::OctTreeNode(OctTreeNode *parent, rapidjson::Value &value, int depth) : Parent(parent), depth(depth) {
     this->color = glm::vec4(DeserializeVec3(value["Color"]), 1);
     this->boundingVolume = Shapes::AABB::Deserialize(value["Bounding Volume"]);
-    for(auto objectsIterator = value["Objects"].Begin(); objectsIterator != value["Objects"].End(); ++objectsIterator)
-    {
+    for (auto objectsIterator = value["Objects"].Begin();
+         objectsIterator != value["Objects"].End(); ++objectsIterator) {
         Objects.emplace_back(Shapes::Triangle::Deserialize(*objectsIterator));
     }
     for (auto objectsIterator = value["Child Nodes"].Begin();

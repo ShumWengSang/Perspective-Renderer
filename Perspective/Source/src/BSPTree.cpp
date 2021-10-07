@@ -30,26 +30,22 @@ BSPTree::BSPTree(int sizeEachNode, const std::vector<CollisionMesh> &collisionMe
     std::vector<Shapes::Triangle> AllTriangle;
     AllTriangle.reserve(1024 * 4);
 
-    for(int i = 0; i < collisionMeshes.size(); ++i)
-    {
+    for (int i = 0; i < collisionMeshes.size(); ++i) {
         AllTriangle.insert(AllTriangle.end(), collisionMeshes[i].vertices.cbegin(), collisionMeshes[i].vertices.cend());
     }
 
     bool depthTerminate = false;
     this->root = new BSPNode(nullptr, AllTriangle, sizeEachNode, 0, depthTerminate);
 
-    if(depthTerminate)
-    {
+    if (depthTerminate) {
         Log("BSP Tree creation terminated due to max depth!");
-    }
-    else
-    {
+    } else {
         Log("BSP Tree has finished creation!");
     }
 }
 
 void BSPTree::ImGuiSettings() {
-    if(ImGui::TreeNode("BST Tree Rendering Settings")) {
+    if (ImGui::TreeNode("BST Tree Rendering Settings")) {
         ImGui::Checkbox("Render Nodes", &settings.renderNodes);
         ImGui::Checkbox("Render Planes", &settings.renderPlanes);
         ImGui::TreePop();
@@ -68,7 +64,7 @@ BSPTree::~BSPTree() {
 
 BSPTree::BSPTree(rapidjson::Document &doc) {
     using namespace rapidjson;
-    Value& value = doc["Root"];
+    Value &value = doc["Root"];
     root = new BSPNode(nullptr, value);
 }
 
@@ -76,8 +72,7 @@ BSPNode::BSPNode(
         BSPNode *parent, const std::vector<Shapes::Triangle> &trigs, int maxNumTrigs, int depth
         , bool &depthTerminated
                 ) : Parent(parent) {
-    if(depth >= MAX_DEPTH)
-    {
+    if (depth >= MAX_DEPTH) {
 //        this->Objects = trigs;
         depthTerminated = true;
 //        color = glm::linearRand(glm::vec3(0,0,0), glm::vec3(1,1,1));
@@ -88,8 +83,7 @@ BSPNode::BSPNode(
 
 
     // We need to split
-    if(trigs.size() > maxNumTrigs)
-    {
+    if (trigs.size() > maxNumTrigs) {
         // Find the best splitting plane
         this->splitPlane = PickSplittingPlane(trigs, k_value, depth);
 
@@ -107,13 +101,11 @@ BSPNode::BSPNode(
         backPlane.clear();
 
         // Split each vertices by plane
-        for(int i = 0; i < trigs.size(); ++i)
-        {
+        for (int i = 0; i < trigs.size(); ++i) {
             polygon.emplace_back(trigs[i].v1);
             polygon.emplace_back(trigs[i].v2);
             polygon.emplace_back(trigs[i].v3);
-            switch (Shapes::ClassifyPolyonToPlane(polygon, splitPlane))
-            {
+            switch (Shapes::ClassifyPolyonToPlane(polygon, splitPlane)) {
                 case Shapes::POLYGON_COPLANAR_WITH_PLANE:
                     //Fall through since we want leaf nodes
                 case Shapes::POLYGON_IN_FRONT_OF_PLANE:
@@ -122,8 +114,7 @@ BSPNode::BSPNode(
                 case Shapes::POLYGON_BEHIND_PLANE:
                     rightTrigs.emplace_back(trigs[i]);
                     break;
-                case Shapes::POLYGON_STRADDLING_PLANE:
-                {
+                case Shapes::POLYGON_STRADDLING_PLANE: {
 
                     // Split polygone to plane and send a part to each side
                     SuthHodgeClip(polygon, splitPlane, backPlane, frontPlane);
@@ -144,13 +135,11 @@ BSPNode::BSPNode(
         // Split successful.
         left = new BSPNode(this, leftTrigs, maxNumTrigs, depth + 1, depthTerminated);
         right = new BSPNode(this, rightTrigs, maxNumTrigs, depth + 1, depthTerminated);
-    }
-    else
-    {
+    } else {
         // No need to split
         this->Objects = trigs;
         // Generate random color
-        color = glm::linearRand(glm::vec3(0,0,0), glm::vec3(1,1,1));
+        color = glm::linearRand(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
     }
 
 }
@@ -168,8 +157,8 @@ void BSPNode::Clear() {
     delete right;
 }
 
-void BSPNode::RenderNode(BSPRenderSettings const & settings) {
-    if(this->isLeaf()) {
+void BSPNode::RenderNode(BSPRenderSettings const &settings) {
+    if (this->isLeaf()) {
         if (settings.renderNodes) {
             for (int i = 0; i < this->Objects.size(); ++i) {
                 dd::line(glm::value_ptr(Objects[i].v1), glm::value_ptr(Objects[i].v2), glm::value_ptr(this->color));
@@ -177,21 +166,19 @@ void BSPNode::RenderNode(BSPRenderSettings const & settings) {
                 dd::line(glm::value_ptr(Objects[i].v3), glm::value_ptr(Objects[i].v1), glm::value_ptr(this->color));
             }
         }
-    }
-    else
-    {
-        if(settings.renderPlanes)
-        {
-            glm::vec3 point (1,1,0);
-            point.z = this->splitPlane.Normal.w - this->splitPlane.Normal.x * point.x - this->splitPlane.Normal.y - point.y;
-            glm::vec3 red = {1.0f,0.f,0.f};
-            glm::vec3 green = {1.0f,1.f,0.f};
+    } else {
+        if (settings.renderPlanes) {
+            glm::vec3 point(1, 1, 0);
+            point.z = this->splitPlane.Normal.w - this->splitPlane.Normal.x * point.x - this->splitPlane.Normal.y -
+                      point.y;
+            glm::vec3 red = {1.0f, 0.f, 0.f};
+            glm::vec3 green = {1.0f, 1.f, 0.f};
             dd::plane(glm::value_ptr(point), glm::value_ptr(this->splitPlane.Normal),
                       glm::value_ptr(red), glm::value_ptr(green), 3, 1);
         }
-        if(left)
+        if (left)
             left->RenderNode(settings);
-        if(right)
+        if (right)
             right->RenderNode(settings);
     }
 }
@@ -203,7 +190,7 @@ Shapes::Plane BSPNode::PickSplittingPlaneFromPolygon(const std::vector<Shapes::T
     const float K = k;
 
     // Variables for tracking best splitting plane seen so far
-    Shapes::Plane bestPlane (glm::vec4(0,0,0,0));
+    Shapes::Plane bestPlane(glm::vec4(0, 0, 0, 0));
     float bestScore = FLT_MAX;
 
     std::vector<Shapes::Point3D> polygon;
@@ -212,21 +199,17 @@ Shapes::Plane BSPNode::PickSplittingPlaneFromPolygon(const std::vector<Shapes::T
     // We need to determine if we want to randomize splits or not.
     // Do this based on depth. Start with a random split
     bool randomSplit = true;
-    if(depth % 2 == 0)
+    if (depth % 2 == 0)
         randomSplit = false;
 
     // We will run it 10 times or until we get a score that good enough for us
-    for(int j = 0; j < Plane_Sample_Size && bestScore > Good_Enough_Score; ++j)
-    {
+    for (int j = 0; j < Plane_Sample_Size && bestScore > Good_Enough_Score; ++j) {
         Shapes::Plane tempPlane = Shapes::Plane(glm::vec3(), 0);
         int numInFront = 0, numBehind = 0, numStraddling = 0;
 
-        if(randomSplit)
-        {
+        if (randomSplit) {
             tempPlane = PickSplittingPlaneFromRandom(trigs);
-        }
-        else
-        {
+        } else {
             // Pick a random polygon, then get the plane for that.
             tempPlane = ChooseRandomTrig(trigs).GetPlane();
         }
@@ -235,7 +218,7 @@ Shapes::Plane BSPNode::PickSplittingPlaneFromPolygon(const std::vector<Shapes::T
         polygon.emplace_back(trigs[j].v1);
         polygon.emplace_back(trigs[j].v2);
         polygon.emplace_back(trigs[j].v3);
-        switch(Shapes::ClassifyPolyonToPlane(polygon, tempPlane)){
+        switch (Shapes::ClassifyPolyonToPlane(polygon, tempPlane)) {
             case Shapes::POLYGON_COPLANAR_WITH_PLANE:
                 /* Coplanar polygons treated as being in front of plane */
             case Shapes::POLYGON_IN_FRONT_OF_PLANE:
@@ -251,7 +234,7 @@ Shapes::Plane BSPNode::PickSplittingPlaneFromPolygon(const std::vector<Shapes::T
         polygon.clear();
         // Compute score as a weighted combination
         float score = K * numStraddling + (1.0f - K) * std::abs(numInFront - numBehind);
-        if(score < bestScore){
+        if (score < bestScore) {
             bestScore = score;
             bestPlane = tempPlane;
         }
@@ -259,9 +242,9 @@ Shapes::Plane BSPNode::PickSplittingPlaneFromPolygon(const std::vector<Shapes::T
 
     return bestPlane;
 }
-const glm::vec3& BSPNode::ChooseRandomPoint(std::vector<Shapes::Triangle> const & trigs)
-{
-    const Shapes::Triangle& randomTrig = trigs[glm::linearRand<int>(0, trigs.size() - 1)];
+
+const glm::vec3 &BSPNode::ChooseRandomPoint(std::vector<Shapes::Triangle> const &trigs) {
+    const Shapes::Triangle &randomTrig = trigs[glm::linearRand<int>(0, trigs.size() - 1)];
     return randomTrig.v1;
 }
 
@@ -280,34 +263,32 @@ Shapes::Plane BSPNode::PickSplittingPlane(const std::vector<Shapes::Triangle> &t
 }
 
 Shapes::Plane BSPNode::PickSplittingPlaneFromRandom(const std::vector<Shapes::Triangle> &trigs) {
-        // Randomize a normal
-        // Then randomize a triangle point to use
-        const float val = 100.f;
-        glm::vec3 normal = glm::linearRand(glm::vec3(-val,-val,-val), glm::vec3(val,val,val));
+    // Randomize a normal
+    // Then randomize a triangle point to use
+    const float val = 100.f;
+    glm::vec3 normal = glm::linearRand(glm::vec3(-val, -val, -val), glm::vec3(val, val, val));
 
-        const auto& randomPoint = ChooseRandomPoint(trigs);
-        normal = glm::normalize(normal);
-        float d = glm::dot(normal, randomPoint);
-        return Shapes::Plane(normal, d);
+    const auto &randomPoint = ChooseRandomPoint(trigs);
+    normal = glm::normalize(normal);
+    float d = glm::dot(normal, randomPoint);
+    return Shapes::Plane(normal, d);
 }
 
 const Shapes::Triangle &BSPNode::ChooseRandomTrig(const std::vector<Shapes::Triangle> &trigs) {
     return trigs[glm::linearRand<int>(0, trigs.size() - 1)];;
 }
 
-BSPNode::BSPNode(BSPNode* pVoid, rapidjson::Value& value) : Parent(pVoid) {
+BSPNode::BSPNode(BSPNode *pVoid, rapidjson::Value &value) : Parent(pVoid) {
     splitPlane = Shapes::Plane::Deserialize(value["Plane"]);
     color = DeserializeVec3(value["Color"]);
-    if(value.HasMember("Left"))
-    {
+    if (value.HasMember("Left")) {
         left = new BSPNode(this, value["Left"]);
     }
-    if(value.HasMember("Right"))
-    {
+    if (value.HasMember("Right")) {
         right = new BSPNode(this, value["Right"]);
     }
-    for(auto objectsIterator = value["Objects"].Begin(); objectsIterator != value["Objects"].End(); ++objectsIterator)
-    {
+    for (auto objectsIterator = value["Objects"].Begin();
+         objectsIterator != value["Objects"].End(); ++objectsIterator) {
         Objects.emplace_back(Shapes::Triangle::Deserialize(*objectsIterator));
     }
 }

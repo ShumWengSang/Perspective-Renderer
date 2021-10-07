@@ -21,14 +21,19 @@
 #define OPENGLFRAMEWORK_DEBUGLINEMATERIAL_H
 
 #include "Material.h"
+
 class DebugLineMaterial : public Material {
 public:
     void ProgramLoaded(GLuint program) override;
-    void BindUniforms(Transform& transform, const Transform& prevTransform) const override;
+
+    void BindUniforms(Transform &transform, const Transform &prevTransform) const override;
+
     void BindUniforms(glm::mat4 ModelMatrix) const;
 
-    void BindColor(const glm::vec4& color) const;
+    void BindColor(const glm::vec4 &color) const;
+
     DebugLineMaterial();
+
 private:
     GLint modelMatrixLocation = 0;
     GLint colorLocation = 0;

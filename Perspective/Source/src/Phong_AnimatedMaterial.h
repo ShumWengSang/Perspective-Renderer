@@ -26,19 +26,22 @@
 class PhongAnimatedMaterial : public Material {
 public:
     PhongAnimatedMaterial();
+
     ~PhongAnimatedMaterial() = default;
 
     void ProgramLoaded(GLuint program) override;
-    void BindUniforms(Transform& transform, const Transform& prevTransform) const override;
 
-    mutable Uniform<glm::vec3> ambient {"u_mat_ambient", {}};
-    mutable Uniform<glm::vec3> diffuse {"u_mat_diffuse", {}};
-    mutable Uniform<glm::vec3> specular {"u_mat_specular", {}};
-    mutable Uniform<float> Shininess {"u_mat_shininess", {}};
+    void BindUniforms(Transform &transform, const Transform &prevTransform) const override;
+
+    mutable Uniform<glm::vec3> ambient{"u_mat_ambient", {}};
+    mutable Uniform<glm::vec3> diffuse{"u_mat_diffuse", {}};
+    mutable Uniform<glm::vec3> specular{"u_mat_specular", {}};
+    mutable Uniform<float> Shininess{"u_mat_shininess", {}};
 
     // Load material data defined by PowerPlantMaterial. Directory must end in "/". Lile
     // "Commons/PowerPlantFiles/"
-    void ReadMaterialFromFile(std::string const & directory);
+    void ReadMaterialFromFile(std::string const &directory);
+
 private:
     inline const static std::string fileName = "Sample_MTL_File.mtl";
     GLint modelMatrixLocation = 0;
