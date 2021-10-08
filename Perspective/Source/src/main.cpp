@@ -47,6 +47,15 @@ static void MidTerm() {
         if (glm::toMat4(quaternion) != myQuat.ToMat4(false)) {
             throw std::runtime_error("Quaternion conversion Mat4 is wrong!");
         }
+
+        MyMath::VQS identity {};
+        if (identity.ToMat4() != glm::mat4(1.0f))
+        {
+            throw std::runtime_error("Normlaizing wrong");
+        }
+
+        
+
     }
     // Addition
     {
