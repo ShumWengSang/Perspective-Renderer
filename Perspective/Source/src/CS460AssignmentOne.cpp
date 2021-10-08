@@ -69,7 +69,7 @@ void CS460AssignmentOne::Init() {
     MaterialSystem::getInstance().ManageMaterial(phongAnimated);
 
 
-    const std::string modelAndAnimationName = "Common/fbx/Dragon_Baked_Actions_fbx_6.1_ASCII.fbx";
+    const std::string modelAndAnimationName = "Common/anim_allAnim_01.fbx";
     model = new Model(modelAndAnimationName.c_str());
     model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
