@@ -43,28 +43,28 @@ void Bone::Update(float animationTime, LerpMode lerpMode) {
             auto translation = InterpolateILerpPosition(animationTime);
             auto rotation = InterpolateIncrementalSlerp(animationTime);
             auto scale = InterpolateILerpScale(animationTime);
-            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
             break;
         }
         case LerpMode::MyMix_L_iSlerp_E: {
             auto translation = InterpolatePosition(animationTime);
             auto rotation = InterpolateIncrementalSlerp(animationTime);
             auto scale = InterpolateScalingExpo(animationTime);
-            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
             break;
         }
         case LerpMode::MyMix_L_S_E: {
             auto translation = InterpolatePosition(animationTime);
             auto rotation = InterpolateRotation(animationTime);
             auto scale = InterpolateScalingExpo(animationTime);
-            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
             break;
         }
         case LerpMode::MyMix_L_S_L: {
             auto translation = InterpolatePosition(animationTime);
             auto rotation = InterpolateRotation(animationTime);
             auto scale = InterpolateScaling(animationTime);
-            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
             break;
         }
         default:
@@ -72,7 +72,7 @@ void Bone::Update(float animationTime, LerpMode lerpMode) {
             auto translation = InterpolatePositionGLM(animationTime);
             auto rotation = InterpolateRotationGLM(animationTime);
             auto scale = InterpolateScalingGLM(animationTime);
-            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation), scale.x);
+            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
             break;
         }
     }

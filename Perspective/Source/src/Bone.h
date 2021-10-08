@@ -34,7 +34,7 @@ struct BoneInfo {
     int id;
 
     /*offset matrix transforms vertex from model space to bone space*/
-    MyMath::VQS offset;
+    MyMath::VQS offset {};
 
 };
 

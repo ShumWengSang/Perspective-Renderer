@@ -31,11 +31,14 @@
 * Incremental approaches run at 60 FPS, while others run at a variadic rate
 
 # How to Build:
-* Run prepackaged file "RunCMake.bat" which will 
+* **Run prepackaged file "RunCMake.bat" **which will 
   * Run the packaged portable cmake
     * cmake will generate the visual studio solution
   * Open VS solution
   * Build + Run
+* This should have generated a vsbuild folder
+  * Inside the folder is the Visual Studio Solution
+  * **Build and run project "Perspective"**
 
 # Instructions / Controls:
 * **[WASD] camera movement**
@@ -94,7 +97,7 @@ Windows:
 
     OS: Windows NT 10.0.18362.0
 
-    Host: GIGABYTE AERO 15WV8
+    Host: GIGABYTE AERO 15Wv8
 
     CPU: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
           
@@ -103,7 +106,7 @@ Windows:
     OpenGL version: 4.6 NVIDIA 451.67
 
     Visual Studio 2019 Preview 
-    
+
     Windows SDK version : 10.0.18362.0
 
 
