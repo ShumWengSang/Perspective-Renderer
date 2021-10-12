@@ -33,7 +33,7 @@ public:
 private:
     glm::vec3 velocity{};
 
-    const float maxSpeed = 10.0f;
+    const float maxSpeed = 1000.0f;
     const float timeToMaxSpeed = 0.25f;
     const float timeFromMaxSpeed = 0.60f;
     const float stopThreshold = 0.02f;

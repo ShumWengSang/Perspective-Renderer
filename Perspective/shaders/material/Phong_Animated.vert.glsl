@@ -36,15 +36,11 @@ out vec3 v_position;
 out vec3 v_normal;
 
 out vec4 v_curr_proj_pos;
-out ivec4 v_boneID;
-out vec4 v_weight;
 
 void main()
 {
     v_tex_coord = a_tex_coord;
-    v_boneID = ivec4(-1);
-    v_weight = ivec4(-1);
-    vec4 totalPosition = vec4(a_position, 1.0f);
+    vec4 totalPosition = vec4(0.0);
     for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
     {
         if(a_boneIDs[i] == -1)
@@ -57,9 +53,7 @@ void main()
         vec4 localPosition = u_finalBonesMatrices[a_boneIDs[i]] * vec4(a_position,1.0f);
         //vec4 localPosition = vec4(RotateCustom(a_boneIDs[i], a_position), 1.0f);
         totalPosition += localPosition * a_weights[i];
-        vec3 localNormal = mat3(u_finalBonesMatrices[a_boneIDs[i]]) * a_normal;
-        v_boneID[i] = a_boneIDs[i];
-        v_weight[i] = a_weights[i];
+        // vec3 localNormal = mat3(u_finalBonesMatrices[a_boneIDs[i]]) * a_normal;
     }
 
 

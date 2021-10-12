@@ -40,6 +40,12 @@ void ForwardRendering::Draw(const Scene &scene) {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+
+    static bool drawBones = true;
+    ImGui::Checkbox("Draw bones?", &drawBones);
+
+    if(drawBones)
+    { 
     if (scene.entities[0].animator->GetAnimation() != nullptr) {
         glUseProgram(this->debugLineMaterial->program);
         Transform &trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
@@ -57,6 +63,7 @@ void ForwardRendering::Draw(const Scene &scene) {
                 cylinder->Draw();
             }
         }
+    }
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

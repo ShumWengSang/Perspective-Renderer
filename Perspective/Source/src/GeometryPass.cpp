@@ -64,6 +64,7 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 //    geometryToRender.emplace_back(ent.model);
 //}
 
+
     const float clear[] = {0.0f, 0.0f, 0.0f, 0.0f};
     // Clear the FBO
     glClearNamedFramebufferfv(gBuffer.frameBuffer, GL_COLOR, 0, glm::value_ptr(glm::vec3(0.0f)));

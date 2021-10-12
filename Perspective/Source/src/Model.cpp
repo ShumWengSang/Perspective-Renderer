@@ -44,10 +44,27 @@ void Model::Draw() const {
     for (unsigned int i = 0; i < meshes.size(); i++) meshes[i].Draw();
 }
 
+void Model::LoadModel(const std::string& path)
+{
+    Clear();
+    loadModel(path);
+}
+
+void Model::Clear()
+{
+    for (int i = 0; i < meshes.size(); ++i)
+    {
+        meshes[i].Clear();
+    }
+    boneInfoMap.clear();
+    boneCounter = 0;
+}
+
 void Model::loadModel(const std::string &path) {
     Assimp::Importer importer;
     const aiScene *scene =
-            importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+            importer.ReadFile(path, aiProcess_Triangulate 
+            | aiProcess_FlipUVs | aiProcess_LimitBoneWeights );
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode) {

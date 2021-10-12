@@ -119,7 +119,7 @@ private:
     // templatize it so it holds lambas
     std::vector<std::pair<std::string, std::function<void(void)>>> GuiFunctions;
 
-    bool showConsole = true;
+    bool showConsole = false;
     bool mainDockspace = true;
 public:
     void DockspaceBegin();

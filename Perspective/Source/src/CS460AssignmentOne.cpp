@@ -68,13 +68,15 @@ void CS460AssignmentOne::Init() {
     phongAnimated->ReadMaterialFromFile("Common/PowerPlantFiles/");
     MaterialSystem::getInstance().ManageMaterial(phongAnimated);
 
-
-    const std::string modelAndAnimationName = "Common/anim_allAnim_01.fbx";
+    // alien
+    const std::string modelAndAnimationName = "Common/Animation/alien.fbx";
     model = new Model(modelAndAnimationName.c_str());
     model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
     Transform &trans = TransformSystem::getInstance().Get(model->transformID);
-    trans.SetLocalDirection(-90, 180, 0);
+    trans.SetLocalPosition(0, 0, -4500);
+    trans.SetLocalDirection(0, 180, 0);
+    trans.SetLocalScale(0.1);
     TransformSystem::getInstance().UpdateMatrices(model->transformID);
 
 
@@ -82,7 +84,8 @@ void CS460AssignmentOne::Init() {
     // animation = new Animation("Common/alien.fbx", model);
 
     Assimp::Importer importer;
-    const aiScene *ASSIMPScene = importer.ReadFile(modelAndAnimationName, aiProcess_Triangulate);
+    const aiScene *ASSIMPScene = importer.ReadFile(modelAndAnimationName, aiProcess_Triangulate
+        | aiProcess_FlipUVs | aiProcess_LimitBoneWeights  );
     // Get the number of animation
     if (ASSIMPScene) {
         int numOfAnimations = ASSIMPScene->mNumAnimations;
@@ -162,14 +165,42 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     forwardRendering.Draw(scene);
 
     // ImGui
+
+    {
+        //if(ImGui::CollapsingHeader("Load Model")){
+        //std::string path = "./Common/Animation";
+        //static int selected = -1;
+        //int i = 0;
+        //for (const auto& entry : std::filesystem::recursive_directory_iterator(path))
+        //{ 
+        //    std::string filePathName = entry.path().string();
+        //    const std::filesystem::path fbxPath = ".fbx";
+        //    if (entry.path().extension() == fbxPath)
+        //    {
+        //        char buf[128];
+        //        sprintf(buf, "[%s]", filePathName.c_str());
+        //        if (ImGui::Selectable(buf, selected == i)) {
+        //            selected = i;
+        //            model->LoadModel(filePathName.c_str());
+        //        }
+        //    }
+        //    ++i;
+        //}
+        //}
+    }
+
     static int selected = -1;
     if (ImGui::CollapsingHeader("Animation System")) {
         if (ImGui::TreeNode("Select Animation to Play")) {
 
             for (int n = 0; n < animation.size(); n++) {
                 char buf[64];
-                sprintf(buf, "#%i: [%s]", n + 1, animation[n]->GetName().c_str());
-                if (ImGui::Selectable(buf, selected == n)) {
+                sprintf(buf, "#%i: ", n + 1);
+                bool selectable = ImGui::Selectable(buf, selected == n);
+                ImGui::SameLine();
+                ImGui::TextColored({0.1,0.7,0.1, 1.0}, "[%s]", animation[n]->GetName().c_str());
+             
+                if (selectable) {
                     selected = n;
                     animator->PlayAnimation(animation[n]);
                 }

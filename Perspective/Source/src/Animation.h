@@ -13,9 +13,21 @@ struct AssimpNodeData {
     std::vector<AssimpNodeData> children;
 
     void DisplayImGui(int nodeID) const {
+
+        auto& trans = transformation.v;
+        auto& rotate = transformation.q;
+        ImGui::Text("Translate [%f, %f, %f]", trans.x, trans.y, trans.z);
+        ImGui::Text("Rotate [%f, %f, %f, %f]", rotate.s, rotate.v.x, rotate.v.y, rotate.v.z);
+        ImGui::Text("Scale [%f]", transformation.s);
+        ImGui::NewLine();
+        ImGui::Text("Name: ");
+        ImGui::SameLine();
         if (childrenCount == 0) {
             ImGui::TextColored({0.8, 0.1, 0.1, 1.0}, "%s", name.c_str());
+
         } else if (ImGui::TreeNode((void *) (intptr_t) nodeID, "%s", name.c_str(), nodeID)) {
+
+            
             for (int i = 0; i < childrenCount; ++i) {
                 children[i].DisplayImGui(nodeID + i);
             }

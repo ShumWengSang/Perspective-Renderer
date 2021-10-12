@@ -70,6 +70,9 @@ public:
 
     int &GetBoneCounter() { return boneCounter; }
 
+    void LoadModel(const std::string &path);
+
+    void Clear();
 private:
     // model data
     std::vector<Mesh> meshes;

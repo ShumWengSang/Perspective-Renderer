@@ -125,5 +125,8 @@ void Animator::DrawBoneRecur(
     MyMath::VQS globalTransform = parentMatrix * nodeTransform;
     matrices.emplace_back(globalTransform);
     for (int i = 0; i < node->childrenCount; i++)
+    { 
         DrawBoneRecur(&node->children[i], globalTransform, matrices);
+
+    }
 }

@@ -27,7 +27,10 @@
       * Record the [position, rotation or scale]
       * Interpolate the other two elements to find the right values for them
       * Insert into keyframe
-    * This proved too long to do 
+    * This proved too long to do as my animation does not give a position, rotation, and scale at every time frame.
+      * To solve this, make animation with position, rotation, and scale at every time frame
+      * Or post process the animation to generate such frames
+        * But this runs the risk of going against the animators vision as its not guranteed they want to lerp or slerp
 * Incremental approaches run at 60 FPS, while others run at a variadic rate
 
 # How to Build:
@@ -43,10 +46,12 @@
 # Instructions / Controls:
 * **[WASD] camera movement**
 * **[Hold Right Mouse button + Drag] to rotate camera**
+* **Scroll to zoom **
 * Rendering speed of ~110 FPS on my laptop
 * Modify ImGui GUI at will to make things nice and simple
   * There are GUI controls in the ImGui meant for showcasing different lerp
   * GUI controls for selecting which animation to play
+  * GUI controls to determine whether to render bones
 
 
 # High Level Explanation

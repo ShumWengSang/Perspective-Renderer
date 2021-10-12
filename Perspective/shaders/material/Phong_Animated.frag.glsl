@@ -10,8 +10,6 @@ in vec3 v_position;
 in vec3 v_normal;
 
 in vec4 v_curr_proj_pos;
-in ivec4 v_boneID;
-in vec4 v_weight;
 
 PredefinedUniformBlock(CameraUniformBlock, camera);
 
@@ -29,8 +27,6 @@ PredefinedOutput(vec3, o_g_buffer_normal);
 
 void main()
 {
-    vec3 pee = vec3(v_boneID.x + v_weight.y);
-
     o_g_buffer_diffuse = u_mat_diffuse;
     o_g_buffer_ambient = u_mat_ambient;
     o_g_buffer_specular = vec4(u_mat_specular, u_mat_shininess);

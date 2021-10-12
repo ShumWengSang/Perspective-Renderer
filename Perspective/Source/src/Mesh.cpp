@@ -20,6 +20,14 @@ void Mesh::Draw() const {
     }
 }
 
+void Mesh::Clear()
+{
+    vertices.clear();
+    indices.clear();
+    textures.clear();
+    glDeleteVertexArrays(1, &VAO);
+}
+
 void Mesh::setupMesh() {
     GLuint indexBuffer;
     GLsizei indexCount;
