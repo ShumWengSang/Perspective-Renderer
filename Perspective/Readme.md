@@ -13,6 +13,7 @@
 * Used node tree to graph bones
   * Used my own implementation of Quaternion and VQS
   * Used VQS concatenation to transform spaces
+* Loaded file *alien.fbx*
 
 (2) Animation:
 * Read key frames and interpolate between keyframes for animation

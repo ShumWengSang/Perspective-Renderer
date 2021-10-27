@@ -50,6 +50,11 @@ const std::vector<MyMath::VQS> &Animator::GetFinalBoneMatrices() const {
 }
 
 void Animator::ImGuiDisplay(float dt) const {
+    if(ImGui::BeginCombo("Test", "nani?"))
+    {
+
+        ImGui::EndCombo();
+    }
     if (ImGui::TreeNode("Animator Controller")) {
         if (currentAnimation) {
             ImGui::Text("Currently playing: ");
@@ -83,6 +88,12 @@ void Animator::ImGuiDisplay(float dt) const {
             if (ImGui::Selectable("VQS [Lerp_Slerp_Lerp]", selected == 2)) {
                 selected = 2;
                 currentLerpMode = LerpMode::MyMix_L_S_L;
+            }
+            ImGui::SameLine();
+            ImGui::TextColored({0.8, 0.2, 0.1, 1.0}, "60 FPS");
+            if (ImGui::Selectable("iVQS", selected == 5)) {
+                selected = 5;
+                currentLerpMode = LerpMode::MyMix_i_VQM;
             }
 
             if (ImGui::Selectable("VQS [Lerp_Slerp_eLerp]", selected == 3)) {

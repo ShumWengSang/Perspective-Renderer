@@ -87,7 +87,8 @@ constexpr int MAX_BONES = 200;
 // Our own classes
 #include "Queue.h"
 
-enum LerpMode {
+enum LerpMode{
+    MyMix_i_VQM,
     MyMix_iL_iS_iL,
     MyMix_L_iSlerp_E,
     MyMix_L_S_L,
