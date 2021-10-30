@@ -80,8 +80,8 @@ void CS460AssignmentOne::Init() {
     model->material = phongAnimated;
     model->transformID = TransformSystem::getInstance().Create();
     Transform &trans = TransformSystem::getInstance().Get(model->transformID);
-    trans.SetLocalPosition(0, 0, -4500);
-    trans.SetLocalDirection(0, 180, 0);
+    // trans.SetLocalPosition(0, 0, -4500);
+    // trans.SetLocalDirection(0, 180, 0);
     trans.SetLocalScale(0.1);
     TransformSystem::getInstance().UpdateMatrices(model->transformID);
 
@@ -223,11 +223,9 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
         bezierKnotPoints.emplace_back(glm::vec3(61, -10, 828));
 
         bezierCurve.AddPoints(bezierKnotPoints);
-        bezierCurve.CaclulateResultantPoints();
-        bezierCurve.GenerateDistanceTable();
 		generatedPlotPoints.reserve(1000);
 	}
-	bezierCurve.CaclulateResultantPoints();
+
 	char label[32];
 	{
 		static float circleRun = 0.0f;
@@ -235,12 +233,10 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
 		circleRun = std::fmod(circleRun, 1.0f);
 		glm::vec3 color{ 1, 0,0 };
 		dd::sphere(glm::value_ptr(bezierCurve.Interpolate(circleRun)), glm::value_ptr(color), 50);
-
+        auto& trans = TransformSystem::getInstance().Get(model->transformID);
+        trans.SetLocalPosition(bezierCurve.Interpolate(circleRun));
+        TransformSystem::getInstance().UpdateMatrices(model->transformID);
 	}
-	if (input.WasKeyPressed(GLFW_KEY_R))
-    {
-        bezierCurve.GenerateDistanceTable();
-    }
 
 
     if (ImGui::CollapsingHeader("Path")) {
@@ -267,6 +263,8 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
         }
         static bool addPoints = false;
         ImGui::Checkbox("Add Points by click?", &addPoints);
+        static bool movePoints = false;
+        ImGui::Checkbox("Move Points by dragging", &movePoints);
 
         if (ImGui::TreeNode("Show knots"))
         {
@@ -305,8 +303,11 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
 
             for(int i = 0; i < knots.size(); ++i)
             {
-                glm::dvec3& line = knots[i];
-                ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4);
+                glm::dvec3& line = knots[i]; 
+                if(!movePoints)
+                    ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4, ImPlotDragToolFlags_NoInputs);
+                else
+                    ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4);
                 glm::vec3 color {1,0,0};
                 glm::vec3 knotP = knots[i];
                 dd::sphere(glm::value_ptr(knotP), glm::value_ptr(color), 25);
@@ -330,7 +331,9 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
             if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_1))
             {
                 if(addPoints)
+                { 
                     bezierCurve.AddPoint(glm::vec3(u, -10.0, v));
+                }
             }
             else if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_2))
             {

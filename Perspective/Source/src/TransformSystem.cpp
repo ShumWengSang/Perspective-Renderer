@@ -25,6 +25,11 @@ static bool IdenticalTransformProperties(const Transform &a, const Transform &b)
            && a.scale == b.scale;
 }
 
+Transform& Transform::SetLocalPosition(glm::vec3 pos) {
+    position = pos;
+    return *this;
+}
+
 Transform &Transform::SetLocalPosition(float x, float y, float z) {
     position.x = x;
     position.y = y;
@@ -98,16 +103,14 @@ void TransformSystem::UpdateMatrices(int transformID) {
     Transform &curr = transforms[transformID];
 
     // Unless nothing has changed, create new matrices for the transform
-    if (!IdenticalTransformProperties(old, curr)) {
-        curr.matrix = glm::scale(glm::mat4(1.0f), curr.scale);
-
-        curr.matrix =
-                curr.matrix *
-                glm::yawPitchRoll(glm::radians(curr.orientation.y),
-                                  glm::radians(curr.orientation.x),
-                                  glm::radians(curr.orientation.z));
-        curr.matrix = glm::translate(curr.matrix, curr.position);
-
+    if (!IdenticalTransformProperties(old, curr)) { 
+        curr.matrix = glm::translate(glm::mat4(1.0f), curr.position);
+        curr.matrix = curr.matrix *
+            glm::yawPitchRoll(
+                glm::radians(curr.orientation.y),
+                glm::radians(curr.orientation.x),
+                glm::radians(curr.orientation.z));
+        curr.matrix = glm::scale(curr.matrix, curr.scale);
 
         curr.inverseMatrix = glm::inverse(curr.matrix);
         curr.normalMatrix = glm::transpose(glm::inverse(glm::mat3{curr.matrix}));

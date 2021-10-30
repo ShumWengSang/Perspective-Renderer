@@ -40,6 +40,8 @@ public:
 
     Transform &SetLocalPosition(float x, float y, float z);
 
+    Transform &SetLocalPosition(glm::vec3 pos);
+
     Transform &SetLocalScale(float s);
 
     Transform &SetLocalScale(float x, float y, float z);
