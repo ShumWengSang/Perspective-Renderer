@@ -50,11 +50,6 @@ const std::vector<MyMath::VQS> &Animator::GetFinalBoneMatrices() const {
 }
 
 void Animator::ImGuiDisplay(float dt) const {
-    if(ImGui::BeginCombo("Test", "nani?"))
-    {
-
-        ImGui::EndCombo();
-    }
     if (ImGui::TreeNode("Animator Controller")) {
         if (currentAnimation) {
             ImGui::Text("Currently playing: ");

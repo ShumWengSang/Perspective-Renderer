@@ -1,3 +1,6 @@
 [submodule "Perspective/Source/deps/assimp"]
 	path = Perspective/Source/deps/assimp
 	url = git@github.com:assimp/assimp.git
+[submodule "Perspective/Source/deps/implot"]
+	path = Perspective/Source/deps/implot
+	url = git@github.com:epezent/implot.git

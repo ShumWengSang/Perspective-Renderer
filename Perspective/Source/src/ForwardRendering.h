@@ -40,6 +40,7 @@ private:
     DebugLineMaterial *debugLineMaterial;
     GLuint lineProgram;
     Model *cylinder = nullptr;
+    Model* quad = nullptr;
     GLuint u_color;
 };
 

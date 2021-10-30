@@ -49,7 +49,7 @@ public:
 
 private:
 
-    Uniform<int> copyDepthBuffer{"copyDepthBuffer", 0};
+    Uniform<int> copyDepthBuffer{"copyDepthBuffer", 1};
     GLuint finalProgram;
 };
 

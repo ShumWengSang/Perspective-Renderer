@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 project(Perspective)
+
 option(BUILD_ANIMATION "Build Animation" ON)
 set(CMAKE_CXX_STANDARD 17)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

@@ -18,6 +18,7 @@
 #include <imgui_internal.h>
 #include "stdafx.h"
 #include "GuiSystem.h"
+#include "implot.h"
 
 #pragma region Internal
 
@@ -376,6 +377,7 @@ void GuiSystem::Init(GLFWwindow *window) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     auto* contextPtr = ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -408,6 +410,7 @@ void GuiSystem::Init(GLFWwindow *window) {
 void GuiSystem::Destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 }
 
@@ -419,6 +422,8 @@ void GuiSystem::NewFrame() {
     // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
     //if (show_demo_window)
     //    ImGui::ShowDemoWindow(&show_demo_window);
+    if(show_demo_window)
+        ImPlot::ShowDemoWindow(&show_demo_window);
 
     console.Draw("Console", &this->showConsole);
     auto* currContext = ImGui::GetCurrentContext();

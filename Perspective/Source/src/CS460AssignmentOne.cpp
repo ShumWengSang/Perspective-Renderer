@@ -26,7 +26,9 @@
 #include "Animator.h"
 #include "Phong_AnimatedMaterial.h"
 #include <ShaderLocations.h>
+#include <implot_internal.h>
 #include "CameraUniforms.h"
+#include "BezierCurve.h"
 
 namespace {
     Scene scene{};
@@ -68,6 +70,10 @@ void CS460AssignmentOne::Init() {
     phongAnimated->ReadMaterialFromFile("Common/PowerPlantFiles/");
     MaterialSystem::getInstance().ManageMaterial(phongAnimated);
 
+    PowerPlantMaterial *powerPlantMaterial = new PowerPlantMaterial();
+    powerPlantMaterial->ReadMaterialFromFile("Common/PowerPlantFiles/");
+    MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
+
     // alien
     const std::string modelAndAnimationName = "Common/Animation/alien.fbx";
     model = new Model(modelAndAnimationName.c_str());
@@ -79,13 +85,23 @@ void CS460AssignmentOne::Init() {
     trans.SetLocalScale(0.1);
     TransformSystem::getInstance().UpdateMatrices(model->transformID);
 
+    //Model *cube = new Model("Common/cube.obj");
+    //cube->material = powerPlantMaterial;
+    //cube->transformID = TransformSystem::getInstance().Create();
+    //Transform& cubeTrans = TransformSystem::getInstance().Get(cube->transformID);
+    //cubeTrans.SetLocalPosition(0, -50, 0);
+    //cubeTrans.SetLocalDirection(0, 0, 0);
+    //cubeTrans.SetLocalScale(10000000);
+    //TransformSystem::getInstance().UpdateMatrices(cube->transformID);
+    //scene.entities.emplace_back(Entity{ cube, nullptr });
 
     // Animation
     // animation = new Animation("Common/alien.fbx", model);
 
     Assimp::Importer importer;
     const aiScene *ASSIMPScene = importer.ReadFile(modelAndAnimationName, aiProcess_Triangulate
-        | aiProcess_FlipUVs | aiProcess_LimitBoneWeights  );
+                                                                          | aiProcess_FlipUVs |
+                                                                          aiProcess_LimitBoneWeights);
     // Get the number of animation
     if (ASSIMPScene) {
         int numOfAnimations = ASSIMPScene->mNumAnimations;
@@ -100,7 +116,6 @@ void CS460AssignmentOne::Init() {
     animator = new Animator(anim);
 
     scene.entities.emplace_back(Entity{model, animator});
-
 
     // Load the skybox
     scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({
@@ -164,31 +179,6 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
     finalPass.Draw(gBuffer, lightBuffer, scene);
     forwardRendering.Draw(scene);
 
-    // ImGui
-
-    {
-        //if(ImGui::CollapsingHeader("Load Model")){
-        //std::string path = "./Common/Animation";
-        //static int selected = -1;
-        //int i = 0;
-        //for (const auto& entry : std::filesystem::recursive_directory_iterator(path))
-        //{ 
-        //    std::string filePathName = entry.path().string();
-        //    const std::filesystem::path fbxPath = ".fbx";
-        //    if (entry.path().extension() == fbxPath)
-        //    {
-        //        char buf[128];
-        //        sprintf(buf, "[%s]", filePathName.c_str());
-        //        if (ImGui::Selectable(buf, selected == i)) {
-        //            selected = i;
-        //            model->LoadModel(filePathName.c_str());
-        //        }
-        //    }
-        //    ++i;
-        //}
-        //}
-    }
-
     static int selected = -1;
     if (ImGui::CollapsingHeader("Animation System")) {
         if (ImGui::TreeNode("Select Animation to Play")) {
@@ -198,8 +188,8 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
                 sprintf(buf, "#%i: ", n + 1);
                 bool selectable = ImGui::Selectable(buf, selected == n);
                 ImGui::SameLine();
-                ImGui::TextColored({0.1,0.7,0.1, 1.0}, "[%s]", animation[n]->GetName().c_str());
-             
+                ImGui::TextColored({0.1, 0.7, 0.1, 1.0}, "[%s]", animation[n]->GetName().c_str());
+
                 if (selectable) {
                     selected = n;
                     animator->PlayAnimation(animation[n]);
@@ -216,4 +206,144 @@ void CS460AssignmentOne::Draw(const Input &input, float deltaTime, float running
             ImGui::TreePop();
         }
     }
+
+    // as a test, generate random data
+    static bool once = true;
+    if (once) {
+        once = false;
+
+        bezierKnotPoints.emplace_back(glm::vec3(-140,  -10, 542));
+        bezierKnotPoints.emplace_back(glm::vec3(394, -10, 1596));
+        bezierKnotPoints.emplace_back(glm::vec3(843, -10, 1428));
+        bezierKnotPoints.emplace_back(glm::vec3(1240, -10, 748));
+        bezierKnotPoints.emplace_back(glm::vec3(-214, -10, -335));
+        bezierKnotPoints.emplace_back(glm::vec3(120, -10, -935));
+        bezierKnotPoints.emplace_back(glm::vec3(772, -10, -707));
+        bezierKnotPoints.emplace_back(glm::vec3(491, -10, -157));
+        bezierKnotPoints.emplace_back(glm::vec3(61, -10, 828));
+
+        bezierCurve.AddPoints(bezierKnotPoints);
+        bezierCurve.CaclulateResultantPoints();
+        bezierCurve.GenerateDistanceTable();
+		generatedPlotPoints.reserve(1000);
+	}
+	bezierCurve.CaclulateResultantPoints();
+	char label[32];
+	{
+		static float circleRun = 0.0f;
+		circleRun += deltaTime * 0.1f;
+		circleRun = std::fmod(circleRun, 1.0f);
+		glm::vec3 color{ 1, 0,0 };
+		dd::sphere(glm::value_ptr(bezierCurve.Interpolate(circleRun)), glm::value_ptr(color), 50);
+
+	}
+	if (input.WasKeyPressed(GLFW_KEY_R))
+    {
+        bezierCurve.GenerateDistanceTable();
+    }
+
+
+    if (ImGui::CollapsingHeader("Path")) {
+        ImPlotAxisFlags ax_flags = ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks;
+
+        generatedPlotPoints.clear();
+
+
+        const std::vector<glm::vec3>& controlPoints = bezierCurve.GetGeneratedControlPoints();
+        // Render Knots
+        auto& knots = bezierCurve.GetPoints();
+
+        for (int i = 0; i < controlPoints.size(); i += 4)
+        {
+            if (controlPoints.size() % 4 != 0)
+                DebugBreak();
+            // Generate line from control points
+            for (int j = 0; j < 100; ++j) {
+                double t = j / 99.0;
+
+                generatedPlotPoints.emplace_back(BezierCurve::Interpolate(t, controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], controlPoints[i + 3]));
+            }
+
+        }
+        static bool addPoints = false;
+        ImGui::Checkbox("Add Points by click?", &addPoints);
+
+        if (ImGui::TreeNode("Show knots"))
+        {
+            for (int i = 0; i < knots.size(); ++i)
+            {
+                ImGui::Text("Knot %i: [%f, %f, %f]", i, knots[i].x, knots[i].y, knots[i].z);
+            }
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Generated Control Points"))
+        {
+            for (int i = 0; i < controlPoints.size(); ++i)
+            {
+                ImGui::Text("Control Point %i: [%f, %f, %f]", i, controlPoints[i].x, controlPoints[i].y, controlPoints[i].z);
+                if ((i + 1) % 4 == 0)
+                {
+                    ImGui::NewLine();
+                }
+            }
+
+            ImGui::TreePop();
+        }
+
+        if (ImPlot::BeginPlot("Bezier", ImVec2(-1, 0), ImPlotFlags_NoTitle | ImPlotFlags_NoLegend | ImPlotFlags_NoMenus | ImPlotFlags_NoBoxSelect)) {
+            ImPlot::SetupAxes(0, 0, ax_flags, ax_flags);
+            ImPlot::SetupAxesLimits(-1000, 1000, -1000, 1000);
+ 
+
+            // Generate line in the world 
+            for (int i = 1; i < generatedPlotPoints.size(); i++)
+            {
+                glm::vec3 color{ 0, 1, 0 };
+                dd::line(glm::value_ptr(generatedPlotPoints[i - 1]), glm::value_ptr(generatedPlotPoints[i]), glm::value_ptr(color));
+            }
+
+
+            for(int i = 0; i < knots.size(); ++i)
+            {
+                glm::dvec3& line = knots[i];
+                ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4);
+                glm::vec3 color {1,0,0};
+                glm::vec3 knotP = knots[i];
+                dd::sphere(glm::value_ptr(knotP), glm::value_ptr(color), 25);
+            }
+
+            // Set the points
+            ImPlot::SetNextLineStyle(ImVec4(0, 0.9f, 0.8, 0.5), 2);
+            // ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+            ImPlot::PlotLine("##bez", &generatedPlotPoints[0].x, &generatedPlotPoints[0].z, generatedPlotPoints.size(), 0,
+                             sizeof(glm::vec3));
+
+
+
+            ImPlotPlot &plot   = *ImPlot::GetCurrentContext()->CurrentPlot;
+            ImPlotAxis& y_axis = plot.YAxis(0);
+            ImPlotAxis& x_axis = plot.XAxis(0);
+            double u = x_axis.PixelsToPlot(ImGui::GetIO().MousePos.x);
+            double v = y_axis.PixelsToPlot(ImGui::GetIO().MousePos.y);
+
+
+            if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_1))
+            {
+                if(addPoints)
+                    bezierCurve.AddPoint(glm::vec3(u, -10.0, v));
+            }
+            else if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_2))
+            {
+                for(int i = 0; i < bezierKnotPoints.size(); ++i)
+                {
+                    std::cout << glm::to_string(bezierKnotPoints[i]) << '\n';
+                }
+                std::cout << std::endl;
+            }
+            ImPlot::EndPlot();
+        }
+    }
 }
+
+
+

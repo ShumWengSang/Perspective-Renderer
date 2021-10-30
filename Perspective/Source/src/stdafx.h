@@ -11,6 +11,8 @@
 #include <GLFW/glfw3.h>
 
 
+#include "implot.h"
+
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL
 

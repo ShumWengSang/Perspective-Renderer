@@ -33,8 +33,8 @@ void FpsCamera::Update(const Input &input, float dt) {
     if (input.IsKeyDown(GLFW_KEY_D)) acceleration.x += 1;
     if (input.IsKeyDown(GLFW_KEY_A)) acceleration.x -= 1;
 
-    //if (input.IsKeyDown(GLFW_KEY_SPACE))      acceleration.y += 1;
-    if (input.IsKeyDown(GLFW_KEY_LEFT_SHIFT)) acceleration.y -= 1;
+    if (input.IsKeyDown(GLFW_KEY_E))      acceleration.y += 1;
+    if (input.IsKeyDown(GLFW_KEY_Q))    acceleration.y -= 1;
 
     // Normal slowdown (decelerate based on division)
     if (length2(acceleration) > 0.01f && !GuiSystem::IsUsingKeyboard()) {
