@@ -57,6 +57,20 @@ Transform &Transform::SetLocalDirection(float x, float y, float z) {
     return *this;
 }
 
+/*
+* WARNING: DOES NOT RESPECT THE UPDATE FUNCTION
+*/
+Transform& Transform::SetRotationMatrix(const glm::mat4& rotation)
+{
+    matrix = glm::translate(glm::mat4(1.0f), position);
+    matrix = matrix * rotation;
+    matrix = glm::scale(matrix, scale);
+
+    inverseMatrix = glm::inverse(matrix);
+    normalMatrix = glm::transpose(glm::inverse(glm::mat3{ matrix }));
+    return *this;
+}
+
 glm::vec4 Transform::LocalToWorld(const glm::vec4 &vec) const {
     return this->matrix * vec;
 }

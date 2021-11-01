@@ -5,6 +5,7 @@
 
 #include "App.h"
 #include "BezierCurve.h"
+#include "EaseInOutVelocity.h"
 class CS460AssignmentOne final : public App {
 public:
     CS460AssignmentOne() = default;
@@ -23,6 +24,7 @@ public:
     std::vector<glm::vec3> bezierKnotPoints;
 
     BezierCurve bezierCurve;
+    EaseInOutVelocity<float> easeInOutVelocity;
 };
 
 

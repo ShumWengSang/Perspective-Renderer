@@ -48,6 +48,8 @@ public:
 
     Transform &SetLocalDirection(float x, float y, float z);
 
+    Transform &SetRotationMatrix(const glm::mat4& rotation);
+
     glm::vec4 WorldToLocal(const glm::vec4 &vec) const;
 
     glm::vec4 LocalToWorld(const glm::vec4 &vec) const;
@@ -81,6 +83,7 @@ public:
     TransformSystem(TransformSystem const &) = delete;
 
     void operator=(TransformSystem const &) = delete;
+
 
 private:
     TransformSystem() = default;
