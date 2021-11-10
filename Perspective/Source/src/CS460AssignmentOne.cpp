@@ -376,9 +376,14 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 			{
 				glm::dvec3& line = knots[i];
 				if (!movePoints)
+				{ 
 					ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4, ImPlotDragToolFlags_NoInputs);
+					}
 				else
+				{ 
 					ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4);
+					bezierCurve.Update();
+					}
 				glm::vec3 color{ 1,0,0 };
 				glm::vec3 knotP = knots[i];
 				dd::sphere(glm::value_ptr(knotP), glm::value_ptr(color), 25);

@@ -1,19 +1,23 @@
-# Advanced Animation CS460 Assignment 1
+# Advanced Animation CS460 Assignment 2
 ### Student: Roland Shum
 ### Professor: Prof Xin Li
 
 # Assignment Objectives
-(1) Modelling:
-* Loading of .fbx model 
-  * Imported ASSIMP library
-  * https://github.com/assimp/assimp
-  * Library has known issues with fbx files, so untested models may break
-* Imported animation using .fbx files 
-  * Using ASSIMP library again
-* Used node tree to graph bones
-  * Used my own implementation of Quaternion and VQS
-  * Used VQS concatenation to transform spaces
-* Loaded file *alien.fbx*
+(1) Path Interpolation:
+* Implemented bezier path
+    * ImGui for adding and moving points to move through
+    * Generates control points for every pair of given points to move through
+    * Generates lookup table based on arclength to t, where t is the bezier cubic interpolation value
+    * Calculates arclength of entire curve path and reparameterizes all the individual bezier segment tables
+(2) Arc Length Calculation
+    * Normalized arclength calculate + above impemented
+    * All implemented
+(3) Speed and Orientation Control
+    * Implemented ease-in and ease-out distance time function with a constant speed in the middle section
+    * Speed tied to object animation
+    * Control the orientation of the model using Forward Mode,
+        * Average of 5 points ahead of the model taken
+        * At the end of the curve, use a lerp between two points near the end
 
 (2) Animation:
 * Read key frames and interpolate between keyframes for animation
@@ -47,6 +51,7 @@
 # Instructions / Controls:
 * **[WASD] camera movement**
 * **[Hold Right Mouse button + Drag] to rotate camera**
+* Q and E to accelerate up and down
 * **Scroll to zoom **
 * Rendering speed of ~110 FPS on my laptop
 * Modify ImGui GUI at will to make things nice and simple
@@ -63,40 +68,25 @@
   * Project: Perspective
     * CS460AssignmentOne.cpp 
       * Main entry point to the scene
-    * Bone.cpp
-      * Abstracts a bone 
-      * **Interpolation functions for bones are called here**
-    * Model.cpp
-      * Holds multiple meshes
-      * Loads meshes from assimp
-      * Loads vertex data
-    * Quaternions.cpp
-      * **My implementation of quaternions**
-      * **My implementation of VQS**
-    * Main.cpp
-      * Holds test cases for VQS and quaternion implementation
-    * Animation.cpp
-      * Holds a specific animation reel loaded from ASSIMP
-    * Animator.cpp
-      * Holds a pointer to the current animation playing
-      * Updates that animation 
-    * MyMath.cpp
-      * Holds implemntation for 
-        * Lerp
-        * Slerp
-          * Slight modification to slerp 
-            * When alpha < 0.0f
-              * It swaps around one of the quaternions for correct interpolation
-            * When alpha is close to 1.0f
-              * Use Lerp to avoid side effects of flipping
-        * iLerp
-        * iSlerp
-        * eLerp
-  * Shaders
-    * shader/material/Phong_Animated.vert.glsl
-      * Skinning
-      * VQS sent to shaders via UBO
-      * VQS conversion to mat4 
+    * BezierCurve.h
+      * Implements the concatenation of multiple bezier segments to form a curve
+        * Given a set of points,
+        * constructs a curve segment out of every two points, and generates an additional two control points
+        * Also generates lookup tables for (distance -> t)
+        * Calculates the total distance of the bezier curve, and reparameterize each lookup table using distance 
+      * Interpolate goes from 0 to 1, based on arclength interpolation
+      * Given a t, maps to a given curve segment
+        * In the curve segment, it then calculates the distance it needs to travel
+        * and looks up the two closest distance available in loopup (distance -> t) table 
+        * and interpolates between the ts of those two distances
+    * EaseInOutVelocity.h
+        * Implemented a parabolic ease-in ease-out
+        * Given a t1 and t2, calculate a velocity
+    * CS460AssignmentOne.cpp
+        * Animation speed control
+            * Modifies the animation playing speed
+        * Orientation control
+            * Implemented forward viewing by taking the average of the forward 5 points and looking towards it
 
 # Developed on
 Windows:
