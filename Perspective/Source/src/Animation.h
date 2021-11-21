@@ -7,33 +7,12 @@
 #include "MyMath.h"
 
 struct AssimpNodeData {
-    MyMath::VQS transformation;
+    MyMath::VQS localTransformation;
     std::string name;
     int childrenCount;
-    std::vector<AssimpNodeData> children;
-
-    void DisplayImGui(int nodeID) const {
-
-        auto& trans = transformation.v;
-        auto& rotate = transformation.q;
-        ImGui::Text("Translate [%f, %f, %f]", trans.x, trans.y, trans.z);
-        ImGui::Text("Rotate [%f, %f, %f, %f]", rotate.s, rotate.v.x, rotate.v.y, rotate.v.z);
-        ImGui::Text("Scale [%f]", transformation.s);
-        ImGui::NewLine();
-        ImGui::Text("Name: ");
-        ImGui::SameLine();
-        if (childrenCount == 0) {
-            ImGui::TextColored({0.8, 0.1, 0.1, 1.0}, "%s", name.c_str());
-
-        } else if (ImGui::TreeNode((void *) (intptr_t) nodeID, "%s", name.c_str(), nodeID)) {
-
-            
-            for (int i = 0; i < childrenCount; ++i) {
-                children[i].DisplayImGui(nodeID + i);
-            }
-            ImGui::TreePop();
-        }
-    }
+    std::vector<AssimpNodeData*> children;
+    AssimpNodeData* parent = nullptr;
+    void DisplayImGui(int nodeID) const;
 };
 
 //! Read data from assimp and create a heiracrchy of bones
@@ -61,6 +40,11 @@ public:
 
     inline const std::string &GetName() const { return animName; }
 
+    const auto& GetEndAffectors() const
+    {
+        return endAffectors;
+    }
+
 private:
     // Sometimes there are missing bone data that assimp can only get from animation
     void ReadMissingBones(const aiAnimation *animation, Model &model);
@@ -73,6 +57,7 @@ private:
     int ticksPerSecond;
     std::vector<Bone> bones;
     AssimpNodeData rootNode;
+    std::vector<AssimpNodeData*> endAffectors;
     std::unordered_map<std::string, BoneInfo> boneInfoMap;
     std::string animName;
 };

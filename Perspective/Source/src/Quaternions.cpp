@@ -195,6 +195,17 @@ glm::mat4 MyMath::Quaternion::ToMat4(bool normalize) const {
     return result;
 }
 
+MyMath::Quaternion MyMath::Quaternion::GetRotationBetween(const glm::vec3 &u, const glm::vec3 &v) {
+    float k_cos_theta = glm::dot(u,v);
+    float k = sqrt(glm::length2(u) * glm::length2(v));
+    if((k_cos_theta / k) == -1)
+    {
+        // 180 degree rotation around any orthogonal vector
+        return Quaternion(0, glm::normalize(orthogonal(u)));
+    }
+    return Quaternion(k_cos_theta + k, glm::cross(u, v)).Norm();
+}
+
 MyMath::VQS::VQS(const glm::vec3 &V, const MyMath::Quaternion &Q, const float S)
         : v(V), q(Q), s(S) {}
 
@@ -234,4 +245,17 @@ void MyMath::VQS::operator*=(const MyMath::VQS &rhs) {
     v = s * q.Rotate(rhs.v) + v;
     q = q * rhs.q;
     s = s * rhs.s;
+}
+
+glm::vec3 MyMath::orthogonal(const glm::vec3 &v) {
+    float x = abs(v.x);
+    float y = abs(v.y);
+    float z = abs(v.z);
+
+    glm::vec3 X_AXIS (1,0,0);
+    glm::vec3 Y_AXIS (0,1,0);
+    glm::vec3 Z_AXIS (0,0,1);
+
+    glm::vec3 other = x < y ? (x < z ? X_AXIS : Z_AXIS) : (y < z ? Y_AXIS : Z_AXIS);
+    return glm::cross(v, other);
 }

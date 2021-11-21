@@ -6,6 +6,8 @@
 #include "App.h"
 #include "BezierCurve.h"
 #include "EaseInOutVelocity.h"
+
+struct AssimpNodeData;
 class CS460AssignmentOne final : public App {
 public:
     CS460AssignmentOne() = default;
@@ -25,6 +27,10 @@ public:
 
     BezierCurve bezierCurve;
     EaseInOutVelocity<float> easeInOutVelocity;
+
+    // IK variables
+    AssimpNodeData* selectedEffector = nullptr;
+    glm::vec3 targetPosition {-22, 55, 264};
 };
 
 

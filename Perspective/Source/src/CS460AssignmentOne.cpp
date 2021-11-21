@@ -113,7 +113,7 @@ void CS460AssignmentOne::Init() {
 		LogError("FBX has no animations!");
 	}
 
-	Animation* anim = animation.empty() ? nullptr : animation.back();
+	Animation* anim = animation.empty() ? nullptr : animation.front();
 	animator = new Animator(anim);
 
 	scene.entities.emplace_back(Entity{ model, animator });
@@ -215,25 +215,27 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 				lastPoint = point;
 			}
 			glm::vec3 sphereColor = {0,0,1};
-			dd::sphere(glm::value_ptr(point), glm::value_ptr(sphereColor), 5);
+			// dd::sphere(glm::value_ptr(point), glm::value_ptr(sphereColor), 5);
 			averagePoint += point;
 
 		}
 		averagePoint /= numberOfPoints;
 	}
-	dd::sphere(glm::value_ptr(averagePoint), glm::value_ptr(color), 25);
+	// dd::sphere(glm::value_ptr(averagePoint), glm::value_ptr(color), 25);
 	// Average point is where we want to turn our model towards
 	  // Find the direction where we need to turn to in world
 	  // direction to turn to = Pos - targetPos
 	glm::vec3 direction = glm::normalize(averagePoint - trans.position);
 	glm::quat q = glm::rotation(glm::vec3(0, 0, 1), direction);
-	trans.SetRotationMatrix(glm::toMat4(q));
+	// trans.SetRotationMatrix(glm::toMat4(q));
 
 
 	static float animationSpeedModifier = 2.5f;
 
-	animator->UpdateAnimation(deltaTime* velocity * animationSpeedModifier);
-
+	// animator->UpdateAnimation(deltaTime* velocity * animationSpeedModifier);
+	animator->UpdateAnimation(deltaTime);
+	// animator->UpdateAnimation(deltaTime, this->selectedEffector, this->targetPosition);
+    
 
 	const auto& transforms = animator->GetFinalBoneMatrices();
 	// Prepare the data for UBO
@@ -258,6 +260,14 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 	lightPass.Draw(lightBuffer, gBuffer, scene);
 	finalPass.Draw(gBuffer, lightBuffer, scene);
 	forwardRendering.Draw(scene);
+
+	if (ImGui::CollapsingHeader("Inverse Kinematics"))
+	{
+		ImGui::Text("Target Position");
+		glm::vec3 col = { 0,1,0 };
+		dd::sphere(glm::value_ptr(this->targetPosition), glm::value_ptr(col), 25);
+		ImGui::DragFloat3("Target position", glm::value_ptr(this->targetPosition));
+	}
 
 	static int selected = -1;
 	if (ImGui::CollapsingHeader("Animation System")) {

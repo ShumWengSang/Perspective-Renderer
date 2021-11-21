@@ -20,6 +20,11 @@
 #define OPENGLFRAMEWORK_QUATERNION_H
 
 namespace MyMath {
+
+    //  returns any vector orthogonal to the given vector.
+    //  This implementation uses the cross product with the most orthogonal basis vector.
+    glm::vec3 orthogonal(const glm::vec3& v);
+
     class Quaternion {
     public:
         Quaternion();
@@ -78,6 +83,8 @@ namespace MyMath {
         glm::vec3 Rotate(glm::vec3 point) const;
 
         float GetAngle() const { return 2 * acosf(s); }
+
+        static Quaternion GetRotationBetween(const glm::vec3& u, const glm::vec3& v);
 
         // Rotation
         static glm::vec3 RotateAngleAxis(

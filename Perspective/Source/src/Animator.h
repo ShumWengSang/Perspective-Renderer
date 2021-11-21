@@ -26,6 +26,8 @@ public:
 
     const std::vector<MyMath::VQS> DrawBones(const MyMath::VQS &mat) const;
 
+
+
 private:
     void DrawBoneRecur(
             const AssimpNodeData *node, const MyMath::VQS &parentMatrix, std::vector<MyMath::VQS> &matrices

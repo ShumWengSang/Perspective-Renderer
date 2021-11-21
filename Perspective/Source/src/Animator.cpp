@@ -23,7 +23,7 @@ void Animator::PlayAnimation(Animation *pAnimation) {
 
 void Animator::CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS parentTransform) {
     std::string nodeName = node->name;
-    MyMath::VQS nodeTransform = node->transformation;
+    MyMath::VQS nodeTransform = node->localTransformation;
 
     Bone *Bone = currentAnimation->FindBone(nodeName);
 
@@ -42,7 +42,7 @@ void Animator::CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS pa
     }
 
     for (int i = 0; i < node->childrenCount; i++)
-        CalculateBoneTransform(&node->children[i], globalTransformation);
+        CalculateBoneTransform(node->children[i], globalTransformation);
 }
 
 const std::vector<MyMath::VQS> &Animator::GetFinalBoneMatrices() const {
@@ -121,7 +121,7 @@ void Animator::DrawBoneRecur(
         const AssimpNodeData *node, const MyMath::VQS &parentMatrix, std::vector<MyMath::VQS> &matrices
                             ) const {
     std::string nodeName = node->name;
-    MyMath::VQS nodeTransform = node->transformation;
+    MyMath::VQS nodeTransform = node->localTransformation;
 
     Bone *Bone = currentAnimation->FindBone(nodeName);
 
@@ -132,7 +132,7 @@ void Animator::DrawBoneRecur(
     matrices.emplace_back(globalTransform);
     for (int i = 0; i < node->childrenCount; i++)
     { 
-        DrawBoneRecur(&node->children[i], globalTransform, matrices);
+        DrawBoneRecur(node->children[i], globalTransform, matrices);
 
     }
 }
