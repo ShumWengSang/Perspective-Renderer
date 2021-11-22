@@ -53,7 +53,9 @@ public:
 
 		ImGui::Text("Target Position: [%f %f %f]", targetPosition.x, targetPosition.y, targetPosition.z);
 
+		const MyMath::VQS effectorWorldTransform = worldTransform * GetGlobalTrans(IKBones, &endEffector);
 		glm::vec3 color (1,0,0);
+		dd::sphere(glm::value_ptr(effectorWorldTransform.v), glm::value_ptr(color), 10);
 		// From End Effector to root
 		for (auto iter = IKBones.begin(); iter != IKBones.end(); ++iter)
 		{
@@ -61,7 +63,8 @@ public:
 
 			// Get the matrix of the end effector in true world space
 			const MyMath::VQS effectorWorldTransform = worldTransform * GetGlobalTrans(IKBones, &endEffector);
-			// Get the joints true world space matrix
+
+			// Get the joints true world space matrix (bone to world transformation)
 			const MyMath::VQS jointTransform = worldTransform * GetGlobalTrans(IKBones, &bone);
 			// Now we transform the end effector's position to the joints local space
 			const glm::vec3 effectorPos = jointTransform.Inverse().ToMat4() * glm::vec4(effectorWorldTransform.v, 1);
@@ -90,12 +93,9 @@ public:
 			// Slerp the rotation (todo)
 			const auto rot = MyMath::Slerp(jointTransform.q, rotation, 1.0f).Norm();
 
-			// Find the transformation matrix that converts from joint space to local space
-			const auto jointToLocal = bone.offset.Inverse();
-			// Convert the rotation from joint space to local space
-			const auto localSpaceRot = jointToLocal * MyMath::VQS({}, rot, 1.0);
 			// Apply to local space rotation
-			bone.localTransformation = MyMath::VQS(localSpaceRot) * bone.localTransformation;
+			//bone.localTransformation = MyMath::VQS({}, rot, 1.0) * bone.localTransformation;
+			bone.localTransformation = MyMath::VQS({}, rot, 1.0) * bone.localTransformation;
 		}
 
 		// Now we have to apply it back to global space transformation
