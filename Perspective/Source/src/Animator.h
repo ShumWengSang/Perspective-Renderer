@@ -5,6 +5,8 @@
 
 #include "Animation.h"
 #include "Logger.h"
+#include <optional>
+struct IKBone;
 
 //! Read data from heirachy of bones, recursive through all of them to prepare final data
 class Animator {
@@ -24,17 +26,20 @@ public:
     const Animation *GetAnimation() const { return currentAnimation; }
 
 
-    const std::vector<MyMath::VQS> DrawBones(const MyMath::VQS &mat) const;
+    const std::vector<MyMath::VQS> GatherBoneGlobalTransformation() const;
 
+    std::optional<std::list<IKBone>> GetIKBones(AssimpNodeData* endAffector);
 
-
-private:
-    void DrawBoneRecur(
-            const AssimpNodeData *node, const MyMath::VQS &parentMatrix, std::vector<MyMath::VQS> &matrices
-                      ) const;
+    void ApplyIK(std::optional<std::list<IKBone>>& ikBones );
 
 private:
-    std::vector<MyMath::VQS> finalBoneMatrices;
+    void GetIKBonesRecur(
+        const AssimpNodeData* node, std::vector<MyMath::VQS>& transformations, std::list<IKBone> & bones
+    );
+
+private:
+    std::vector<MyMath::VQS> modelSpaceTransformations { MAX_BONES, MyMath::VQS()};
+    std::vector<MyMath::VQS> globalSpaceTransformations{ MAX_BONES, MyMath::VQS()};
     Animation *currentAnimation;
     float currentTime;
     float deltaTime;

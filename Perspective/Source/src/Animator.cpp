@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "Animator.h"
 #include "Logger.h"
+#include "IKSolver.h"
 
-Animator::Animator(Animation *animation) : finalBoneMatrices(MAX_BONES, MyMath::VQS()) {
+
+Animator::Animator(Animation *animation) : modelSpaceTransformations(MAX_BONES, MyMath::VQS()) {
     currentTime = 0.0;
     currentAnimation = animation;
 }
@@ -38,7 +40,8 @@ void Animator::CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS pa
     if (boneInfoMap.find(nodeName) != boneInfoMap.end()) {
         int index = boneInfoMap[nodeName].id;
         MyMath::VQS offset = boneInfoMap[nodeName].offset;
-        finalBoneMatrices[index] = globalTransformation * offset;
+        modelSpaceTransformations[index] = globalTransformation * offset;
+        globalSpaceTransformations[index] = globalTransformation;
     }
 
     for (int i = 0; i < node->childrenCount; i++)
@@ -46,7 +49,7 @@ void Animator::CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS pa
 }
 
 const std::vector<MyMath::VQS> &Animator::GetFinalBoneMatrices() const {
-    return finalBoneMatrices;
+    return modelSpaceTransformations;
 }
 
 void Animator::ImGuiDisplay(float dt) const {
@@ -109,30 +112,72 @@ void Animator::ImGuiDisplay(float dt) const {
     }
 }
 
-const std::vector<MyMath::VQS> Animator::DrawBones(const MyMath::VQS &mat) const {
+const std::vector<MyMath::VQS> Animator::GatherBoneGlobalTransformation() const {
     std::vector<MyMath::VQS> res;
     if (currentAnimation) {
-        DrawBoneRecur(&currentAnimation->GetRootNode(), mat, res);
+        // GatherBoneGlobalTransformationRecur(&currentAnimation->GetRootNode(), mat, res);
+        res = this->globalSpaceTransformations;
     }
     return res;
 }
 
-void Animator::DrawBoneRecur(
-        const AssimpNodeData *node, const MyMath::VQS &parentMatrix, std::vector<MyMath::VQS> &matrices
-                            ) const {
+std::optional<std::list<IKBone>> Animator::GetIKBones(AssimpNodeData* endAffector)
+{
+    if(!endAffector)
+        return {};
+    
+    std::list<IKBone> IKBones;
+    std::vector<MyMath::VQS> transformations;
+    
+    GetIKBonesRecur(endAffector, transformations, IKBones);
+
+    // Calculate global transform of effector
+    if(!IKBones.empty())
+        IKBones.emplace_front(IKBone{ IKBones.front().worldTransformation, nullptr });
+    else
+        IKBones.emplace_front(IKBone{ MyMath::VQS(), nullptr});
+
+    return std::make_optional(IKBones);
+}
+
+void Animator::ApplyIK(std::optional<std::list<IKBone>>& ikBones)
+{
+    if(!ikBones)
+        return;
+    auto& ikList = ikBones.value();
+    auto boneInfoMap = currentAnimation->GetBoneIDMap();
+
+    for (IKBone& ikBone : ikList)
+    {
+        if(ikBone.animationBone)
+        { 
+            int index = ikBone.animationBone->GetBoneID();
+            modelSpaceTransformations[index] = ikBone.worldTransformation * boneInfoMap[std::string(ikBone.animationBone->GetBoneName())].offset;
+            globalSpaceTransformations[index] = ikBone.worldTransformation;
+        }
+    }
+}
+
+void Animator::GetIKBonesRecur(const AssimpNodeData* node, std::vector<MyMath::VQS>& transformations, std::list<IKBone>& bones)
+{
+    if(node == nullptr)
+        return;
     std::string nodeName = node->name;
-    MyMath::VQS nodeTransform = node->localTransformation;
 
-    Bone *Bone = currentAnimation->FindBone(nodeName);
 
-    if (Bone) {
-        nodeTransform = Bone->GetLocalTransform();
-    }
-    MyMath::VQS globalTransform = parentMatrix * nodeTransform;
-    matrices.emplace_back(globalTransform);
-    for (int i = 0; i < node->childrenCount; i++)
+    Bone* Bone = currentAnimation->FindBone(nodeName);
+    if(Bone)
     { 
-        DrawBoneRecur(node->children[i], globalTransform, matrices);
-
+        int index = Bone->GetBoneID();
+        auto bonemap = currentAnimation->GetBoneIDMap();
+        if(bonemap[node->name].id != index)
+            DebugBreak();
+        auto nodeTransform = Bone->GetLocalTransform();
+        bones.emplace_back(IKBone{ globalSpaceTransformations[index], Bone, nodeTransform, bonemap[nodeName].offset});
     }
+    else
+    {
+        int a= 1;
+    }
+    GetIKBonesRecur(node->parent, transformations, bones);
 }

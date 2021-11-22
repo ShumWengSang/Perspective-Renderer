@@ -30,12 +30,14 @@ struct KeyFrame {
 
 
 struct BoneInfo {
-    /*id is index in finalBoneMatrices*/
+    /*id is index in modelSpaceTransformations*/
     int id;
 
     /*offset matrix transforms vertex from model space to bone space*/
     MyMath::VQS offset {};
 
+    /*global transformation matrix*/
+    MyMath::VQS globalTransformationMatrix;
 };
 
 

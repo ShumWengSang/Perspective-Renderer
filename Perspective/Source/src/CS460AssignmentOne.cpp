@@ -234,6 +234,19 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 
 	// animator->UpdateAnimation(deltaTime* velocity * animationSpeedModifier);
 	animator->UpdateAnimation(deltaTime);
+	auto optionalBones = animator->GetIKBones(selectedEffector);
+	if(optionalBones)
+	{
+		auto vqs = optionalBones.value().front().worldTransformation;
+		auto mat = trans.matrix * vqs.ToMat4();
+		glm::vec3 color(1,0,0);
+		dd::box(glm::value_ptr(mat[3]), glm::value_ptr(color), 25,25,25);
+	}
+
+	ikSolver.SetIKBones(std::move(optionalBones));
+	ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix));
+
+	animator->ApplyIK(ikSolver.GetIKBones());
 	// animator->UpdateAnimation(deltaTime, this->selectedEffector, this->targetPosition);
     
 
@@ -267,6 +280,24 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 		glm::vec3 col = { 0,1,0 };
 		dd::sphere(glm::value_ptr(this->targetPosition), glm::value_ptr(col), 25);
 		ImGui::DragFloat3("Target position", glm::value_ptr(this->targetPosition));
+
+		ImGui::NewLine();
+		static int selector = -1;
+		int i = 0;
+		if (ImGui::Selectable("NULL", selector == i)) {
+			selector = i;
+			selectedEffector = nullptr;
+		}
+		const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
+		for (int i = 1; i < endAffectors.size() + 1; ++i)
+		{
+			char buf[32];
+			sprintf(buf, "%s", endAffectors[i - 1]->name.c_str());
+			if (ImGui::Selectable(buf, selector == i)) {
+				selector = i;
+				selectedEffector = endAffectors[i - 1];
+			}
+		}
 	}
 
 	static int selected = -1;

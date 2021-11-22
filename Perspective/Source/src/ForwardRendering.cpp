@@ -52,10 +52,10 @@ void ForwardRendering::Draw(const Scene &scene) {
             Transform &trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
 
             {
-                auto finalMatrices = scene.entities[0].animator->DrawBones(MyMath::VQS(trans.matrix));
+                auto finalMatrices = scene.entities[0].animator->GatherBoneGlobalTransformation();
 
                 for (int i = 0; i < finalMatrices.size(); ++i) {
-                    this->debugLineMaterial->BindUniforms(finalMatrices[i].ToMat4());
+                    this->debugLineMaterial->BindUniforms(trans.matrix * finalMatrices[i].ToMat4());
                     if (i == 0) {
                         debugLineMaterial->BindColor(glm::vec4{0.7, 0.1, 0.1, 1.0});
                     } else {
@@ -65,6 +65,7 @@ void ForwardRendering::Draw(const Scene &scene) {
                 }
             }
         }
+
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

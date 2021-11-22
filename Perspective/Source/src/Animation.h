@@ -13,6 +13,7 @@ struct AssimpNodeData {
     std::vector<AssimpNodeData*> children;
     AssimpNodeData* parent = nullptr;
     void DisplayImGui(int nodeID) const;
+    MyMath::VQS worldTransformation;
 };
 
 //! Read data from assimp and create a heiracrchy of bones
@@ -32,7 +33,8 @@ public:
 
     inline float GetDuration() { return duration; }
 
-    inline const AssimpNodeData &GetRootNode() { return rootNode; }
+    inline const AssimpNodeData &GetRootNode() const { return rootNode; }
+    AssimpNodeData& GetRootNode() {return rootNode;}
 
     inline const std::unordered_map<std::string, BoneInfo> &GetBoneIDMap() {
         return boneInfoMap;
@@ -44,6 +46,7 @@ public:
     {
         return endAffectors;
     }
+
 
 private:
     // Sometimes there are missing bone data that assimp can only get from animation

@@ -6,6 +6,7 @@
 #include "App.h"
 #include "BezierCurve.h"
 #include "EaseInOutVelocity.h"
+#include "IKSolver.h"
 
 struct AssimpNodeData;
 class CS460AssignmentOne final : public App {
@@ -31,6 +32,8 @@ public:
     // IK variables
     AssimpNodeData* selectedEffector = nullptr;
     glm::vec3 targetPosition {-22, 55, 264};
+
+    IKSolver ikSolver;
 };
 
 
