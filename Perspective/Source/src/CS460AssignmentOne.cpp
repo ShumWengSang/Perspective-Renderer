@@ -235,13 +235,13 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 	// animator->UpdateAnimation(deltaTime* velocity * animationSpeedModifier);
 	animator->UpdateAnimation(deltaTime);
 	auto optionalBones = animator->GetIKBones(selectedEffector);
-	if(optionalBones)
-	{
-		auto vqs = optionalBones.value().front().worldTransformation;
-		auto mat = trans.matrix * vqs.ToMat4();
-		glm::vec3 color(1,0,0);
-		dd::box(glm::value_ptr(mat[3]), glm::value_ptr(color), 25,25,25);
-	}
+	//if(optionalBones)
+	//{
+	//	auto vqs = optionalBones.value().front().worldTransformation;
+	//	auto mat = trans.matrix * vqs.ToMat4();
+	//	glm::vec3 color(1,0,0);
+	//	dd::box(glm::value_ptr(mat[3]), glm::value_ptr(color), 25,25,25);
+	//}
 
 	ikSolver.SetIKBones(std::move(optionalBones));
 	ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix));
@@ -281,6 +281,9 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 		dd::sphere(glm::value_ptr(this->targetPosition), glm::value_ptr(col), 25);
 		ImGui::DragFloat3("Target position", glm::value_ptr(this->targetPosition));
 
+		ikSolver.ImGuiDispay();
+
+		
 		ImGui::NewLine();
 		static int selector = -1;
 		int i = 0;

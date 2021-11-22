@@ -6,6 +6,8 @@
 #include "Model.h"
 #include "MyMath.h"
 
+struct IKBone;
+
 struct AssimpNodeData {
     MyMath::VQS localTransformation;
     std::string name;
@@ -47,6 +49,7 @@ public:
         return endAffectors;
     }
 
+    
 
 private:
     // Sometimes there are missing bone data that assimp can only get from animation

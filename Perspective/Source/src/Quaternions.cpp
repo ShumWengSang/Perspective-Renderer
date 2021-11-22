@@ -198,7 +198,7 @@ glm::mat4 MyMath::Quaternion::ToMat4(bool normalize) const {
 MyMath::Quaternion MyMath::Quaternion::GetRotationBetween(const glm::vec3 &u, const glm::vec3 &v) {
     float k_cos_theta = glm::dot(u,v);
     float k = sqrt(glm::length2(u) * glm::length2(v));
-    if((k_cos_theta / k) == -1)
+    if(glm::epsilonEqual(k_cos_theta / k, -1.0f, 0.001f))
     {
         // 180 degree rotation around any orthogonal vector
         return Quaternion(0, glm::normalize(orthogonal(u)));

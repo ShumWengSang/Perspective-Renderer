@@ -37,7 +37,10 @@ private:
         const AssimpNodeData* node, std::vector<MyMath::VQS>& transformations, std::list<IKBone> & bones
     );
 
+    void ApplyIKRecur(const AssimpNodeData* node, MyMath::VQS parentTransform, const std::list<IKBone>& ikBones);
+
 private:
+
     std::vector<MyMath::VQS> modelSpaceTransformations { MAX_BONES, MyMath::VQS()};
     std::vector<MyMath::VQS> globalSpaceTransformations{ MAX_BONES, MyMath::VQS()};
     Animation *currentAnimation;

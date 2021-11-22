@@ -145,17 +145,47 @@ void Animator::ApplyIK(std::optional<std::list<IKBone>>& ikBones)
     if(!ikBones)
         return;
     auto& ikList = ikBones.value();
-    auto boneInfoMap = currentAnimation->GetBoneIDMap();
 
-    for (IKBone& ikBone : ikList)
-    {
-        if(ikBone.animationBone)
-        { 
-            int index = ikBone.animationBone->GetBoneID();
-            modelSpaceTransformations[index] = ikBone.worldTransformation * boneInfoMap[std::string(ikBone.animationBone->GetBoneName())].offset;
-            globalSpaceTransformations[index] = ikBone.worldTransformation;
+    ApplyIKRecur(&currentAnimation->GetRootNode(), MyMath::VQS(), ikList);
+}
+
+void Animator::ApplyIKRecur(const AssimpNodeData* node, MyMath::VQS parentTransform, const std::list<IKBone>& ikBones) {
+    std::string nodeName = node->name;
+    MyMath::VQS nodeTransform = node->localTransformation;
+
+    Bone* Bone = currentAnimation->FindBone(nodeName);
+
+    if (Bone) {
+        Bone->Update(currentTime, currentLerpMode);
+        nodeTransform = Bone->GetLocalTransform();
+
+        auto ikBone = std::find_if(ikBones.begin(), ikBones.end(), [Bone](const IKBone& bone)
+            {
+                return Bone == bone.animationBone;
+            });
+
+        if (ikBone != ikBones.end())
+        {
+            nodeTransform = ikBone->localTransformation;
+        }
+        else
+        {
+            int a = 1;
         }
     }
+
+    MyMath::VQS globalTransformation = parentTransform * nodeTransform;
+
+    auto boneInfoMap = currentAnimation->GetBoneIDMap();
+    if (boneInfoMap.find(nodeName) != boneInfoMap.end()) {
+        int index = boneInfoMap[nodeName].id;
+        MyMath::VQS offset = boneInfoMap[nodeName].offset;
+        modelSpaceTransformations[index] = globalTransformation * offset;
+        globalSpaceTransformations[index] = globalTransformation;
+    }
+
+    for (int i = 0; i < node->childrenCount; i++)
+        ApplyIKRecur(node->children[i], globalTransformation, ikBones);
 }
 
 void Animator::GetIKBonesRecur(const AssimpNodeData* node, std::vector<MyMath::VQS>& transformations, std::list<IKBone>& bones)
