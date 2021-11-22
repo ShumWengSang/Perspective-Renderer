@@ -51,11 +51,7 @@ public:
 
 		IKBone& endEffector = IKBones.front();
 
-		ImGui::Text("Target Position: [%f %f %f]", targetPosition.x, targetPosition.y, targetPosition.z);
-
-		const MyMath::VQS effectorWorldTransform = worldTransform * GetGlobalTrans(IKBones, &endEffector);
 		glm::vec3 color (1,0,0);
-		dd::sphere(glm::value_ptr(effectorWorldTransform.v), glm::value_ptr(color), 10);
 		// From End Effector to root
 		for (auto iter = IKBones.begin(); iter != IKBones.end(); ++iter)
 		{
@@ -65,16 +61,19 @@ public:
 			const MyMath::VQS effectorWorldTransform = worldTransform * GetGlobalTrans(IKBones, &endEffector);
 
 			// Get the joints true world space matrix (bone to world transformation)
-			const MyMath::VQS jointTransform = worldTransform * GetGlobalTrans(IKBones, &bone);
+			const MyMath::VQS boneToWorldTransform = worldTransform * GetGlobalTrans(IKBones, &bone);
+			dd::box(glm::value_ptr(boneToWorldTransform.v), glm::value_ptr(color), 5, 5, 5);
+			const MyMath::VQS worldToBoneTransform = boneToWorldTransform.Inverse();
+
 			// Now we transform the end effector's position to the joints local space
-			const glm::vec3 effectorPos = jointTransform.Inverse().ToMat4() * glm::vec4(effectorWorldTransform.v, 1);
-			// Get the position of the joint in joint space (since joint is in joint space its 0,0,0)
+			const glm::vec3 effectorPos = worldToBoneTransform.ToMat4() * glm::vec4(effectorWorldTransform.v, 1);
+			// Get the position of the joint in local space (since joint is in model space its 0,0,0)
 			const glm::vec3 jointPos = {0,0,0};
 			// Transform the targetposition from true world space to joint space
-			const glm::vec3 targetPosition_JointSpace = jointTransform.Inverse().ToMat4() * glm::vec4(targetPosition, 1);
+			const glm::vec3 targetPosition_LocalSpace = worldToBoneTransform.ToMat4() * glm::vec4(targetPosition, 1);
 
 			// Distance too short
-			if (glm::distance(effectorPos, targetPosition_JointSpace) <= threshold)
+			if (glm::distance(effectorPos, targetPosition_LocalSpace) <= threshold)
 			{
 				std::cout << "Distance too short" << std::endl;
 				return false;
@@ -87,15 +86,15 @@ public:
 				continue;
 
 			// Get the vector from joint to target
-			const glm::vec3 directionToGoal = glm::normalize(targetPosition_JointSpace - jointPos);
+			const glm::vec3 directionToGoal = glm::normalize(targetPosition_LocalSpace - jointPos);
 			// rotate joint so that its closer 
 			const MyMath::Quaternion rotation = MyMath::Quaternion::GetRotationBetween(directionToEffector, directionToGoal);
 			// Slerp the rotation (todo)
-			const auto rot = MyMath::Slerp(jointTransform.q, rotation, 1.0f).Norm();
+			const auto rot = MyMath::Slerp(boneToWorldTransform.q, rotation, 1.0f).Norm();
 
 			// Apply to local space rotation
-			//bone.localTransformation = MyMath::VQS({}, rot, 1.0) * bone.localTransformation;
 			bone.localTransformation = MyMath::VQS({}, rot, 1.0) * bone.localTransformation;
+			// bone.localTransformation = bone.localTransformation * MyMath::VQS({}, rot, 1.0);
 		}
 
 		// Now we have to apply it back to global space transformation
