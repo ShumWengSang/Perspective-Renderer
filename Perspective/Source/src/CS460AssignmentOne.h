@@ -34,6 +34,8 @@ public:
     glm::vec3 targetPosition {-22, 55, 264};
 
     IKSolver ikSolver;
+
+    std::string effectorName = "Bone.028_R.0.17_end";
 };
 
 

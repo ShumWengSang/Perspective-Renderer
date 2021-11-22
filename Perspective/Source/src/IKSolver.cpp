@@ -19,16 +19,16 @@ glm::quat fromTo(const glm::vec3& from, const glm::vec3& to) {
 		}
 
 		vec3 axis = normalize(cross(f, ortho));
-		return quat(axis.x, axis.y, axis.z, 0);
+		return quat(0, axis.x, axis.y, axis.z);
 	}
 
 	vec3 half = normalize(f + t);
 	vec3 axis = cross(f, half);
 
 	return quat(
+		dot(f, half),
 		axis.x,
 		axis.y,
-		axis.z,
-		dot(f, half)
+		axis.z
 	);
 }

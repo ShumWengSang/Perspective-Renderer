@@ -75,7 +75,7 @@ void CS460AssignmentOne::Init() {
 	MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
 
 	// alien
-	const std::string modelAndAnimationName = "Common/Animation/alien.fbx";
+	const std::string modelAndAnimationName = "Common/Animation/priest_v002.fbx";
 	model = new Model(modelAndAnimationName.c_str());
 	model->material = phongAnimated;
 	model->transformID = TransformSystem::getInstance().Create();
@@ -244,9 +244,8 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 	//}
 
 	ikSolver.SetIKBones(std::move(optionalBones));
-	ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix));
-
-	animator->ApplyIK(ikSolver.GetIKBones());
+	if(ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix), deltaTime))
+		animator->ApplyIK(ikSolver.GetIKBones());
 	// animator->UpdateAnimation(deltaTime, this->selectedEffector, this->targetPosition);
     
 
