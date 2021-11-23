@@ -42,7 +42,7 @@ void ForwardRendering::Draw(const Scene &scene) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
-    static bool drawBones = true;
+    static bool drawBones = false;
     ImGui::Checkbox("Draw bones?", &drawBones);
 
     if(drawBones)

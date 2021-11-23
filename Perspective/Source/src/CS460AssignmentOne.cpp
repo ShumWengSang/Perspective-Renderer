@@ -75,12 +75,12 @@ void CS460AssignmentOne::Init() {
 	MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
 
 	// alien
-	const std::string modelAndAnimationName = "Common/Animation/priest_v002.fbx";
+	const std::string modelAndAnimationName = "Common/Animation/alien.fbx";
 	model = new Model(modelAndAnimationName.c_str());
 	model->material = phongAnimated;
 	model->transformID = TransformSystem::getInstance().Create();
 	Transform& trans = TransformSystem::getInstance().Get(model->transformID);
-	// trans.SetLocalPosition(0, 0, -4500);
+	trans.SetLocalPosition(0, 0, -450);
 	// trans.SetLocalDirection(0, 180, 0);
 	trans.SetLocalScale(0.1);
 	TransformSystem::getInstance().UpdateMatrices(model->transformID);
@@ -139,6 +139,14 @@ void CS460AssignmentOne::Init() {
 	scene.mainCamera->LookAt({ 0, 10, -50 }, { 0, 0, 0 });
 
 	VQSUniformBlock.BindBufferBase(BufferObjectType::Uniform, PredefinedUniformBlockBinding(VQSUniformBlock));
+
+	const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
+	auto iter = std::find_if(endAffectors.begin(), endAffectors.end(), [this](const AssimpNodeData* data)
+		{
+			return data->name == effectorName;
+		});
+	if(iter != endAffectors.end())
+		selectedEffector = *iter;
 }
 
 void CS460AssignmentOne::Resize(int width, int height) {
@@ -161,12 +169,6 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 		bezierKnotPoints.emplace_back(glm::vec3(-140, -10, 542));
 		bezierKnotPoints.emplace_back(glm::vec3(394, -10, 1596));
 		bezierKnotPoints.emplace_back(glm::vec3(843, -10, 1428));
-		bezierKnotPoints.emplace_back(glm::vec3(1240, -10, 748));
-		bezierKnotPoints.emplace_back(glm::vec3(-214, -10, -335));
-		bezierKnotPoints.emplace_back(glm::vec3(120, -10, -935));
-		bezierKnotPoints.emplace_back(glm::vec3(772, -10, -707));
-		bezierKnotPoints.emplace_back(glm::vec3(491, -10, -157));
-		bezierKnotPoints.emplace_back(glm::vec3(61, -10, 828));
 
 		bezierCurve.AddPoints(bezierKnotPoints);
 		generatedPlotPoints.reserve(1000);
@@ -234,18 +236,36 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 
 	// animator->UpdateAnimation(deltaTime* velocity * animationSpeedModifier);
 	animator->UpdateAnimation(deltaTime);
-	auto optionalBones = animator->GetIKBones(selectedEffector);
-	//if(optionalBones)
-	//{
-	//	auto vqs = optionalBones.value().front().worldTransformation;
-	//	auto mat = trans.matrix * vqs.ToMat4();
-	//	glm::vec3 color(1,0,0);
-	//	dd::box(glm::value_ptr(mat[3]), glm::value_ptr(color), 25,25,25);
-	//}
 
-	ikSolver.SetIKBones(std::move(optionalBones));
-	if(ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix), deltaTime))
+	
+	{
+	static bool debugIK = false;
+	ImGui::Checkbox("Debug IK", &debugIK);
+	static bool lastSolve = false;
+	if(ImGui::Button("Start IK"))
+	{ 
+		auto optionalBones = animator->GetIKBones(selectedEffector);
+		ikSolver.SetIKBones(optionalBones);
+		lastSolve = ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix), deltaTime);
+	}
+	if (lastSolve)
+	{
+		ImGui::Text("Solved");
+	}
+	else
+	{
+		ImGui::Text("Not Solved");
+	}
+	if (debugIK)
 		animator->ApplyIK(ikSolver.GetIKBones());
+	}
+	if (auto end = ikSolver.GetEndEffactor(); end != nullptr)
+	{
+		glm::vec3 color (1,1,0);
+		dd::box(glm::value_ptr(MyMath::VQS(trans.matrix) * (end->worldTransformation).v),
+		glm::value_ptr(color), 10,10,10);
+	}
+
 	// animator->UpdateAnimation(deltaTime, this->selectedEffector, this->targetPosition);
     
 
@@ -284,22 +304,22 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 
 		
 		ImGui::NewLine();
-		static int selector = -1;
-		int i = 0;
-		if (ImGui::Selectable("NULL", selector == i)) {
-			selector = i;
-			selectedEffector = nullptr;
-		}
-		const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
-		for (int i = 1; i < endAffectors.size() + 1; ++i)
-		{
-			char buf[32];
-			sprintf(buf, "%s", endAffectors[i - 1]->name.c_str());
-			if (ImGui::Selectable(buf, selector == i)) {
-				selector = i;
-				selectedEffector = endAffectors[i - 1];
-			}
-		}
+		//static int selector = -1;
+		//int i = 0;
+		//if (ImGui::Selectable("NULL", selector == i)) {
+		//	selector = i;
+		//	selectedEffector = nullptr;
+		//}
+		//const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
+		//for (int i = 1; i < endAffectors.size() + 1; ++i)
+		//{
+		//	char buf[32];
+		//	sprintf(buf, "%s", endAffectors[i - 1]->name.c_str());
+		//	if (ImGui::Selectable(buf, selector == i)) {
+		//		selector = i;
+		//		selectedEffector = endAffectors[i - 1];
+		//	}
+		//}
 	}
 
 	static int selected = -1;

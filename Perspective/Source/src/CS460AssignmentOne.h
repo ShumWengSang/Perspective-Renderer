@@ -31,11 +31,13 @@ public:
 
     // IK variables
     AssimpNodeData* selectedEffector = nullptr;
-    glm::vec3 targetPosition {-22, 55, 264};
+    glm::vec3 targetPosition {-13, 0, -275};
 
     IKSolver ikSolver;
 
-    std::string effectorName = "Bone.028_R.0.17_end";
+    std::string effectorName = "Bone.028_R.019_end";
+
+    std::optional<std::list<IKBone>> optionalBone{};
 };
 
 

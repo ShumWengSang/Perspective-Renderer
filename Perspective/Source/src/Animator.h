@@ -28,22 +28,22 @@ public:
 
     const std::vector<MyMath::VQS> GatherBoneGlobalTransformation() const;
 
-    std::optional<std::list<IKBone>> GetIKBones(AssimpNodeData* endAffector);
+    std::optional<std::vector<IKBone>> GetIKBones(AssimpNodeData* endAffector);
 
-    void ApplyIK(std::optional<std::list<IKBone>>& ikBones );
+    void ApplyIK(std::optional<std::vector<IKBone>>& ikBones );
 
 private:
     void GetIKBonesRecur(
-        const AssimpNodeData* node, std::vector<MyMath::VQS>& transformations, std::list<IKBone> & bones
+        const AssimpNodeData* node, std::vector<MyMath::VQS>& transformations, std::vector<IKBone> & bones
     );
 
-    void ApplyIKRecur(const AssimpNodeData* node, MyMath::VQS parentTransform, const std::list<IKBone>& ikBones);
+    void ApplyIKRecur(const AssimpNodeData* node, MyMath::VQS parentTransform, const std::vector<IKBone>& ikBones);
 
 private:
 
     std::vector<MyMath::VQS> modelSpaceTransformations { MAX_BONES, MyMath::VQS()};
     std::vector<MyMath::VQS> globalSpaceTransformations{ MAX_BONES, MyMath::VQS()};
-    Animation *currentAnimation;
+    Animation *currentAnimation = nullptr;
     float currentTime;
     float deltaTime;
 
