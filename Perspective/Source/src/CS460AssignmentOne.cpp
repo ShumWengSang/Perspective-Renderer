@@ -300,7 +300,7 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 		dd::sphere(glm::value_ptr(this->targetPosition), glm::value_ptr(col), 25);
 		ImGui::DragFloat3("Target position", glm::value_ptr(this->targetPosition));
 
-		ikSolver.ImGuiDispay();
+		ikSolver.ImGuiDispay(MyMath::VQS(trans.matrix));
 
 		
 		ImGui::NewLine();

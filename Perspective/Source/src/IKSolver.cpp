@@ -115,23 +115,22 @@ bool IKSolver::SolveInternal(const MyMath::VQS& worldTransform, std::vector<IKBo
 			return true;
 		}
 		int numOfBones = 0;
-		for (auto iter = (++IKBones.begin()); iter != IKBones.end() && numOfBones < bonesToMove; ++iter, ++numOfBones)
+		for (int j = 1; j < IKBones.size() && numOfBones < bonesToMove; ++j, ++numOfBones)
 		{
-			IKBone& bone = *iter;
+
+			IKBone& bone = IKBones[j];
 
 			// Get the matrix of the end effector in true world space
-			glm::vec3 effectorPos = (worldTransform * GetGlobalTrans(IKBones, &endEffector)).v;
-			//std::cout << "\t Effector World Space Position Before " << glm::to_string(effectorPos) << '\n';
+			glm::vec3 effectorPos = (worldTransform * GetGlobalTrans(IKBones, &IKBones[0])).v;
 
 			// Get the joints true world space matrix (bone to world transformation)
-			const MyMath::VQS boneToWorldTransform = worldTransform * GetGlobalTrans(IKBones, &bone);
+			const MyMath::VQS boneToWorldTransform = worldTransform * GetGlobalTrans(IKBones, &IKBones[j]);
 
 			const glm::vec3 position = boneToWorldTransform.v;
 			const MyMath::Quaternion rotation = boneToWorldTransform.q;
 
 
 			glm::vec3 toEffector = glm::normalize(effectorPos - position);
-
 			glm::vec3 toGoal = glm::normalize(targetPosition - position);
 
 			if (glm::all(glm::isnan(toEffector)) || glm::all(glm::isnan(toGoal)))
@@ -153,9 +152,7 @@ bool IKSolver::SolveInternal(const MyMath::VQS& worldTransform, std::vector<IKBo
 			MyMath::Quaternion localRotate = rotation * effectorToGoal * rotation.Inverse();
 			bone.localTransformation.q = localRotate * bone.localTransformation.q;
 
-			effectorPos = (worldTransform * GetGlobalTrans(IKBones, &endEffector)).v;
-			//std::cout << "\t Effector Pos AFTER " << glm::to_string(effectorPos) << '\n';
-			//std::cout << "\t\t Length2 [Target - Effector] in steps: " << glm::length2(targetPosition - effectorPos) << '\n';
+			effectorPos = (worldTransform * GetGlobalTrans(IKBones, &IKBones[0])).v;
 			if (glm::length2(targetPosition - effectorPos) < threshold2) {
 				return true;
 			}
@@ -170,4 +167,32 @@ bool IKSolver::SolveInternal(const MyMath::VQS& worldTransform, std::vector<IKBo
 	}
 	std::cout << std::endl;
 	return false;
+}
+
+void IKSolver::ImGuiDispay(const MyMath::VQS& worldTransform)
+{
+	ImGui::SliderInt("Steps: ", &steps, 0, 1000);
+	ImGui::SliderFloat("Threshold", &threshold, 0, 100);
+	// ImGui::SliderFloat2("Global Limit", glm::value_ptr(g_limits), -130, 130);
+	ImGui::SliderInt("Bones to move", &bonesToMove, 1, 100);
+
+	threshold2 = threshold * threshold;
+
+	if(ikBones)
+		return;
+
+	glm::vec3 color(1, 0, 0);
+	const auto& IKBones = ikBones.value();
+	for (auto iter = IKBones.rbegin(); iter != IKBones.rend(); ++iter)
+	{
+		auto pos = worldTransform * iter->worldTransformation;
+		dd::box(glm::value_ptr(pos.v), glm::value_ptr(color), 5, 5, 5);
+
+		if (iter != IKBones.rbegin())
+		{
+			auto nextIter = std::prev(iter);
+			auto pos2 = worldTransform * nextIter->worldTransformation;
+			dd::arrow(glm::value_ptr(pos2.v), glm::value_ptr(pos.v), glm::value_ptr(color), 10);
+		}
+	}
 }

@@ -31,7 +31,7 @@ public:
 
     // IK variables
     AssimpNodeData* selectedEffector = nullptr;
-    glm::vec3 targetPosition {-13, 0, -275};
+    glm::vec3 targetPosition {36, 47, -324};
 
     IKSolver ikSolver;
 

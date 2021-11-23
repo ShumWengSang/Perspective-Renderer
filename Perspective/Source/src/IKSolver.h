@@ -41,15 +41,7 @@ public:
 		return nullptr;
 	}
 
-	void ImGuiDispay()
-	{
-		ImGui::SliderInt("Steps: ", &steps, 0, 1000);
-		ImGui::SliderFloat("Threshold", &threshold, 0, 100);
-		// ImGui::SliderFloat2("Global Limit", glm::value_ptr(g_limits), -130, 130);
-		ImGui::SliderInt("Bones to move", &bonesToMove, 1, 100);
-
-		threshold2 = threshold * threshold;
-	}
+	void ImGuiDispay(const MyMath::VQS& worldTransform);
 	
 private:
 	int bonesToMove = 5;
