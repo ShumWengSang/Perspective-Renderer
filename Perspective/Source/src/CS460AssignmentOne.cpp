@@ -113,7 +113,9 @@ void CS460AssignmentOne::Init() {
 		LogError("FBX has no animations!");
 	}
 
-	Animation* anim = animation.empty() ? nullptr : animation.front();
+	Animation* anim = animation.empty() ? nullptr : animation.back();
+	runningAnim = animation.back();
+	idleAnim = animation.front();
 	animator = new Animator(anim);
 
 	scene.entities.emplace_back(Entity{ model, animator });
@@ -145,8 +147,10 @@ void CS460AssignmentOne::Init() {
 		{
 			return data->name == effectorName;
 		});
-	if(iter != endAffectors.end())
+	if (iter != endAffectors.end())
 		selectedEffector = *iter;
+
+
 }
 
 void CS460AssignmentOne::Resize(int width, int height) {
@@ -167,8 +171,10 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 		easeInOutVelocity.SetVars(0.2f, 0.8f);
 
 		bezierKnotPoints.emplace_back(glm::vec3(-140, -10, 542));
-		bezierKnotPoints.emplace_back(glm::vec3(394, -10, 1596));
-		bezierKnotPoints.emplace_back(glm::vec3(843, -10, 1428));
+		bezierKnotPoints.emplace_back(glm::vec3(-537, -10, -779));
+		bezierKnotPoints.emplace_back(glm::vec3(-65, -10, -2163));
+		bezierKnotPoints.emplace_back(glm::vec3(0, 0, -450));
+		
 
 		bezierCurve.AddPoints(bezierKnotPoints);
 		generatedPlotPoints.reserve(1000);
@@ -178,27 +184,106 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 	DebugDrawSystem::getInstance().Update(scene);
 
 	static float cycle = 0.0f;
-	cycle += deltaTime * 0.1f;
-	cycle = cycle > 1.0f ? 0.0f : cycle;
+	cycle += deltaTime * 0.2f;
+	static bool lastSolve = false;
+	switch (currState)
+	{
+	case Running:
+	break;
+	case IK:
+		// cycle += deltaTime * 0.1f;
+	break;
+	}
 
+	auto& trans = TransformSystem::getInstance().Get(model->transformID);
+	if (cycle > 1.0f)
+	{
+		std::swap(currState, prevState);
+		switch (prevState)
+		{
+			case Running:
+			{
+
+				animator->ClearQueue();
+				animator->QueueAnimation(idleAnim);
+				animator->PlayAnimation();
+				animator->UpdateAnimation(0);
+				auto optionalBones = animator->GetIKBones(selectedEffector);
+				ikSolver.SetIKBones(optionalBones);
+				lastSolve = ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix), deltaTime);
+				animator->ClearQueue();
+				animation.emplace_back(new Animation(animator->GetAnimation(), ikSolver.GetIKBones()));
+				animator->QueueAnimation(animation.back());
+				animator->PlayAnimation();
+				
+				currState = IK;
+			}
+			break;
+			case IK:
+			{
+				animator->ClearQueue();
+				animator->QueueAnimation(runningAnim);
+				animator->PlayAnimation();
+				
+				currState = Running;
+			}
+
+			break;
+			default:
+			DebugBreak();
+		}
+		
+		cycle = 0.0f;
+	}
+
+	ImGui::Text("Cycle: %f", cycle);
+
+
+	switch (currState)
+	{
+	case Running:
+		ImGui::Text("State: Running");
+		break;
+	case IK:
+		ImGui::Text("State: IK");
+		break;
+	default:
+		DebugBreak();
+	}
+
+
+	if (ImGui::Button("Restart"))
+	{
+		auto spaceInFront = glm::vec3(0, 0, -450) - glm::vec3(36, 47, -324 );
+		bezierCurve.PopPoint();
+		bezierCurve.AddPoint(targetPosition + spaceInFront);
+		cycle = 1.1f;
+		currState = IK;
+		prevState = currState;
+	}
+
+
+
+
+
+
+
+
+	static float animationSpeedModifier = 2.5f;
 	const float distance = easeInOutVelocity.CalcDistance(cycle);
 	const float velocity = easeInOutVelocity.GetVelocity(cycle);
-
-
-
-	// Show the bezier curve and translate model here
-	glm::vec3 color{ 1, 0,0 };
-	dd::sphere(glm::value_ptr(bezierCurve.Interpolate(distance)), glm::value_ptr(color), 50);
-	auto& trans = TransformSystem::getInstance().Get(model->transformID);
-	trans.SetLocalPosition(bezierCurve.Interpolate(distance));
-
-
-	// Calculate orientation with forward method. We will take the average of the next 5 points 
-	const int numberOfPoints = 5;
-	const float diffBetweenPoints = 0.015f;
-	glm::vec3 lastPoint = {};
-	glm::vec3 averagePoint = {};
+	switch (currState)
 	{
+	case Running:
+	{
+
+		// Calculate orientation with forward method. We will take the average of the next 5 points 
+		const int numberOfPoints = 5;
+		const float diffBetweenPoints = 0.015f;
+		glm::vec3 lastPoint = {};
+		glm::vec3 averagePoint = {};
+		glm::vec3 color{ 1, 0,0 };
+
 		for (int i = 0; i < numberOfPoints; ++i)
 		{
 			float t = distance + i * diffBetweenPoints;
@@ -208,7 +293,7 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 				// Gradient using last point
 				glm::vec3 posA = bezierCurve.Interpolate(0.9999f);
 				glm::vec3 posB = bezierCurve.Interpolate(0.9999f - diffBetweenPoints);
-				
+
 				point = glm::lerp(posB, posA, t + 0.1f);
 			}
 			else
@@ -216,276 +301,307 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 				point = bezierCurve.Interpolate(t);
 				lastPoint = point;
 			}
-			glm::vec3 sphereColor = {0,0,1};
+			glm::vec3 sphereColor = { 0,0,1 };
 			// dd::sphere(glm::value_ptr(point), glm::value_ptr(sphereColor), 5);
 			averagePoint += point;
 
 		}
 		averagePoint /= numberOfPoints;
+
+
+		dd::sphere(glm::value_ptr(averagePoint), glm::value_ptr(color), 25);
+		// Average point is where we want to turn our model towards
+		  // Find the direction where we need to turn to in world
+		  // direction to turn to = Pos - targetPos
+		glm::vec3 direction = glm::normalize(trans.position - averagePoint);
+		glm::quat q = glm::rotation(glm::vec3(0, 0, 1), -direction);
+		trans.SetRotationMatrix(glm::toMat4(q));
+		// Show the bezier curve and translate model here
+
+		dd::sphere(glm::value_ptr(bezierCurve.Interpolate(distance)), glm::value_ptr(color), 50);
+
+		trans.SetLocalPosition(bezierCurve.Interpolate(distance));
+		animator->UpdateAnimation(deltaTime * velocity * animationSpeedModifier);
 	}
-	// dd::sphere(glm::value_ptr(averagePoint), glm::value_ptr(color), 25);
-	// Average point is where we want to turn our model towards
-	  // Find the direction where we need to turn to in world
-	  // direction to turn to = Pos - targetPos
-	glm::vec3 direction = glm::normalize(averagePoint - trans.position);
-	glm::quat q = glm::rotation(glm::vec3(0, 0, 1), direction);
-	// trans.SetRotationMatrix(glm::toMat4(q));
+	break;
+	case IK:
+		animator->UpdateAnimation(deltaTime);
+		break;
+	}
 
 
-	static float animationSpeedModifier = 2.5f;
-
-	// animator->UpdateAnimation(deltaTime* velocity * animationSpeedModifier);
-	animator->UpdateAnimation(deltaTime);
-
-	
 	{
-	static bool debugIK = false;
-	ImGui::Checkbox("Debug IK", &debugIK);
-	static bool lastSolve = false;
-	if(ImGui::Button("Start IK"))
-	{ 
-		auto optionalBones = animator->GetIKBones(selectedEffector);
-		ikSolver.SetIKBones(optionalBones);
-		lastSolve = ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix), deltaTime);
-	}
-	if (lastSolve)
-	{
-		ImGui::Text("Solved");
-	}
-	else
-	{
-		ImGui::Text("Not Solved");
-	}
-	if (debugIK)
-		animator->ApplyIK(ikSolver.GetIKBones());
-	}
-	if (auto end = ikSolver.GetEndEffactor(); end != nullptr)
-	{
-		glm::vec3 color (1,1,0);
-		dd::box(glm::value_ptr(MyMath::VQS(trans.matrix) * (end->worldTransformation).v),
-		glm::value_ptr(color), 10,10,10);
-	}
 
-	// animator->UpdateAnimation(deltaTime, this->selectedEffector, this->targetPosition);
-    
-
-	const auto& transforms = animator->GetFinalBoneMatrices();
-	// Prepare the data for UBO
-	for (int i = 0; i < transforms.size(); ++i) {
-		if (i >= MAX_BONES)
-			throw std::runtime_error("Too many bones!");
-		auto& vqs = transforms[i];
-		ShaderStruct::VQS mem;
-		mem.q = glm::vec4(vqs.q.v.x, vqs.q.v.y, vqs.q.v.z, vqs.q.s);
-		mem.s = vqs.s;
-		mem.v = vqs.v;
-		VQSUniformBlock.memory[i] = mem;
-	}
-	// Send to UBO
-	VQSUniformBlock.UpdateGpuBuffer();
-
-	for (auto& dirLight : scene.directionalLights) {
-		dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
-	}
-	scene.mainCamera->CommitToGpu();
-	geometryPass.Draw(gBuffer, scene);
-	lightPass.Draw(lightBuffer, gBuffer, scene);
-	finalPass.Draw(gBuffer, lightBuffer, scene);
-	forwardRendering.Draw(scene);
-
-	if (ImGui::CollapsingHeader("Inverse Kinematics"))
-	{
-		ImGui::Text("Target Position");
-		glm::vec3 col = { 0,1,0 };
-		dd::sphere(glm::value_ptr(this->targetPosition), glm::value_ptr(col), 25);
-		ImGui::DragFloat3("Target position", glm::value_ptr(this->targetPosition));
-
-		ikSolver.ImGuiDispay(MyMath::VQS(trans.matrix));
-
-		
-		ImGui::NewLine();
-		//static int selector = -1;
-		//int i = 0;
-		//if (ImGui::Selectable("NULL", selector == i)) {
-		//	selector = i;
-		//	selectedEffector = nullptr;
-		//}
-		//const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
-		//for (int i = 1; i < endAffectors.size() + 1; ++i)
-		//{
-		//	char buf[32];
-		//	sprintf(buf, "%s", endAffectors[i - 1]->name.c_str());
-		//	if (ImGui::Selectable(buf, selector == i)) {
-		//		selector = i;
-		//		selectedEffector = endAffectors[i - 1];
-		//	}
-		//}
-	}
-
-	static int selected = -1;
-	if (ImGui::CollapsingHeader("Animation System")) {
-		if (ImGui::TreeNode("Select Animation to Play")) {
-
-			for (int n = 0; n < animation.size(); n++) {
-				char buf[64];
-				sprintf(buf, "#%i: ", n + 1);
-				bool selectable = ImGui::Selectable(buf, selected == n);
-				ImGui::SameLine();
-				ImGui::TextColored({ 0.1, 0.7, 0.1, 1.0 }, "[%s]", animation[n]->GetName().c_str());
-
-				if (selectable) {
-					selected = n;
-					animator->PlayAnimation(animation[n]);
-				}
-			}
-			ImGui::TreePop();
+		glm::vec3 color(0, 1, 0);
+		dd::sphere(glm::value_ptr(this->targetPosition), glm::value_ptr(color), 25);
+		if (auto end = ikSolver.GetEndEffactor(); end != nullptr)
+		{
+			color = glm::vec3(1, 1, 0);
+			dd::box(glm::value_ptr(MyMath::VQS(trans.matrix) * (end->worldTransformation).v),
+				glm::value_ptr(color), 10, 10, 10);
 		}
-		animator->ImGuiDisplay(deltaTime);
-		if (ImGui::TreeNode("Display current animation heiarchy")) {
-			if (selected != -1) {
-				animation[selected]->ImGuiDisplay(deltaTime);
+
+
+		const auto& transforms = animator->GetFinalBoneMatrices();
+		// Prepare the data for UBO
+		for (int i = 0; i < transforms.size(); ++i) {
+			if (i >= MAX_BONES)
+				throw std::runtime_error("Too many bones!");
+			auto& vqs = transforms[i];
+			ShaderStruct::VQS mem;
+			mem.q = glm::vec4(vqs.q.v.x, vqs.q.v.y, vqs.q.v.z, vqs.q.s);
+			mem.s = vqs.s;
+			mem.v = vqs.v;
+			VQSUniformBlock.memory[i] = mem;
+		}
+		// Send to UBO
+		VQSUniformBlock.UpdateGpuBuffer();
+
+		for (auto& dirLight : scene.directionalLights) {
+			dirLight.worldDirection = glm::rotateY(dirLight.worldDirection, deltaTime);
+		}
+		scene.mainCamera->CommitToGpu();
+		geometryPass.Draw(gBuffer, scene);
+		lightPass.Draw(lightBuffer, gBuffer, scene);
+		finalPass.Draw(gBuffer, lightBuffer, scene);
+		forwardRendering.Draw(scene);
+
+		if (ImGui::CollapsingHeader("Inverse Kinematics"))
+		{
+			static bool showIKAnimated = false;
+			ImGui::Checkbox("Show IK Anim Solution", &showIKAnimated);
+
+			static bool IKWillUpdateRealTime = false;
+			ImGui::Checkbox("IK Update Realtime", &IKWillUpdateRealTime);
+
+
+
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("This does not do animation for the IK!");
+			}
+			if (IKWillUpdateRealTime)
+			{
+				auto optionalBones = animator->GetIKBones(selectedEffector);
+				ikSolver.SetIKBones(optionalBones);
+				lastSolve = ikSolver.SolveIK(targetPosition, MyMath::VQS(trans.matrix), deltaTime);
+			}
+
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("Fires IK + animation");
+			}
+			if (lastSolve)
+			{
+				ImGui::TextColored({ 0,1,0,1 }, "Solved");
 			}
 			else
-				ImGui::TextColored({ 0.7, 0.1, 0.1, 1.0 }, "Select an animation to view this");
-			ImGui::TreePop();
-		}
-	}
+			{
+				ImGui::TextColored({ 1,0,0,1 }, "Not Solved");
+			}
+			if (showIKAnimated) {
 
+				animator->ApplyIK(ikSolver.GetIKBones());
 
-
-	char label[32];
-
-	if (ImGui::CollapsingHeader("Speed and orientation control"))
-	{
-		// Show imgui info about bezier curve
-		ImGui::TextColored({ 0.8, 0.8, 0.1,1.0 }, "t = %f", cycle);
-
-		ImGui::TextColored({ 0.8, 0.1, 0.1,1.0 }, "d = %f", distance);
-
-		ImGui::TextColored({ 0.1,0.1,1.0,1.0 }, "v = %f", velocity);
-
-		easeInOutVelocity.ImguiDisplay();
-
-		glm::vec3 color{ 1, 0,1 };
-		dd::sphere(glm::value_ptr(bezierCurve.Interpolate(easeInOutVelocity.CalcDistance(easeInOutVelocity.GetT1()))), glm::value_ptr(color), 50);
-		dd::sphere(glm::value_ptr(bezierCurve.Interpolate(easeInOutVelocity.CalcDistance(easeInOutVelocity.GetT2()))), glm::value_ptr(color), 50);
-
-		ImGui::DragFloat("Animation Speed modifier", &animationSpeedModifier, 0.01f);
-	}
-
-	if (ImGui::CollapsingHeader("Path")) {
-		ImPlotAxisFlags ax_flags = ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks;
-
-		generatedPlotPoints.clear();
-
-
-		const std::vector<glm::vec3>& controlPoints = bezierCurve.GetGeneratedControlPoints();
-		// Render Knots
-		auto& knots = bezierCurve.GetPoints();
-
-		for (int i = 0; i < controlPoints.size(); i += 4)
-		{
-			if (controlPoints.size() % 4 != 0)
-				DebugBreak();
-			// Generate line from control points
-			for (int j = 0; j < 100; ++j) {
-				double t = j / 99.0;
-
-				generatedPlotPoints.emplace_back(BezierCurve::Interpolate(t, controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], controlPoints[i + 3]));
 			}
 
-		}
-		static bool addPoints = false;
-		ImGui::Checkbox("Add Points by click?", &addPoints);
-		static bool movePoints = false;
-		ImGui::Checkbox("Move Points by dragging", &movePoints);
-
-		if (ImGui::TreeNode("Show curve points"))
-		{
-			for (int i = 0; i < knots.size(); ++i)
+			ImGui::Text("Target Position");
+			glm::vec3 col = { 0,1,0 };
+			
+			ImGui::DragFloat3("Target position", glm::value_ptr(this->targetPosition));
+			if(ImGui::IsItemHovered())
 			{
-				ImGui::Text("Knot %i: [%f, %f, %f]", i, knots[i].x, knots[i].y, knots[i].z);
+				ImGui::SetTooltip("Press Restart Button to update animation + IK");
 			}
-			ImGui::TreePop();
+			ikSolver.ImGuiDispay(MyMath::VQS(trans.matrix));
+
+
+			ImGui::NewLine();
+			//static int selector = -1;
+			//int i = 0;
+			//if (ImGui::Selectable("NULL", selector == i)) {
+			//	selector = i;
+			//	selectedEffector = nullptr;
+			//}
+			//const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
+			//for (int i = 1; i < endAffectors.size() + 1; ++i)
+			//{
+			//	char buf[32];
+			//	sprintf(buf, "%s", endAffectors[i - 1]->name.c_str());
+			//	if (ImGui::Selectable(buf, selector == i)) {
+			//		selector = i;
+			//		selectedEffector = endAffectors[i - 1];
+			//	}
+			//}
 		}
-		if (ImGui::TreeNode("Generated Control Points"))
-		{
-			for (int i = 0; i < controlPoints.size(); ++i)
-			{
-				ImGui::Text("Control Point %i: [%f, %f, %f]", i, controlPoints[i].x, controlPoints[i].y, controlPoints[i].z);
-				if ((i + 1) % 4 == 0)
-				{
-					ImGui::NewLine();
-				}
-			}
 
-			ImGui::TreePop();
-		}
+		static int selected = -1;
+		if (ImGui::CollapsingHeader("Animation System")) {
+			if (ImGui::TreeNode("Select Animation to Play")) {
 
-		if (ImPlot::BeginPlot("Bezier", ImVec2(-1, 0), ImPlotFlags_NoTitle | ImPlotFlags_NoLegend | ImPlotFlags_NoMenus | ImPlotFlags_NoBoxSelect)) {
-			ImPlot::SetupAxes(0, 0, ax_flags, ax_flags);
-			ImPlot::SetupAxesLimits(-1000, 1000, -1000, 1000);
+				for (int n = 0; n < animation.size(); n++) {
+					char buf[64];
+					sprintf(buf, "#%i: ", n + 1);
+					bool selectable = ImGui::Selectable(buf, selected == n);
+					ImGui::SameLine();
+					ImGui::TextColored({ 0.1, 0.7, 0.1, 1.0 }, "[%s]", animation[n]->GetName().c_str());
 
+					if (selectable) {
+						selected = n;
+						animator->ClearQueue();
+						animator->QueueAnimation(animation[n]);
+						animator->PlayAnimation();
 
-			// Generate line in the world 
-			for (int i = 1; i < generatedPlotPoints.size(); i++)
-			{
-				glm::vec3 color{ 0, 1, 0 };
-				dd::line(glm::value_ptr(generatedPlotPoints[i - 1]), glm::value_ptr(generatedPlotPoints[i]), glm::value_ptr(color));
-			}
-
-
-			for (int i = 0; i < knots.size(); ++i)
-			{
-				glm::dvec3& line = knots[i];
-				if (!movePoints)
-				{ 
-					ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4, ImPlotDragToolFlags_NoInputs);
 					}
+				}
+				ImGui::TreePop();
+			}
+			animator->ImGuiDisplay(deltaTime);
+			if (ImGui::TreeNode("Display current animation heiarchy")) {
+				if (selected != -1) {
+					animation[selected]->ImGuiDisplay(deltaTime);
+				}
 				else
-				{ 
-					ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4);
-					bezierCurve.Update();
+					ImGui::TextColored({ 0.7, 0.1, 0.1, 1.0 }, "Select an animation to view this");
+				ImGui::TreePop();
+			}
+		}
+
+
+
+		char label[32];
+
+		if (ImGui::CollapsingHeader("Speed and orientation control"))
+		{
+			// Show imgui info about bezier curve
+			ImGui::TextColored({ 0.8, 0.8, 0.1,1.0 }, "t = %f", cycle);
+
+			ImGui::TextColored({ 0.8, 0.1, 0.1,1.0 }, "d = %f", distance);
+
+			ImGui::TextColored({ 0.1,0.1,1.0,1.0 }, "v = %f", velocity);
+
+			easeInOutVelocity.ImguiDisplay();
+
+			glm::vec3 color{ 1, 0,1 };
+			dd::sphere(glm::value_ptr(bezierCurve.Interpolate(easeInOutVelocity.CalcDistance(easeInOutVelocity.GetT1()))), glm::value_ptr(color), 50);
+			dd::sphere(glm::value_ptr(bezierCurve.Interpolate(easeInOutVelocity.CalcDistance(easeInOutVelocity.GetT2()))), glm::value_ptr(color), 50);
+
+			ImGui::DragFloat("Animation Speed modifier", &animationSpeedModifier, 0.01f);
+		}
+
+		if (ImGui::CollapsingHeader("Path")) {
+			ImPlotAxisFlags ax_flags = ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks;
+
+			generatedPlotPoints.clear();
+
+
+			const std::vector<glm::vec3>& controlPoints = bezierCurve.GetGeneratedControlPoints();
+			// Render Knots
+			auto& knots = bezierCurve.GetPoints();
+
+			for (int i = 0; i < controlPoints.size(); i += 4)
+			{
+				if (controlPoints.size() % 4 != 0)
+					DebugBreak();
+				// Generate line from control points
+				for (int j = 0; j < 100; ++j) {
+					double t = j / 99.0;
+
+					generatedPlotPoints.emplace_back(BezierCurve::Interpolate(t, controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], controlPoints[i + 3]));
+				}
+
+			}
+			static bool addPoints = false;
+			ImGui::Checkbox("Add Points by click?", &addPoints);
+			static bool movePoints = false;
+			ImGui::Checkbox("Move Points by dragging", &movePoints);
+
+			if (ImGui::TreeNode("Show curve points"))
+			{
+				for (int i = 0; i < knots.size(); ++i)
+				{
+					ImGui::Text("Knot %i: [%f, %f, %f]", i, knots[i].x, knots[i].y, knots[i].z);
+				}
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Generated Control Points"))
+			{
+				for (int i = 0; i < controlPoints.size(); ++i)
+				{
+					ImGui::Text("Control Point %i: [%f, %f, %f]", i, controlPoints[i].x, controlPoints[i].y, controlPoints[i].z);
+					if ((i + 1) % 4 == 0)
+					{
+						ImGui::NewLine();
 					}
-				glm::vec3 color{ 1,0,0 };
-				glm::vec3 knotP = knots[i];
-				dd::sphere(glm::value_ptr(knotP), glm::value_ptr(color), 25);
-			}
-
-			// Set the points
-			ImPlot::SetNextLineStyle(ImVec4(0, 0.9f, 0.8, 0.5), 2);
-			// ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("##bez", &generatedPlotPoints[0].x, &generatedPlotPoints[0].z, generatedPlotPoints.size(), 0,
-				sizeof(glm::vec3));
-
-
-
-			ImPlotPlot& plot = *ImPlot::GetCurrentContext()->CurrentPlot;
-			ImPlotAxis& y_axis = plot.YAxis(0);
-			ImPlotAxis& x_axis = plot.XAxis(0);
-			double u = x_axis.PixelsToPlot(ImGui::GetIO().MousePos.x);
-			double v = y_axis.PixelsToPlot(ImGui::GetIO().MousePos.y);
-
-
-			if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_1))
-			{
-				if (addPoints)
-				{
-					bezierCurve.AddPoint(glm::vec3(u, -10.0, v));
 				}
+
+				ImGui::TreePop();
 			}
-			else if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_2))
-			{
-				for (int i = 0; i < bezierKnotPoints.size(); ++i)
+
+			if (ImPlot::BeginPlot("Bezier", ImVec2(-1, 0), ImPlotFlags_NoTitle | ImPlotFlags_NoLegend | ImPlotFlags_NoMenus | ImPlotFlags_NoBoxSelect)) {
+				ImPlot::SetupAxes(0, 0, ax_flags, ax_flags);
+				ImPlot::SetupAxesLimits(-1000, 1000, -1000, 1000);
+
+
+				// Generate line in the world 
+				for (int i = 1; i < generatedPlotPoints.size(); i++)
 				{
-					std::cout << glm::to_string(bezierKnotPoints[i]) << '\n';
+					glm::vec3 color{ 0, 1, 0 };
+					dd::line(glm::value_ptr(generatedPlotPoints[i - 1]), glm::value_ptr(generatedPlotPoints[i]), glm::value_ptr(color));
 				}
-				std::cout << std::endl;
+
+
+				for (int i = 0; i < knots.size(); ++i)
+				{
+					glm::dvec3& line = knots[i];
+					if (!movePoints)
+					{
+						ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4, ImPlotDragToolFlags_NoInputs);
+					}
+					else
+					{
+						ImPlot::DragPoint(i, &line.x, &line.z, ImVec4(0, 0.9f, 0, 1), 4);
+						bezierCurve.Update();
+					}
+					glm::vec3 color{ 1,0,0 };
+					glm::vec3 knotP = knots[i];
+					dd::sphere(glm::value_ptr(knotP), glm::value_ptr(color), 25);
+				}
+
+				// Set the points
+				ImPlot::SetNextLineStyle(ImVec4(0, 0.9f, 0.8, 0.5), 2);
+				// ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotLine("##bez", &generatedPlotPoints[0].x, &generatedPlotPoints[0].z, generatedPlotPoints.size(), 0,
+					sizeof(glm::vec3));
+
+
+
+				ImPlotPlot& plot = *ImPlot::GetCurrentContext()->CurrentPlot;
+				ImPlotAxis& y_axis = plot.YAxis(0);
+				ImPlotAxis& x_axis = plot.XAxis(0);
+				double u = x_axis.PixelsToPlot(ImGui::GetIO().MousePos.x);
+				double v = y_axis.PixelsToPlot(ImGui::GetIO().MousePos.y);
+
+
+				if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_1))
+				{
+					if (addPoints)
+					{
+						bezierCurve.AddPoint(glm::vec3(u, -10.0, v));
+					}
+				}
+				else if (plot.Hovered && input.WasButtonPressed(GLFW_MOUSE_BUTTON_2))
+				{
+					for (int i = 0; i < bezierKnotPoints.size(); ++i)
+					{
+						std::cout << glm::to_string(bezierKnotPoints[i]) << '\n';
+					}
+					std::cout << std::endl;
+				}
+				ImPlot::EndPlot();
 			}
-			ImPlot::EndPlot();
 		}
 	}
+
 }
-
-
 

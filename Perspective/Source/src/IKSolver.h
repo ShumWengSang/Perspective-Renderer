@@ -48,7 +48,7 @@ private:
 	glm::vec2 g_limits{};
 
 	std::optional<std::vector<IKBone>> ikBones;
-	float threshold = 63.0f;
+	float threshold = 4.0f;
 	float threshold2 = 4.0f;
 	int steps = 100;
 

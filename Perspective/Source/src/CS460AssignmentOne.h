@@ -7,8 +7,16 @@
 #include "BezierCurve.h"
 #include "EaseInOutVelocity.h"
 #include "IKSolver.h"
-
+class Animation;
 struct AssimpNodeData;
+
+enum AnimState
+{
+    Running = 0,
+    IK = 1,
+    Max
+};
+
 class CS460AssignmentOne final : public App {
 public:
     CS460AssignmentOne() = default;
@@ -31,6 +39,8 @@ public:
 
     // IK variables
     AssimpNodeData* selectedEffector = nullptr;
+    Animation* runningAnim = nullptr;
+    Animation* idleAnim = nullptr;
     glm::vec3 targetPosition {36, 47, -324};
 
     IKSolver ikSolver;
@@ -38,6 +48,9 @@ public:
     std::string effectorName = "Bone.028_R.019_end";
 
     std::optional<std::list<IKBone>> optionalBone{};
+
+    AnimState currState = Running;
+    AnimState prevState = IK;
 };
 
 

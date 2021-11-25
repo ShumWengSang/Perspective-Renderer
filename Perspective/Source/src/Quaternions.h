@@ -51,6 +51,16 @@ namespace MyMath {
         // Product
         void operator*=(const Quaternion &q);
 
+        bool operator==(const Quaternion& rhs)
+        {
+            return (s == rhs.s) && (rhs.v == v);
+        }
+
+        bool operator!=(const Quaternion& rhs)
+        {
+            return !(*this == rhs);
+        }
+
         Quaternion operator*(const Quaternion &q) const;
 
         float Dot(const Quaternion &q) const;
@@ -140,5 +150,11 @@ namespace MyMath {
         glm::vec3 v{0};
         float s = 1.0f;
     };
+
+    inline std::ostream& operator<< (std::ostream& os, const VQS& vqs)
+    {
+        os << "[" << glm::to_string(vqs.v) << ", " << glm::to_string(vqs.q.ToGLMQuat()) << ", " << vqs.s << "]";
+        return os;
+    }
 }  // namespace MyMath
 #endif  // OPENGLFRAMEWORK_UNIFORM_H

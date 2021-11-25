@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "Bone.h"
+#include "MyMath.h"
 
 Bone::Bone(const std::string &name, int ID, const aiNodeAnim *channel) : name(name), id(ID) {
     int numOfPositions = channel->mNumPositionKeys;
@@ -46,6 +47,20 @@ void Bone::Update(float animationTime, LerpMode lerpMode) {
             localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
             break;
         }
+        case LerpMode::MyMix_iL_iS_eL: {
+            auto translation = InterpolateILerpPosition(animationTime);
+            auto rotation = InterpolateIncrementalSlerp(animationTime);
+            auto scale = InterpolateScalingExpo(animationTime);
+            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
+            break;
+        }
+        case LerpMode::MyMix_L_iS_iL: {
+            auto translation = InterpolatePosition(animationTime);
+            auto rotation = InterpolateRotation(animationTime);
+            auto scale = InterpolateScaling(animationTime);
+            localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
+            break;
+        }
         case LerpMode::MyMix_L_iSlerp_E: {
             auto translation = InterpolatePosition(animationTime);
             auto rotation = InterpolateIncrementalSlerp(animationTime);
@@ -67,6 +82,7 @@ void Bone::Update(float animationTime, LerpMode lerpMode) {
             localTransform = MyMath::VQS(translation, MyMath::Quaternion(rotation).Norm(), scale.x);
             break;
         }
+
         default:
         case LerpMode::GLMMix: {
             auto translation = InterpolatePositionGLM(animationTime);
@@ -101,6 +117,13 @@ int Bone::GetScaleIndex(float animationTime) {
             return index;
     }
     return 0;
+}
+
+void Bone::AddVQS(const MyMath::VQS& transformationKeyFrame, float time)
+{
+    positions.emplace_back(KeyPosition{ transformationKeyFrame.v, time });
+    rotations.emplace_back(KeyRotation{ transformationKeyFrame.q, time });
+    scales.emplace_back(KeyScale{ { transformationKeyFrame.s, transformationKeyFrame.s, transformationKeyFrame.s } , time });
 }
 
 float Bone::GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime) {

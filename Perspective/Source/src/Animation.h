@@ -23,6 +23,9 @@ class Animation {
 public:
     Animation() = default;
 
+    // Generate animation from ikBones
+    Animation(const Animation* prototype, std::optional<std::vector<IKBone>>& ikBones);
+
     Animation(const std::string &animationPath, Model *model);
 
     Animation(const aiScene *scene, const aiAnimation *animation, Model *model);
@@ -31,9 +34,9 @@ public:
 
     void ImGuiDisplay(float dt) const;
 
-    inline float GetTicksPerSecond() { return ticksPerSecond; }
+    inline float GetTicksPerSecond() const { return ticksPerSecond; }
 
-    inline float GetDuration() { return duration; }
+    inline float GetDuration() const { return duration; }
 
     inline const AssimpNodeData &GetRootNode() const { return rootNode; }
     AssimpNodeData& GetRootNode() {return rootNode;}

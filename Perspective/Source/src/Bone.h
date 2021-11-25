@@ -66,7 +66,26 @@ the current animation time*/
 
     int GetBoneID() const { return id; }
 
+    void CleanBone()
+    {
+        positions.clear();
+        rotations.clear();
+        scales.clear();
+    }
+
+    void AddVQS(const MyMath::VQS& transformationKeyFrame, float time);
+
 private:
+    template <typename T>
+    void CleanKeyframe(std::vector<T>& vec)
+    {
+        if(vec.empty())
+            return;
+        auto copyPos = vec.front();
+        vec.clear();
+        vec.emplace_back(copyPos);
+    }
+
     /* Gets normalized value for Lerp & Slerp*/
     float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
 

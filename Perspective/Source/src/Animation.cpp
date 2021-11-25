@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Animation.h"
+#include "IKSolver.h"
 
 Animation::Animation(const std::string &animationPath, Model *model) {
     Assimp::Importer importer;
@@ -22,6 +23,32 @@ Animation::Animation(const aiScene *scene, const aiAnimation *animation, Model *
     ReadMissingBones(animation, *model);
 }
 
+Animation::Animation(const Animation * prototype, std::optional<std::vector<IKBone>>&ikBones)
+{
+    if (!ikBones)
+        return;
+    // Copy literally everything from the other animation
+    static int counter = 0;
+    *this = *prototype;
+    this->animName = this->animName + "_" + std::to_string(counter++);
+    this->duration = this->GetTicksPerSecond() * 5.0f;
+    for (const auto& bone : ikBones.value())
+    {
+        // Find the bone we want to modify
+        if(bone.animationBone)
+		{
+			Bone* thisBone = FindBone(std::string(bone.animationBone->GetBoneName()));
+
+            // Store a copy of the bone's transform 
+            auto trans = thisBone->GetLocalTransform();
+			// Modify it by cleaning it out (except for resting pos), and then inserting our local
+			thisBone->CleanBone();
+            thisBone->AddVQS(trans, 0.f);
+			thisBone->AddVQS(bone.localTransformation, this->duration);
+		}
+    }
+}
+
 Bone *Animation::FindBone(const std::string &name) {
     auto iter = std::find_if(bones.begin(), bones.end(),
                              [&](const Bone &Bone) {
@@ -35,6 +62,8 @@ Bone *Animation::FindBone(const std::string &name) {
 // Sometimes there are missing bone data...
 
 void Animation::ImGuiDisplay(float dt) const {
+
+
     if (ImGui::TreeNode("Show heiarchy of %s", animName.c_str())) {
         static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
         const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;

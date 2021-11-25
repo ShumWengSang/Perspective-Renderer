@@ -117,6 +117,16 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 
             if (anim != nullptr) {
                 const auto &transforms = anim->GetFinalBoneMatrices();
+                //static bool coutDump = false;
+                //ImGui::Checkbox("Cout Dump", &coutDump);
+                //if (coutDump)
+                //{
+                //    for (int i = 0; i < transforms.size(); ++i) {
+                //        std::cout << i << ": " << transforms[i] << std::endl;
+                //    }
+                //}
+                
+
                 // Convert to mat4
                 std::vector<glm::mat4> matrices(transforms.size());
                 for (int i = 0; i < transforms.size(); ++i) {

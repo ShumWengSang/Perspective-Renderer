@@ -6,21 +6,60 @@
 
 Animator::Animator(Animation *animation) : modelSpaceTransformations(MAX_BONES, MyMath::VQS()) {
     currentTime = 0.0;
-    currentAnimation = animation;
+    queueAnimation.emplace_back(animation);
+    PlayAnimation();
 }
 
+
+//void Animator::UpdateAnimation(float dt) {
+//    this->deltaTime = dt;
+//    if (currentAnimation) {
+//        currentAnimCurrentTime += currentAnimation->GetTicksPerSecond() * dt;
+//        currentAnimCurrentTime = fmod(currentAnimCurrentTime, currentAnimation->GetDuration());
+//        CalculateBoneTransform(&currentAnimation->GetRootNode(), MyMath::VQS());
+//    }
+//}
+
 void Animator::UpdateAnimation(float dt) {
-    deltaTime = dt;
+    this->deltaTime = dt;
     if (currentAnimation) {
-        currentTime += currentAnimation->GetTicksPerSecond() * dt;
-        currentTime = fmod(currentTime, currentAnimation->GetDuration());
+
+        // Update total runtime of animation
+        currentTime += dt;
+        // Check if current runtime exceeds current animation duration
+        if (currentAnimCurrentTime >= currentAnimation->GetDuration())
+        {
+            // Go to the next animation (circle back)
+            currentAnimationIndex = (++currentAnimationIndex) % queueAnimation.size();
+            // Set the current animation
+            currentAnimation = queueAnimation[currentAnimationIndex];
+            // Reset timer
+            currentAnimCurrentTime = fmod(currentAnimCurrentTime, currentAnimation->GetDuration());
+            // currentAnimCurrentTime = 0.f;
+        }
+        // Update current animation time
+        currentAnimCurrentTime += currentAnimation->GetTicksPerSecond() * dt;
+
+
         CalculateBoneTransform(&currentAnimation->GetRootNode(), MyMath::VQS());
+        
+        currentTime = fmod(currentTime, totalAnimTime);
     }
 }
 
-void Animator::PlayAnimation(Animation *pAnimation) {
-    currentAnimation = pAnimation;
+void Animator::PlayAnimation() {
+
+    if(queueAnimation.empty())
+        return;
     currentTime = 0.0f;
+    totalAnimTime = 0.f;
+    for (const auto* anim : queueAnimation)
+    {
+        totalAnimTime += anim->GetDuration();
+    }
+    currentAnimationIndex = 0;
+    currentAnimCurrentTime = 0;
+    currentAnimation = queueAnimation[currentAnimationIndex];
 }
 
 void Animator::CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS parentTransform) {
@@ -30,7 +69,7 @@ void Animator::CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS pa
     Bone *Bone = currentAnimation->FindBone(nodeName);
 
     if (Bone) {
-        Bone->Update(currentTime, currentLerpMode);
+        Bone->Update(currentAnimCurrentTime, currentLerpMode);
         nodeTransform = Bone->GetLocalTransform();
     }
 
@@ -53,6 +92,11 @@ const std::vector<MyMath::VQS> &Animator::GetFinalBoneMatrices() const {
 }
 
 void Animator::ImGuiDisplay(float dt) const {
+    ImGui::Text("Total Duration: %f", totalAnimTime);
+    ImGui::Text("Anim Duration: %f", currentAnimation->GetDuration());
+    ImGui::Text("Ticks per second: %f", currentAnimation->GetTicksPerSecond());
+    ImGui::Text("Current Anim Time :%f", currentAnimCurrentTime);
+
     if (ImGui::TreeNode("Animator Controller")) {
         if (currentAnimation) {
             ImGui::Text("Currently playing: ");
@@ -102,6 +146,15 @@ void Animator::ImGuiDisplay(float dt) const {
             if (ImGui::Selectable("GLM [Lerp_Slerp_Lerp]", selected == 1)) {
                 selected = 1;
                 currentLerpMode = LerpMode::GLMMix;
+            }
+            if (ImGui::Selectable("GLM [iLerp_iSlerp_eLerp]", selected == 6)) {
+                selected = 6;
+                currentLerpMode = LerpMode::MyMix_iL_iS_eL;
+            }
+
+            if (ImGui::Selectable("GLM [Lerp_iSlerp_iLerp]", selected == 7)) {
+                selected = 7;
+                currentLerpMode = LerpMode::MyMix_L_iS_iL;
             }
             ImGui::Unindent();
             ImGui::PopStyleColor();
@@ -155,7 +208,7 @@ void Animator::ApplyIKRecur(const AssimpNodeData* node, MyMath::VQS parentTransf
     Bone* Bone = currentAnimation->FindBone(nodeName);
 
     if (Bone) {
-        Bone->Update(currentTime, currentLerpMode);
+        // Bone->Update(currentTime, currentLerpMode);
         nodeTransform = Bone->GetLocalTransform();
 
         auto ikBone = std::find_if(ikBones.begin(), ikBones.end(), [Bone](const IKBone& bone)

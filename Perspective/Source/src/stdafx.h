@@ -68,6 +68,8 @@
 #include <condition_variable>
 #include <tuple>
 #include <type_traits>
+#include <optional>
+#include <queue>
 
 #include <debug_draw.hpp>
 
@@ -92,6 +94,8 @@ constexpr int MAX_BONES = 200;
 enum LerpMode{
     MyMix_i_VQM,
     MyMix_iL_iS_iL,
+    MyMix_L_iS_iL,
+    MyMix_iL_iS_eL,
     MyMix_L_iSlerp_E,
     MyMix_L_S_L,
     MyMix_L_S_E,

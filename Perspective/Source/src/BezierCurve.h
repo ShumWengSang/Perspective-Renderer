@@ -75,6 +75,8 @@ public:
 
     void AddPoint(Point point);
 
+    void PopPoint();
+
     void AddPoints(const Points &input_points);
 
     Point Interpolate(double t);

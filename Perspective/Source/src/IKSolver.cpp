@@ -104,68 +104,75 @@ bool IKSolver::SolveIK(const glm::vec3& targetPosition, const MyMath::VQS& world
 
 bool IKSolver::SolveInternal(const MyMath::VQS& worldTransform, std::vector<IKBone>& IKBones, IKBone& endEffector, const glm::vec3& targetPosition, glm::vec3& color, float t)
 {
-	 for (unsigned int i = 0; i < steps; ++i) {
+
+
+	for (unsigned int i = 0; i < steps; ++i) {
 		// If distance from effector to target is close enough
 		glm::vec3 beforeEffectorPos = (worldTransform * GetGlobalTrans(IKBones, &endEffector)).v;
 		glm::vec3 yellowCol(0.7, 0.7, 1.0);
-
-		std::cout << i << ": Length2 [Target - Effector]: " << glm::length2(targetPosition - beforeEffectorPos) << '\n';
+		//::cout << "[Start Step]" << i << " ";
+		//std::cout << "  Curr End Effector Pos " << glm::to_string(beforeEffectorPos) << " ";
+		// std::cout << i << ": Length2 [Target - Effector]: " << glm::length2(targetPosition - beforeEffectorPos) << '\n';
 		if (glm::length2(targetPosition - beforeEffectorPos) < threshold2) {
-			
 			return true;
 		}
 		int numOfBones = 0;
-		for (int j = 1; j < IKBones.size() && numOfBones < bonesToMove; ++j, ++numOfBones)
+		for (int j = 0; j < (IKBones.size() - 2) && numOfBones < bonesToMove; ++j, ++numOfBones)
 		{
-
-			IKBone& bone = IKBones[j];
-
-			// Get the matrix of the end effector in true world space
-			glm::vec3 effectorPos = (worldTransform * GetGlobalTrans(IKBones, &IKBones[0])).v;
-
-			// Get the joints true world space matrix (bone to world transformation)
-			const MyMath::VQS boneToWorldTransform = worldTransform * GetGlobalTrans(IKBones, &IKBones[j]);
-
-			const glm::vec3 position = boneToWorldTransform.v;
-			const MyMath::Quaternion rotation = boneToWorldTransform.q;
-
-
-			glm::vec3 toEffector = glm::normalize(effectorPos - position);
-			glm::vec3 toGoal = glm::normalize(targetPosition - position);
-
-			if (glm::all(glm::isnan(toEffector)) || glm::all(glm::isnan(toGoal)))
+			for (int k = 1; k < j + 3 && k < IKBones.size(); ++k)
 			{
-				//std::cout << "\t Exiting NAN !" << '\n';
-				continue;
-			}
+				IKBone& bone = IKBones[k];
 
-			MyMath::Quaternion effectorToGoal{};
-			if (glm::length2(toGoal) > 0.00001f) {
-				effectorToGoal = MyMath::Quaternion::GetRotationBetween(toEffector, toGoal);
+				//std::cout << "\t " << k;
 
-			}
-			else
-			{
-				std::cout << "\t NOT CALCULATING ROT !" << '\n';
-			}
+				// Get the matrix of the end effector in true world space
+				glm::vec3 effectorPos = (worldTransform * GetGlobalTrans(IKBones, &IKBones[0])).v;
 
-			MyMath::Quaternion localRotate = rotation * effectorToGoal * rotation.Inverse();
-			bone.localTransformation.q = localRotate * bone.localTransformation.q;
+				//std::cout << "\t Effector Pos: [" << glm::to_string(effectorPos) << "] ||";
 
-			effectorPos = (worldTransform * GetGlobalTrans(IKBones, &IKBones[0])).v;
-			if (glm::length2(targetPosition - effectorPos) < threshold2) {
-				return true;
+				// Get the joints true world space matrix (bone to world transformation)
+				const MyMath::VQS boneToWorldTransform = worldTransform * GetGlobalTrans(IKBones, &IKBones[k]);
+
+				const glm::vec3 position = boneToWorldTransform.v;
+				const MyMath::Quaternion rotation = boneToWorldTransform.q;
+
+				//std::cout << "\t Joint Pos: [" << glm::to_string(effectorPos) << "]";
+
+				glm::vec3 toEffector = glm::normalize(effectorPos - position);
+				glm::vec3 toGoal = glm::normalize(targetPosition - position);
+
+				if (glm::all(glm::isnan(toEffector)) || glm::all(glm::isnan(toGoal)))
+				{
+					continue;
+				}
+
+				MyMath::Quaternion effectorToGoal{};
+				if (glm::length2(toGoal) > 0.00001f) {
+					effectorToGoal = MyMath::Quaternion::GetRotationBetween(toEffector, toGoal);
+
+				}
+
+				MyMath::Quaternion localRotate = rotation * effectorToGoal * rotation.Inverse();
+				bone.localTransformation.q = localRotate * bone.localTransformation.q;
+
+				effectorPos = (worldTransform * GetGlobalTrans(IKBones, &IKBones[0])).v;
+				//std::cout << "\t New Effector Pos: " << glm::to_string(effectorPos) << " ";
+
+				if (glm::length2(targetPosition - effectorPos) < threshold2) {
+					return true;
+				}
 			}
-			std::cout << "\n";
-			
 		}
 		// If the difference between the two effectors are not far enough, exit
 		glm::vec3 afterEffectorPos = (worldTransform * GetGlobalTrans(IKBones, &endEffector)).v;
-		if (glm::length2(afterEffectorPos - beforeEffectorPos) < 0.001) {
+		if (glm::length2(afterEffectorPos - beforeEffectorPos) < 0.00001f) {
 			return false;
 		}
+		//std::cout << "  New End Effector Pos " << glm::to_string(afterEffectorPos) << " ";
+		//std::cout << "[End Step] " ;
+
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 	return false;
 }
 
@@ -178,15 +185,20 @@ void IKSolver::ImGuiDispay(const MyMath::VQS& worldTransform)
 
 	threshold2 = threshold * threshold;
 
-	if(ikBones)
+	if (!ikBones)
 		return;
 
 	glm::vec3 color(1, 0, 0);
+	glm::vec3 color2(0, 1, 0);
 	const auto& IKBones = ikBones.value();
-	for (auto iter = IKBones.rbegin(); iter != IKBones.rend(); ++iter)
+	int i = IKBones.size();
+	for (auto iter = IKBones.rbegin(); iter != IKBones.rend(); ++iter, --i)
 	{
 		auto pos = worldTransform * iter->worldTransformation;
-		dd::box(glm::value_ptr(pos.v), glm::value_ptr(color), 5, 5, 5);
+		if (i < bonesToMove)
+			dd::box(glm::value_ptr(pos.v), glm::value_ptr(color), 5, 5, 5);
+		else
+			dd::box(glm::value_ptr(pos.v), glm::value_ptr(color2), 5, 5, 5);
 
 		if (iter != IKBones.rbegin())
 		{

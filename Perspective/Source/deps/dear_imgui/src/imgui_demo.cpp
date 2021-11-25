@@ -621,7 +621,7 @@ static void ShowDemoWindowWidgets()
 
         ImGui::Text("Hover over me");
         if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("I am a tooltip");
+            ImGui::SetTooltip("Item Hovering");
 
         ImGui::SameLine();
         ImGui::Text("- or me");

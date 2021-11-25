@@ -270,6 +270,11 @@ void BezierCurve::AddPoint(BezierCurve::Point point) {
     Update();
 }
 
+void BezierCurve::PopPoint()
+{
+    points.pop_back();
+}
+
 glm::vec3
 BezierCurve::Interpolate(double t, const glm::vec3 &P0, const glm::vec3 &P1, const glm::vec3 &P2, const glm::vec3 &P3) {
     glm::vec3 point;

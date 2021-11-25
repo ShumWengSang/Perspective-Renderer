@@ -101,10 +101,14 @@ glm::vec3 MyMath::Slerp(const glm::vec3 &begin, const glm::vec3 &end, float fact
 }
 
 glm::vec3 MyMath::Lerp(const glm::vec3 &begin, const glm::vec3 &end, float factor) {
+    if(begin == end)
+        return begin;
     return (1 - factor) * begin + factor * end;
 }
 
 float MyMath::Lerp(float begin, float end, float factor) {
+    if (begin == end)
+        return begin;
     return (1 - factor) * begin + factor * end;
 }
 

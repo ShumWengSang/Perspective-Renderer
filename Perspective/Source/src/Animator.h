@@ -5,7 +5,6 @@
 
 #include "Animation.h"
 #include "Logger.h"
-#include <optional>
 struct IKBone;
 
 //! Read data from heirachy of bones, recursive through all of them to prepare final data
@@ -15,7 +14,20 @@ public:
 
     void UpdateAnimation(float dt);
 
-    void PlayAnimation(Animation *pAnimation);
+    void PlayAnimation();
+
+    void QueueAnimation(Animation* anim)
+    {
+        queueAnimation.emplace_back(anim);
+        totalAnimTime += anim->GetDuration();
+    }
+
+    void ClearQueue()
+    {
+        queueAnimation.clear();
+    }
+
+    
 
     void CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS parentTransform);
 
@@ -44,10 +56,15 @@ private:
     std::vector<MyMath::VQS> modelSpaceTransformations { MAX_BONES, MyMath::VQS()};
     std::vector<MyMath::VQS> globalSpaceTransformations{ MAX_BONES, MyMath::VQS()};
     Animation *currentAnimation = nullptr;
+    float currentAnimCurrentTime = 0.f;
     float currentTime;
     float deltaTime;
 
-    mutable LerpMode currentLerpMode;
+    std::vector<Animation*> queueAnimation;
+    int currentAnimationIndex = 0;
+    float totalAnimTime = 0.f;
+
+    mutable LerpMode currentLerpMode = MyMix_L_iS_iL;
 };
 
 

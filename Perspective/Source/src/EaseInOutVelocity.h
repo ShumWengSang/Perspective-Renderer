@@ -16,6 +16,7 @@ public:
 
     VelocityType CalcDistance(float t) const
     {
+        // t = std::clamp(t, 0.f, 0.99f);
         if (0 <= t && t <= t1)
         {
             return (velocity / (2 * t1)) * (t * t);
@@ -30,13 +31,14 @@ public:
         }
         else
         {
-            DebugBreak();
             return {};
         }
+
     }
 
     VelocityType GetVelocity(float t) const
     {
+        // t = std::clamp(t, 0.f, 1.f);
         if (0 <= t && t <= t1)
         {
             return velocity * t / t1;
@@ -51,7 +53,6 @@ public:
         }
         else
         {
-            DebugBreak();
             return {};
         }
     }
