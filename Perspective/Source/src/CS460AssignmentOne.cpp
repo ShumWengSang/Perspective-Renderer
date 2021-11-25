@@ -291,8 +291,8 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 			if (t > 1.0f)
 			{
 				// Gradient using last point
-				glm::vec3 posA = bezierCurve.Interpolate(0.9999f);
-				glm::vec3 posB = bezierCurve.Interpolate(0.9999f - diffBetweenPoints);
+				glm::vec3 posA = bezierCurve.Interpolate(0.999999f);
+				glm::vec3 posB = bezierCurve.Interpolate(0.999999f - diffBetweenPoints);
 
 				point = glm::lerp(posB, posA, t + 0.1f);
 			}
@@ -308,7 +308,7 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 		}
 		averagePoint /= numberOfPoints;
 
-
+		color= glm::vec3{ 1, 1,1 };
 		dd::sphere(glm::value_ptr(averagePoint), glm::value_ptr(color), 25);
 		// Average point is where we want to turn our model towards
 		  // Find the direction where we need to turn to in world
@@ -317,7 +317,7 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 		glm::quat q = glm::rotation(glm::vec3(0, 0, 1), -direction);
 		trans.SetRotationMatrix(glm::toMat4(q));
 		// Show the bezier curve and translate model here
-
+		color = glm::vec3{ 1, 0,0 };
 		dd::sphere(glm::value_ptr(bezierCurve.Interpolate(distance)), glm::value_ptr(color), 50);
 
 		trans.SetLocalPosition(bezierCurve.Interpolate(distance));
@@ -368,9 +368,6 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 
 		if (ImGui::CollapsingHeader("Inverse Kinematics"))
 		{
-			static bool showIKAnimated = false;
-			ImGui::Checkbox("Show IK Anim Solution", &showIKAnimated);
-
 			static bool IKWillUpdateRealTime = false;
 			ImGui::Checkbox("IK Update Realtime", &IKWillUpdateRealTime);
 
@@ -399,11 +396,7 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 			{
 				ImGui::TextColored({ 1,0,0,1 }, "Not Solved");
 			}
-			if (showIKAnimated) {
 
-				animator->ApplyIK(ikSolver.GetIKBones());
-
-			}
 
 			ImGui::Text("Target Position");
 			glm::vec3 col = { 0,1,0 };
@@ -417,22 +410,32 @@ void CS460AssignmentOne::Draw(const Input& input, float deltaTime, float running
 
 
 			ImGui::NewLine();
-			//static int selector = -1;
-			//int i = 0;
-			//if (ImGui::Selectable("NULL", selector == i)) {
-			//	selector = i;
-			//	selectedEffector = nullptr;
-			//}
-			//const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
-			//for (int i = 1; i < endAffectors.size() + 1; ++i)
-			//{
-			//	char buf[32];
-			//	sprintf(buf, "%s", endAffectors[i - 1]->name.c_str());
-			//	if (ImGui::Selectable(buf, selector == i)) {
-			//		selector = i;
-			//		selectedEffector = endAffectors[i - 1];
-			//	}
-			//}
+
+			bool changeendEffector = ImGui::TreeNode("Change End Effector");
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("May break things! Def doesn't look realistic");
+			}
+			if (changeendEffector)
+			{
+				static int selector = -1;
+				int i = 0;
+				if (ImGui::Selectable("NULL", selector == i)) {
+					selector = i;
+					selectedEffector = nullptr;
+				}
+				const auto& endAffectors = animator->GetAnimation()->GetEndAffectors();
+				for (int i = 1; i < endAffectors.size() + 1; ++i)
+				{
+					char buf[32];
+					sprintf(buf, "%s", endAffectors[i - 1]->name.c_str());
+					if (ImGui::Selectable(buf, selector == i)) {
+						selector = i;
+						selectedEffector = endAffectors[i - 1];
+					}
+				}
+				ImGui::TreePop();
+			}
 		}
 
 		static int selected = -1;

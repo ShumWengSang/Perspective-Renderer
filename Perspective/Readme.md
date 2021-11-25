@@ -1,42 +1,23 @@
-# Advanced Animation CS460 Assignment 2
+# Advanced Animation CS460 Assignment 3
 ### Student: Roland Shum
 ### Professor: Prof Xin Li
 
 # Assignment Objectives
-(1) Path Interpolation:
-* Implemented bezier path
-    * ImGui for adding and moving points to move through
-    * Generates control points for every pair of given points to move through
-    * Generates lookup table based on arclength to t, where t is the bezier cubic interpolation value
-    * Calculates arclength of entire curve path and reparameterizes all the individual bezier segment tables
-(2) Arc Length Calculation
-    * Normalized arclength calculate + above impemented
-    * All implemented
-(3) Speed and Orientation Control
-    * Implemented ease-in and ease-out distance time function with a constant speed in the middle section
-    * Speed tied to object animation
-    * Control the orientation of the model using Forward Mode,
-        * Average of 5 points ahead of the model taken
-        * At the end of the curve, use a lerp between two points near the end
-
-(2) Animation:
-* Read key frames and interpolate between keyframes for animation
-* Implemented Lerp, Slerp, ELerp
-  * Demonstrated and used in exe
-* Implemented iSlerp and iVQS
-  * iSlerp is used and demonstrated in build
-  * iVQS proved very troublesome to showcase as it requires preprocessing of each frame 
-    * ASSIMP gives a [position, timestamp], [rotation, timestamp], and [scale, timestamp] for each bone
-    * To properly use iVQS I would need to
-      * At each timestamp regardless of position, rotation or scale
-      * Record the [position, rotation or scale]
-      * Interpolate the other two elements to find the right values for them
-      * Insert into keyframe
-    * This proved too long to do as my animation does not give a position, rotation, and scale at every time frame.
-      * To solve this, make animation with position, rotation, and scale at every time frame
-      * Or post process the animation to generate such frames
-        * But this runs the risk of going against the animators vision as its not guranteed they want to lerp or slerp
-* Incremental approaches run at 60 FPS, while others run at a variadic rate
+(1) Object Modeling:
+  * Default set to a depth of 5, can handle depth of 20 (since animation has ~20 nodes in a chain)
+  * Attempts to find a solution to the target (returns true or false)
+  * Implemented moving along path towards target, then change state to do IK animation
+(2) Inverse Kinematics
+    * CCD implemented
+      * Will find a solution for end effector to reach target within x iterations.
+    * Motions generated creating a new Animation frame that slerps rotation.
+      * Motion is smooth
+      * No constraints implemented
+      * No animation blending implemented, so it is jumpy sometimes
+    * Enforced Priority implemented 
+      * For every node from tip to root
+        * Once you modify the current node, modify the 3 nodes ahead of current node again.
+    * Alien will move in path to the green ball, and when it reaches it will move its head down to it.
 
 # How to Build:
 * **Run prepackaged file "RunCMake.bat" **which will 
@@ -55,9 +36,14 @@
 * **Scroll to zoom **
 * Rendering speed of ~110 FPS on my laptop
 * Modify ImGui GUI at will to make things nice and simple
-  * There are GUI controls in the ImGui meant for showcasing different lerp
-  * GUI controls for selecting which animation to play
-  * GUI controls to determine whether to render bones
+  * Restart button to restart animation
+    * This updates the Curve to go to the target point 
+  * 'Inverse Kinematics' 
+    * You can see the bones the IK is affecting
+    * "Show IK Anim Solution" 
+    * Can modify the number of iterations per frame to find a solution
+    * Can modify the threshold (how close enough to the target) to be considered solved
+    * Can modify the number of bones to affect (from end effector)
 
 
 # High Level Explanation
@@ -68,25 +54,16 @@
   * Project: Perspective
     * CS460AssignmentOne.cpp 
       * Main entry point to the scene
-    * BezierCurve.h
-      * Implements the concatenation of multiple bezier segments to form a curve
-        * Given a set of points,
-        * constructs a curve segment out of every two points, and generates an additional two control points
-        * Also generates lookup tables for (distance -> t)
-        * Calculates the total distance of the bezier curve, and reparameterize each lookup table using distance 
-      * Interpolate goes from 0 to 1, based on arclength interpolation
-      * Given a t, maps to a given curve segment
-        * In the curve segment, it then calculates the distance it needs to travel
-        * and looks up the two closest distance available in loopup (distance -> t) table 
-        * and interpolates between the ts of those two distances
-    * EaseInOutVelocity.h
-        * Implemented a parabolic ease-in ease-out
-        * Given a t1 and t2, calculate a velocity
-    * CS460AssignmentOne.cpp
-        * Animation speed control
-            * Modifies the animation playing speed
-        * Orientation control
-            * Implemented forward viewing by taking the average of the forward 5 points and looking towards it
+      * Implemented animation state machine to determine what the animation should do
+      * When the running animation reaches the last point, the IK will attempt to solve 
+    * Animator.h
+      * Retrieves the current animation's bones that are chained
+      * Can manually apply the IK chain to see end result of IK 
+    * IKSolver.h/.cpp
+      * CCD solver implemented
+      * Puts nodes in World Transform to find rotation 
+      * No constraints implemented 
+      * Enforced Priority implemented
 
 # Developed on
 Windows:
