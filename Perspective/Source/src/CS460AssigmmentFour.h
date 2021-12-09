@@ -6,6 +6,9 @@
 #include "App.h"
 
 
+class Material;
+class Model;
+struct Entity;
 class CS460AssignmentFour final : public App {
 public:
     CS460AssignmentFour() = default;
@@ -19,6 +22,8 @@ public:
     void Resize(int width, int height) override;
 
     void Draw(Input const &input, float deltaTime, float runningTime) override;
+
+    Entity& InitEntities(Material* mat, Model* model, float mass,glm::vec3 pos, glm::vec3 scale);
 
 };
 

@@ -30,21 +30,6 @@ float MyMath::Remap(float value, float low1, float high1, float low2, float high
     return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 }
 
-void MyMath::CsoSupport(
-        const Model &modelA, const Model &modelB, const glm::vec3 &dir, glm::vec3 &support, glm::vec3 &supportA
-        , glm::vec3 &supportB
-                       ) {
-    Transform &transformA = TransformSystem::getInstance().Get(modelA.transformID);
-    Transform &transformB = TransformSystem::getInstance().Get(modelA.transformID);
-
-    // Convert search direction to model space
-    const glm::vec3 localDirA = transformA.WorldToLocal(glm::vec4(dir, 0));
-    const glm::vec3 localDirB = transformA.WorldToLocal(glm::vec4(-dir, 0));
-
-    // Compute support points in model space
-
-}
-
 glm::vec3 MyMath::FindSupportPoint(const std::vector<Vertex> &vertices, const glm::vec3 &dir) {
     float highest = std::numeric_limits<float>::max();
     glm::vec3 support{0, 0, 0};

@@ -332,7 +332,7 @@ namespace NarrowCollision
 		/*
 		 * Gather stats
 		 */
-		const glm::vec3 h[2] = { std::get<1>(box0->colliders[0].aabb.GetCenterHalfExtents()), std::get<1>(box1->colliders[0].aabb.GetCenterHalfExtents()) };
+		const glm::vec3 h[2] = { std::get<1>(box0->collider.aabb.GetCenterHalfExtents()), std::get<1>(box1->collider.aabb.GetCenterHalfExtents()) };
 		const glm::quat R[2] = { box0->orientation, box1->orientation };
 		const glm::quat RT[2] = { box0->inverseOrientation, box1->inverseOrientation };
 		const glm::vec3 P[2] = { box0->position, box1->position };

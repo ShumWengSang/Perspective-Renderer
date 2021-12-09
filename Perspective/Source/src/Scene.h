@@ -31,10 +31,12 @@ class Model;
 class DebugModel;
 
 class Animator;
-
+class Rigidbody;
 struct Entity {
     Model *model;
     Animator *animator;
+    int transformID = 0;
+    Rigidbody* rb;
 };
 
 class Scene {

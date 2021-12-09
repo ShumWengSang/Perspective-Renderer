@@ -20,14 +20,26 @@
 struct Rigidbody;
 struct Collider {
 	// computed based on geometry
-	float mass;
-	glm::mat3 localInertiaTensor;
-	glm::vec3 localCentroid;
+	float mass = 1.0f;
+	glm::mat3 localInertiaTensor {1.0f};
 
 	// Geometry related
 	Rigidbody* rb = nullptr;
 
+	// Position from aabb not used
 	AABB aabb{};
+
+	void SetShape(const AABB& other)
+	{
+		aabb = other;
+		aabb.collider = this;
+		auto [center, halfextent] = aabb.GetCenterHalfExtents();
+		localInertiaTensor = glm::mat3 {
+			mass * (halfextent.y * halfextent.y + halfextent.z * halfextent.z) / 3.0f, 0, 0,
+			0, mass * (halfextent.x * halfextent.x + halfextent.z * halfextent.z) / 3.0f, 0,
+			0, 0, mass * (halfextent.x * halfextent.x + halfextent.y * halfextent.y) / 3.0f
+		};
+	}
 
 };
 using ColliderPair = std::pair<Collider*, Collider*>;

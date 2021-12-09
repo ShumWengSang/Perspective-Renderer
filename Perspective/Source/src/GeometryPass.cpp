@@ -56,13 +56,7 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
 	glClearTexImage(gBuffer.albedoTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
 	glClearTexImage(gBuffer.materialTexture, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
 */
-//for (const auto& ent : scene.entities)
-//{
-//    //if(!model.material) continue;
-//    //if (!model.material->opaque) continue;
-
-//    geometryToRender.emplace_back(ent.model);
-//}
+	
 
 
     const float clear[] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -110,23 +104,13 @@ void GeometryPass::Draw(const GBuffer &gBuffer, Scene &scene) {
                 lastProgram = program;
             }
 
-            Transform &transform = transformSystem.Get(model->transformID);
+            Transform &transform = transformSystem.Get(ent.transformID);
             const Transform &prevTransform =
-                    transformSystem.GetPrevious(model->transformID);
+                    transformSystem.GetPrevious(ent.transformID);
             model->material->BindUniforms(transform, prevTransform);
 
             if (anim != nullptr) {
                 const auto &transforms = anim->GetFinalBoneMatrices();
-                //static bool coutDump = false;
-                //ImGui::Checkbox("Cout Dump", &coutDump);
-                //if (coutDump)
-                //{
-                //    for (int i = 0; i < transforms.size(); ++i) {
-                //        std::cout << i << ": " << transforms[i] << std::endl;
-                //    }
-                //}
-                
-
                 // Convert to mat4
                 std::vector<glm::mat4> matrices(transforms.size());
                 for (int i = 0; i < transforms.size(); ++i) {

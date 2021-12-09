@@ -39,34 +39,7 @@ void ForwardRendering::Draw(const Scene &scene) {
     TransformSystem &transformSystem = TransformSystem::getInstance();
     static bool debugOptions[DebugSystem::DebugType::All] = {false, false};
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-
-    static bool drawBones = false;
-    ImGui::Checkbox("Draw bones?", &drawBones);
-
-    if(drawBones)
-    { 
-        if (scene.entities[0].animator->GetAnimation() != nullptr) {
-            glUseProgram(this->debugLineMaterial->program);
-            Transform &trans = TransformSystem::getInstance().Get(scene.entities[0].model->transformID);
-
-            {
-                auto finalMatrices = scene.entities[0].animator->GatherBoneGlobalTransformation();
-
-                for (int i = 0; i < finalMatrices.size(); ++i) {
-                    this->debugLineMaterial->BindUniforms(trans.matrix * finalMatrices[i].ToMat4());
-                    if (i == 0) {
-                        debugLineMaterial->BindColor(glm::vec4{0.7, 0.1, 0.1, 1.0});
-                    } else {
-                        debugLineMaterial->BindColor(glm::vec4{0.2, 0.8, 0.27, 1.0});
-                    }
-                    cylinder->Draw();
-                }
-            }
-        }
-
-    }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     static bool drawFloor = false;

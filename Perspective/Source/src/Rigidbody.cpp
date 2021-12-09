@@ -10,35 +10,23 @@ void Rigidbody::UpdateOrientation(void)
 
 void Rigidbody::AddCollider(Collider& newCollider)
 {
-	colliders.emplace_back(newCollider);
-
+	collider = newCollider;
+	collider.rb = this;
+	collider.aabb.collider = &collider;
 	// Recompute local mass and centroid
 	mass = 0.f;
 	position = glm::vec3(0);
 
-	for(const auto& collider : colliders)
-	{
-		mass += collider.mass;
-		position += collider.mass * collider.localCentroid;
-	}
+	mass = collider.mass;
+	position = collider.aabb.center;
 
 	inverseMass = 1.f / mass;
 	position *= inverseMass;
+	halfExtent = newCollider.aabb.halfExtents;
 
-	// Compute local inertia tensor
-	auto localInertiaTensor = glm::mat3(0);
-	for (const auto& collider : colliders)
-	{
-		//
-		const glm::vec3 r = position - collider.localCentroid;
+	glm::mat3 localInertiaTensor = collider.localInertiaTensor;
 
-		localInertiaTensor += collider.localInertiaTensor + collider.mass * (glm::dot(r,r)
-		* glm::mat3(1.0f) - glm::outerProduct(r, r));
-	}
-
-	localInverseInertiaTensor = glm::transpose(localInertiaTensor);
-
-	
+	localInverseInertiaTensor = glm::inverse(localInertiaTensor);
 }
 
 const glm::vec3 Rigidbody::LocalToGlobal(const glm::vec3& p) const
@@ -59,6 +47,11 @@ const glm::vec3 Rigidbody::LocalToGlobalVec(const glm::vec3& v) const
 const glm::vec3 Rigidbody::GlobalToLocalVec(const glm::vec3& v) const
 {
 	return inverseOrientation * v;
+}
+
+void Rigidbody::ApplyForce(const glm::vec3& f)
+{
+	forceAccumulator += f;
 }
 
 void Rigidbody::ApplyForce(const glm::vec3& f, const glm::vec3& at)
@@ -86,9 +79,13 @@ void Rigidbody::UpdateVelocity(float dt)
 void Rigidbody::UpdatePosition(float dt)
 {
 	position += linearVelocity * dt;
-		
+	// Todo: hack this away later
+	collider.aabb.center = position;
+	
 	// Integrate orientation
 	const glm::vec3 axis = glm::normalize(angularVelocity);
+	if(glm::all(glm::isnan(axis)))
+		return;
 	const float angle = glm::length(angularVelocity) * dt;
 	orientation = glm::rotate(orientation, angle, axis);
 

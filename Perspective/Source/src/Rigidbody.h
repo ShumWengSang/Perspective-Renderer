@@ -19,28 +19,28 @@
 #include "Collider.h"
 
 struct Rigidbody {
-	float mass;
-	float inverseMass;
+	float mass = 1.0f;
+	float inverseMass = 1 / mass;
 
-	glm::mat3 localInverseInertiaTensor;
-	glm::mat3 globalInverseInertiaTensor;
+	glm::mat3 localInverseInertiaTensor = glm::mat3(1.0f);
+	glm::mat3 globalInverseInertiaTensor = glm::mat3(1.0f);
 
-	glm::vec3 position;
-	glm::quat orientation;
-	glm::quat inverseOrientation;
+	glm::vec3 position{};
+	glm::quat orientation{1.0, 0, 0, 0};
+	glm::quat inverseOrientation{ 1.0, 0, 0, 0 };
 
-	glm::vec3 angularMomentum;
+	glm::vec3 angularMomentum{};
 
-	glm::vec3 linearVelocity;
-	glm::vec3 angularVelocity;
+	glm::vec3 linearVelocity{};
+	glm::vec3 angularVelocity{};
 
-	glm::vec3 forceAccumulator;
-	glm::vec3 torqueAccumulator;
+	glm::vec3 forceAccumulator{};
+	glm::vec3 torqueAccumulator{};
 
-	float friction = 0.f;
+	float friction = 0.5f;
 	float restitution = 0.5f;
-	glm::vec3 halfExtent;
-	ColliderList colliders;
+	glm::vec3 halfExtent{};
+	Collider collider;
 
 	void UpdateOrientation(void);
 
@@ -51,6 +51,7 @@ struct Rigidbody {
 	const glm::vec3 LocalToGlobalVec(const glm::vec3& v) const;
 	const glm::vec3 GlobalToLocalVec(const glm::vec3& v) const;
 
+	void ApplyForce(const glm::vec3& f);
 	void ApplyForce(const glm::vec3& f, const glm::vec3& at);
 	void ApplyImpulse(const glm::vec3& impulse, const glm::vec3 relativePosition);
 	void UpdateVelocity(float dt);

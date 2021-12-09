@@ -30,12 +30,14 @@
 #include "CameraUniforms.h"
 #include "BezierCurve.h"
 #include "Physics.h"
-
+#include "Rigidbody.h"
 
 namespace {
 	Scene scene{};
-	Model* model;
+	std::vector<Model*> model;
 	std::vector<Animation*> animation;
+	std::list<Rigidbody> rbs;
+	std::vector<Entity> boxes;
 	Animator* animator;
 
 	GBuffer gBuffer;
@@ -52,8 +54,34 @@ namespace {
 	Physics physicsEnvironment;
 }
 
+Entity& CS460AssignmentFour::InitEntities(Material* mat, Model* model, float mass, glm::vec3 pos, glm::vec3 scale)
+{
+	auto& entity = scene.entities.emplace_back(Entity{ model, nullptr,  TransformSystem::getInstance().Create(), nullptr });
+
+	Transform& trans = TransformSystem::getInstance().Get(entity.transformID);
+	trans.SetLocalPosition(pos);
+	trans.SetLocalScale(scale.x, scale.y, scale.z);
+	TransformSystem::getInstance().UpdateMatrices(entity.transformID);
+
+	AABB shape(glm::vec3(pos), trans.scale);
+	Collider collider;
+	collider.mass = mass;
+	collider.SetShape(shape);
+	auto& rb = rbs.emplace_back();
+	rb.restitution = 0.1f;
+	rb.friction = 0.3f;
+	rb.AddCollider(collider);
+	entity.rb = &rb;
+	physicsEnvironment.RegisterRigidbody(&rb);
+	return entity;
+}
+
+
+
 CS460AssignmentFour::~CS460AssignmentFour() {
-	delete model;
+	for (int i = 0; i < model.size(); ++i)
+		delete model[i];
+	
 	for (int i = 0; i < animation.size(); ++i)
 		delete animation[i];
 	delete animator;
@@ -69,26 +97,24 @@ CS460AssignmentFour::Settings CS460AssignmentFour::Setup() {
 }
 
 void CS460AssignmentFour::Init() {
-	// Load power plant material
-	PhongAnimatedMaterial* phongAnimated = new PhongAnimatedMaterial();
-	phongAnimated->ReadMaterialFromFile("Common/PowerPlantFiles/");
-	MaterialSystem::getInstance().ManageMaterial(phongAnimated);
 
 	PowerPlantMaterial* powerPlantMaterial = new PowerPlantMaterial();
 	powerPlantMaterial->ReadMaterialFromFile("Common/PowerPlantFiles/");
 	MaterialSystem::getInstance().ManageMaterial(powerPlantMaterial);
+	const std::string modelAndAnimationName = "Common/cube2.obj";
+	Model* newmodel = new Model(modelAndAnimationName.c_str());
+	newmodel->material = powerPlantMaterial;
+	// Floor
+	{
+		InitEntities(powerPlantMaterial, newmodel, 10000, glm::vec3(0), glm::vec3(1000, 10, 1000) );
+	}
 
-	// box
-	const std::string modelAndAnimationName = "Common/cube.obj";
-	model = new Model(modelAndAnimationName.c_str());
-	model->material = phongAnimated;
-	model->transformID = TransformSystem::getInstance().Create();
-	Transform& trans = TransformSystem::getInstance().Get(model->transformID);
-	trans.SetLocalPosition(0, 0, -450);
-	// trans.SetLocalDirection(0, 180, 0);
-	trans.SetLocalScale(0.1);
-	TransformSystem::getInstance().UpdateMatrices(model->transformID);
-
+	// Boxes
+	 for(int i = 0; i < 1; ++i)
+	 {
+		 boxes.emplace_back(InitEntities(powerPlantMaterial, newmodel, 10000,
+		 glm::vec3(0, 20 + 50 * (i + 1), 0), glm::vec3(10, 10, 10)));
+	 }
 
 	// Load the skybox
 	scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({
@@ -104,7 +130,7 @@ void CS460AssignmentFour::Init() {
 	sunLight.diffuseColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
 	sunLight.specularColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
 	sunLight.ambientColor = glm::vec4(1.0, 0.9, 0.9, 0.1);
-	scene.directionalLights.push_back(sunLight);
+	scene.directionalLights.emplace_back(sunLight);
 
 	scene.mainCamera = std::make_unique<FpsCamera>();
 
@@ -124,6 +150,32 @@ void CS460AssignmentFour::Resize(int width, int height) {
 }
 
 void CS460AssignmentFour::Draw(const Input& input, float deltaTime, float runningTime) {
+
+	for(auto& entity : boxes)
+	{
+		glm::vec3 gravity {0, -980.f, 0};
+		entity.rb->ApplyForce(gravity);
+	}
+	physicsEnvironment.Update(deltaTime, 4);
+
+	for(auto& entity : scene.entities)
+	{
+		if(entity.rb)
+		{
+			Transform& trans = TransformSystem::getInstance().Get(entity.transformID);
+			trans.SetLocalPosition(entity.rb->position);
+			trans.SetRotationMatrix(glm::toMat4(entity.rb->orientation));
+		}
+	}
+
+	if(ImGui::Button("Reset Sim"))
+	{
+		for (int i = 0; i < boxes.size(); ++i)
+		{
+			boxes[i].rb->position = glm::vec3(0, 20 + 50 * (i + 1),0);
+			boxes[i].rb->orientation = glm::quat(1,0,0,0);
+		}
+	}
 
 	scene.mainCamera->Update(input, deltaTime);
 	DebugDrawSystem::getInstance().Update(scene);

@@ -78,12 +78,12 @@ void CS460AssignmentOne::Init() {
 	const std::string modelAndAnimationName = "Common/Animation/alien.fbx";
 	model = new Model(modelAndAnimationName.c_str());
 	model->material = phongAnimated;
-	model->transformID = TransformSystem::getInstance().Create();
+	/*model->transformID = TransformSystem::getInstance().Create();
 	Transform& trans = TransformSystem::getInstance().Get(model->transformID);
 	trans.SetLocalPosition(0, 0, -450);
 	// trans.SetLocalDirection(0, 180, 0);
 	trans.SetLocalScale(0.1);
-	TransformSystem::getInstance().UpdateMatrices(model->transformID);
+	TransformSystem::getInstance().UpdateMatrices(model->transformID);*/
 
 	//Model *cube = new Model("Common/cube.obj");
 	//cube->material = powerPlantMaterial;

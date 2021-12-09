@@ -1,26 +1,28 @@
 #include "stdafx.h"
 #include "Physics.h"
 
+#include <TransformSystem.h>
+
 void Physics::Update(float dt, int iterations)
 {
 	// Update broadphase and arbiters
 	for (int i = 0; i < iterations; ++i)
 	{
 		// Update inertia tensor
-		for(auto rb : rigidbodies)
+		for(const auto rb : rigidbodies)
 		{
 			rb->UpdateInvInertialWorld();
 		}
 
-		broadphase.Update();
-		ColliderPairList& colliderPairs = broadphase.ComputePairs();
+		// broadphase.Update();
+		// ColliderPairList& colliderPairs = broadphase.ComputePairs();
 
 		for (const ColliderPair& pair : colliderPairs)
 		{
 			Arbiter newArbiter(pair.first->rb, pair.second->rb);
 			ArbiterKey key(pair.first->rb, pair.second->rb);
 			// If we have contacts
-			if (newArbiter.contacts.size() > 0)
+			if (!newArbiter.contacts.empty())
 			{
 				// Add to arbiter list
 
@@ -71,6 +73,7 @@ void Physics::Update(float dt, int iterations)
 		rb->forceAccumulator = glm::vec3(0);
 		rb->torqueAccumulator = glm::vec3(0);
 	}
+
 }
 
 bool Physics::RegisterRigidbody(Rigidbody* rb)
@@ -79,6 +82,7 @@ bool Physics::RegisterRigidbody(Rigidbody* rb)
 	if(iter == rigidbodies.end())
 	{
 		rigidbodies.emplace_back(rb);
+		broadphase.Add(&rb->collider.aabb);
 		return true;
 	}
 	return false;

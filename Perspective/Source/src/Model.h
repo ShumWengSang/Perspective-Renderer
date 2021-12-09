@@ -64,8 +64,6 @@ public:
 
     int TriangleCount() const;
 
-    int transformID = 0;
-
     auto &GetBoneInfoMap() { return boneInfoMap; }
 
     int &GetBoneCounter() { return boneCounter; }
