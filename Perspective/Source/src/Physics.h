@@ -15,16 +15,18 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/24/2021
  * End Header --------------------------------------------------------*/
-#include "stdafx.h"
-#include "App.h"
-#include "CS460AssigmmentFour.h"
-
-std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<CS460AssignmentFour>();
-    App::CurrApp = app.get();
-    return app;
-}
-
-App &App::GetApp() {
-    return *App::CurrApp;
-}
+#pragma once
+#include "Contact.h"
+#include "Rigidbody.h"
+#include "N_SquareBroadphase.h"
+class Physics
+{
+public:
+	void Update(float dt, int iterations);
+	bool RegisterRigidbody(Rigidbody* rb);
+private:
+	std::vector<Rigidbody*> rigidbodies;
+	std::map<ArbiterKey, Arbiter> arbiters;
+	NSquared broadphase;
+	rbSolver solver;
+};

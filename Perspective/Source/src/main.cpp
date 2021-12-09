@@ -439,16 +439,17 @@ int main(int argc, char *argv[]) {
     while (!glfwWindowShouldClose(window)) {
         input.PreEventPoll();
         glfwPollEvents();
-
-        transformSystem.Update();
-        textureSystem.Update();
-        modelSystem.Update();
-        shaderSystem.Update();
-
         double currentTime = glfwGetTime();
         double elapsedTime = currentTime - lastTime;
         lastTime = currentTime;
         float deltaTime = float(elapsedTime);
+
+        transformSystem.Update();
+        textureSystem.Update();
+        modelSystem.Update();
+        shaderSystem.Update(deltaTime);
+
+
 
 
         guiSystem.NewFrame();

@@ -15,16 +15,13 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/24/2021
  * End Header --------------------------------------------------------*/
-#include "stdafx.h"
-#include "App.h"
-#include "CS460AssigmmentFour.h"
-
-std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<CS460AssignmentFour>();
-    App::CurrApp = app.get();
-    return app;
-}
-
-App &App::GetApp() {
-    return *App::CurrApp;
-}
+#pragma once
+struct Contact;
+class rbSolver
+{
+public:
+	rbSolver(float bias = 0.05f) : biasFactor(bias){};
+	void ApplyImpulse(Contact* contact, float dt) const;
+private:
+	float biasFactor;
+};

@@ -15,16 +15,20 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/24/2021
  * End Header --------------------------------------------------------*/
-#include "stdafx.h"
-#include "App.h"
-#include "CS460AssigmmentFour.h"
+#pragma once
+#include "Collider.h"
+class AABB;
 
-std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<CS460AssignmentFour>();
-    App::CurrApp = app.get();
-    return app;
-}
 
-App &App::GetApp() {
-    return *App::CurrApp;
-}
+class Broadphase {
+public:
+	virtual ~Broadphase() = default;
+	// adds a new AABB to the broadphase
+	virtual void Add(AABB* aabb) = 0;
+
+	// updates broadphase to react to changes to AABB
+	virtual void Update(void) = 0;
+
+	// returns a list of possibly colliding colliders
+	virtual const ColliderPairList& ComputePairs(void) = 0;
+};

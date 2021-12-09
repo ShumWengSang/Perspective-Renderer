@@ -89,7 +89,7 @@ private:
 public:
     // Reload recompile and relink shaders/programs if needed. Call this every
     // render loop iteration before using any shaders managed by this shader loader.
-    void Update();
+    void Update(float dt);
 
     std::vector<ShaderErrorReport> GetShaderErrorReports();
 

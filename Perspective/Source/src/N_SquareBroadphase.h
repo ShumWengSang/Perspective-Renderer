@@ -15,16 +15,23 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/24/2021
  * End Header --------------------------------------------------------*/
-#include "stdafx.h"
-#include "App.h"
-#include "CS460AssigmmentFour.h"
+#pragma once
+#include "AABB.h"
+#include "Broadphase.h"
 
-std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<CS460AssignmentFour>();
-    App::CurrApp = app.get();
-    return app;
-}
+class NSquared : public Broadphase {
+public:
+	virtual void Add(AABB* aabb);
 
-App &App::GetApp() {
-    return *App::CurrApp;
-}
+	virtual void Update(void)
+	{
+		// do nothing
+	}
+
+	virtual ColliderPairList& ComputePairs(void);
+
+private:
+
+    AABBList aabbs;
+    ColliderPairList pairs;
+};

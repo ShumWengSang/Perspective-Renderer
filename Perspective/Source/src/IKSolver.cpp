@@ -123,8 +123,6 @@ bool IKSolver::SolveInternal(const MyMath::VQS& worldTransform, std::vector<IKBo
 			{
 				IKBone& bone = IKBones[k];
 
-				//std::cout << "\t " << k;
-
 				// Get the matrix of the end effector in true world space
 				glm::vec3 effectorPos = (worldTransform * GetGlobalTrans(IKBones, &IKBones[0])).v;
 

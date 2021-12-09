@@ -15,16 +15,21 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/24/2021
  * End Header --------------------------------------------------------*/
-#include "stdafx.h"
-#include "App.h"
-#include "CS460AssigmmentFour.h"
+#pragma once
+#include "AABB.h"
+struct Rigidbody;
+struct Collider {
+	// computed based on geometry
+	float mass;
+	glm::mat3 localInertiaTensor;
+	glm::vec3 localCentroid;
 
-std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<CS460AssignmentFour>();
-    App::CurrApp = app.get();
-    return app;
-}
+	// Geometry related
+	Rigidbody* rb = nullptr;
 
-App &App::GetApp() {
-    return *App::CurrApp;
-}
+	AABB aabb{};
+
+};
+using ColliderPair = std::pair<Collider*, Collider*>;
+using ColliderPairList = std::vector<ColliderPair>;
+using ColliderList = std::vector<Collider>;

@@ -225,8 +225,47 @@ void ShaderSystem::UpdateProgram(Program &program) {
 
 #pragma endregion
 
-void ShaderSystem::Update() {
+void ShaderSystem::Update(float dt) {
     static GLchar statusBuffer[4096];
+    static float timer = 0;
+    timer += dt;
+
+    // Now update GUI
+    auto GuiFunc = [&]() -> void {
+        auto reports = ShaderSystem::getInstance().GetShaderErrorReports();
+        for (auto& report : reports) {
+            ImGui::Begin(("Shader error report for '" + report.shaderName + "'").c_str());
+            {
+                ImGui::Text(report.shaderName.c_str());
+                ImGui::TextColored({ 1, 0, 0, 1 }, report.errorMessage.c_str());
+
+                // NOTE: We will always use the read-only flag here, so this const cast should be perfectly fine!
+                char* data = const_cast<char*>(report.preprocessedSource.data());
+                size_t dataSize = report.preprocessedSource.size();
+
+                // Give a reasonable size the first time a file shows up
+                ImGui::SetWindowSize({ 800, 600 }, ImGuiCond_Once);
+
+                // (this size seems to work fine for fitting all relevant data)
+                ImVec2 panelSize = ImGui::GetWindowSize();
+                panelSize.y -= 50 + ImGui::CalcTextSize(report.errorMessage.c_str()).y +
+                    ImGui::CalcTextSize(report.shaderName.c_str()).y;
+                panelSize.x -= 15;
+
+                ImGui::InputTextMultiline("", data, dataSize, panelSize, ImGuiInputTextFlags_ReadOnly);
+            }
+            ImGui::End();
+        }
+    };
+
+    GuiSystem& guiSystem = GuiSystem::getInstance();
+
+    guiSystem.AddGui("Shader Error Reports", std::ref(GuiFunc));
+
+    if(timer <= 1.0f)
+        return;
+    timer = 0.f;
+
     std::unordered_set<Program> programsToUpdate{};
 
     for (auto &pair: managedFiles) {
@@ -245,37 +284,7 @@ void ShaderSystem::Update() {
         UpdateProgram(program);
     }
 
-    // Now update GUI
-    auto GuiFunc = [&]() -> void {
-        auto reports = ShaderSystem::getInstance().GetShaderErrorReports();
-        for (auto &report: reports) {
-            ImGui::Begin(("Shader error report for '" + report.shaderName + "'").c_str());
-            {
-                ImGui::Text(report.shaderName.c_str());
-                ImGui::TextColored({1, 0, 0, 1}, report.errorMessage.c_str());
 
-                // NOTE: We will always use the read-only flag here, so this const cast should be perfectly fine!
-                char *data = const_cast<char *>(report.preprocessedSource.data());
-                size_t dataSize = report.preprocessedSource.size();
-
-                // Give a reasonable size the first time a file shows up
-                ImGui::SetWindowSize({800, 600}, ImGuiCond_Once);
-
-                // (this size seems to work fine for fitting all relevant data)
-                ImVec2 panelSize = ImGui::GetWindowSize();
-                panelSize.y -= 50 + ImGui::CalcTextSize(report.errorMessage.c_str()).y +
-                               ImGui::CalcTextSize(report.shaderName.c_str()).y;
-                panelSize.x -= 15;
-
-                ImGui::InputTextMultiline("", data, dataSize, panelSize, ImGuiInputTextFlags_ReadOnly);
-            }
-            ImGui::End();
-        }
-    };
-
-    GuiSystem &guiSystem = GuiSystem::getInstance();
-
-    guiSystem.AddGui("Shader Error Reports", std::ref(GuiFunc));
 }
 
 std::vector<ShaderErrorReport> ShaderSystem::GetShaderErrorReports() {

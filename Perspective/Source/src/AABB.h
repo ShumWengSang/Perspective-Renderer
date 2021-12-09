@@ -15,16 +15,22 @@
  * Author: Roland Shum, roland.shum@digipen.edu
  * Creation date: 1/24/2021
  * End Header --------------------------------------------------------*/
-#include "stdafx.h"
-#include "App.h"
-#include "CS460AssigmmentFour.h"
+#pragma once
+struct Collider;
+struct AABB
+{
+    AABB() = default;
+    AABB(glm::vec3 const& center, glm::vec3 const& halfExtents);
+    AABB(glm::vec3 const& lowerBound, glm::vec3 const& upperBound, int empty);
+    
+    auto GetMinMax() const -> std::tuple<glm::vec3, glm::vec3>;
+    auto GetCenterHalfExtents() const -> std::tuple<glm::vec3, glm::vec3>;
 
-std::unique_ptr<App> AppSelector::ConstructApp() {
-    auto app = std::make_unique<CS460AssignmentFour>();
-    App::CurrApp = app.get();
-    return app;
-}
+    glm::vec3 center = glm::vec3(0);
+    glm::vec3 halfExtents = glm::vec3(0);
+    Collider* collider = nullptr;
 
-App &App::GetApp() {
-    return *App::CurrApp;
-}
+    static bool Collides(const AABB* a, const AABB* b);
+    static bool Collides(const AABB& a, const AABB& b);
+};
+using AABBList = std::vector<AABB*>;

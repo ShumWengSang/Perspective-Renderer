@@ -75,10 +75,12 @@ void Animator::CalculateBoneTransform(const AssimpNodeData *node, MyMath::VQS pa
 
     MyMath::VQS globalTransformation = parentTransform * nodeTransform;
 
-    auto boneInfoMap = currentAnimation->GetBoneIDMap();
-    if (boneInfoMap.find(nodeName) != boneInfoMap.end()) {
-        int index = boneInfoMap[nodeName].id;
-        MyMath::VQS offset = boneInfoMap[nodeName].offset;
+    const auto& boneInfoMap = currentAnimation->GetBoneIDMap();
+    auto iter = boneInfoMap.find(nodeName);
+    if (iter != boneInfoMap.end()) {
+
+        int index = iter->second.id;
+        MyMath::VQS offset = iter->second.offset;
         modelSpaceTransformations[index] = globalTransformation * offset;
         globalSpaceTransformations[index] = globalTransformation;
     }
