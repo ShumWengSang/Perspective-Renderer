@@ -36,7 +36,6 @@ void Physics::Update(float deltatime, int iterations)
 						if (it == contacts.end())
 							contacts.push_back(*contactIter);
 					}
-					ImGui::Text("Colliding!");
 				}
 			}
 		}
@@ -62,6 +61,7 @@ void Physics::Update(float deltatime, int iterations)
 			auto& body = *rigidbodyPtr;
 
 			body.UpdatePosition(dt);
+			body.UpdateOrientation(dt);
 		}
 	}
 
@@ -85,4 +85,11 @@ bool Physics::RegisterRigidbody(Rigidbody* rb)
 		return true;
 	}
 	return false;
+}
+
+void Physics::Clear()
+{
+	rigidbodies.clear();
+	contacts.clear();
+	arbiters.clear();
 }

@@ -1,9 +1,21 @@
 #include "stdafx.h"
 #include "Rigidbody.h"
+#include "MyMath.h"
 
-
-void Rigidbody::UpdateOrientation(void)
+void Rigidbody::UpdateOrientation(float dt)
 {
+	// Integrate orientation
+
+#if 1
+	orientation = orientation + glm::quat(0.0f, angularVelocity * dt * 0.5f) * orientation;
+#else
+	const glm::vec3 axis = glm::normalize(angularVelocity);
+	if (glm::all(glm::isnan(axis)))
+		return;
+	const float angle = glm::length(angularVelocity) * dt;
+	orientation = glm::rotate(orientation, angle, axis);
+#endif
+
 	orientation = glm::normalize(orientation);
 	inverseOrientation = glm::inverse(orientation);
 }
@@ -77,9 +89,25 @@ void Rigidbody::UpdateVelocity(float dt)
 	if (fixed)
 		return;
 	constexpr glm::vec3 gravity(0, -9.8, 0);
+
+	glm::vec3 acceleration;
 	if(useGravity)
-		linearVelocity += dt * (gravity + inverseMass * forceAccumulator );
-	linearVelocity += inverseMass * dt * forceAccumulator;
+		acceleration = gravity + inverseMass * forceAccumulator;
+	else
+		acceleration = inverseMass * forceAccumulator;
+
+	// Treat force and torque as constant through the frame
+	// Given that assumption, F = MA are all constant as well
+	const glm::vec3 intergratedAcceleration = MyMath::runge_kutta4(
+	linearVelocity, 0.0f, dt, acceleration, 
+	[](glm::vec3 x, float t, float dt, glm::vec3 y)->glm::vec3
+	{
+
+		// v = v + a * dt;
+		return x + y * dt;
+	});
+	linearVelocity += intergratedAcceleration * dt;
+	lastLinearVelocity = linearVelocity;
 	angularMomentum += dt * torqueAccumulator;
 	angularVelocity = globalInverseInertiaTensor * angularMomentum;
 }
@@ -88,18 +116,19 @@ void Rigidbody::UpdatePosition(float dt)
 {
 	if (fixed)
 		return;
-	position += linearVelocity * dt;
+
+	const glm::vec3 integratedVelocity = MyMath::runge_kutta4(
+		position, 0.0f, dt, linearVelocity,
+		[](glm::vec3 x, float t, float dt, glm::vec3 y)->glm::vec3
+		{
+			// q = q + v * dt;
+			return x + y * dt;
+		});
+
+	position += integratedVelocity * dt;
 	// Todo: hack this away later
 	collider.aabb.center = position;
-	
-	// Integrate orientation
-	const glm::vec3 axis = glm::normalize(angularVelocity);
-	if(glm::all(glm::isnan(axis)))
-		return;
-	const float angle = glm::length(angularVelocity) * dt;
-	orientation = glm::rotate(orientation, angle, axis);
 
-	UpdateOrientation();
 }
 
 void Rigidbody::Reset()

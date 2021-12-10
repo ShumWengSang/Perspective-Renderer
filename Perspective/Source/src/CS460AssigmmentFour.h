@@ -25,8 +25,12 @@ public:
 
     void Reset();
 
-    Entity& InitEntities(Material* mat, Model* model, float mass,glm::vec3 pos, glm::vec3 scale);
+    Entity& InitEntities(Model* model, float mass,glm::vec3 pos, glm::vec3 scale);
 
+    int mode = 0;
+
+    Material* powerPlantMaterial = nullptr;
+    Model* cubeModel = nullptr;
 };
 
 

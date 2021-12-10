@@ -37,6 +37,8 @@ struct Rigidbody {
 	glm::vec3 forceAccumulator{};
 	glm::vec3 torqueAccumulator{};
 
+	glm::vec3 lastLinearVelocity{};
+
 	float friction = 0.5f;
 	float restitution = 0.5f;
 	glm::vec3 halfExtent{};
@@ -45,7 +47,7 @@ struct Rigidbody {
 	bool fixed = false;
 	bool useGravity = false;
 
-	void UpdateOrientation(void);
+	void UpdateOrientation(float dt);
 	void Reset();
 	void AddCollider(Collider& collider);
 

@@ -30,6 +30,17 @@ namespace Shapes {
 }
 namespace MyMath {
 
+    template<typename EvaluateFunc>
+    glm::vec3 runge_kutta4(glm::vec3 x, float t, float dt, glm::vec3 y, EvaluateFunc func)
+	{
+		auto k1 = dt * func(x, t, 0.0f, y);
+		auto k2 = dt * func(x, t, dt * 0.5f, k1);
+		auto k3 = dt * func(x, t, dt * 0.5f, k2);
+		auto k4 = dt * func(x, t, dt, k3);
+
+		return y + (1 / 6.) * (k1 + 2 * k2 + 2 * k3 + k4);
+    }
+
     float Remap(float value, float low1, float high1, float low2, float high2);
 
     glm::vec4 Remap(const glm::vec4 &value, const glm::vec2 &inMinMax, const glm::vec2 &outMinMax);

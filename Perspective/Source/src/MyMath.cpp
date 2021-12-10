@@ -22,6 +22,7 @@
 #include "TransformSystem.h"
 
 
+
 glm::vec4 MyMath::Remap(const glm::vec4 &value, const glm::vec2 &inMinMax, const glm::vec2 &outMinMax) {
     return outMinMax.x + (value - inMinMax.x) * (outMinMax.y - outMinMax.x) / (inMinMax.y - inMinMax.x);
 }

@@ -335,7 +335,7 @@ namespace NarrowCollision
 
 		color = {1,1,1};
 		glm::vec3 to = contact_out->Position + contact_out->Normal * contact_out->PenetrationDepth;
-		dd::arrow(glm::value_ptr(contact_out->Position), glm::value_ptr(to), glm::value_ptr(color), 0.5);
+		// dd::arrow(glm::value_ptr(contact_out->Position), glm::value_ptr(to), glm::value_ptr(color), 0.5);
 
 	}
 
@@ -364,7 +364,6 @@ namespace NarrowCollision
 		if (SAT::CheckIfSeparated(ctx, R, status)) {
 			return false;
 		}
-		ImGui::Text("Passed SAT!");
 		int best_count = 1;
 #if 0
 		// Sorts penetration

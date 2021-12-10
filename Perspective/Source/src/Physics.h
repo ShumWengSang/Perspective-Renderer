@@ -24,6 +24,8 @@ class Physics
 public:
 	void Update(float dt, int iterations);
 	bool RegisterRigidbody(Rigidbody* rb);
+
+	void Clear();
 private:
 	std::vector<Rigidbody*> rigidbodies;
 	std::vector<Contact> contacts;
