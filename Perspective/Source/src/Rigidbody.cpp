@@ -13,15 +13,12 @@ void Rigidbody::AddCollider(Collider& newCollider)
 	collider = newCollider;
 	collider.rb = this;
 	collider.aabb.collider = &collider;
-	// Recompute local mass and centroid
-	mass = 0.f;
-	position = glm::vec3(0);
 
 	mass = collider.mass;
 	position = collider.aabb.center;
 
 	inverseMass = 1.f / mass;
-	position *= inverseMass;
+
 	halfExtent = newCollider.aabb.halfExtents;
 
 	glm::mat3 localInertiaTensor = collider.localInertiaTensor;
@@ -51,17 +48,23 @@ const glm::vec3 Rigidbody::GlobalToLocalVec(const glm::vec3& v) const
 
 void Rigidbody::ApplyForce(const glm::vec3& f)
 {
+	if(fixed)
+		return;
 	forceAccumulator += f;
 }
 
 void Rigidbody::ApplyForce(const glm::vec3& f, const glm::vec3& at)
 {
+	if (fixed)
+		return;
 	forceAccumulator += f;
 	torqueAccumulator += glm::cross(at - position, f);
 }
 
 void Rigidbody::ApplyImpulse(const glm::vec3& impulse, const glm::vec3 relativePosition)
 {
+	if (fixed)
+		return;
 	linearVelocity += inverseMass * impulse;
 
 	const glm::vec3 L = glm::cross(relativePosition, impulse);
@@ -71,6 +74,11 @@ void Rigidbody::ApplyImpulse(const glm::vec3& impulse, const glm::vec3 relativeP
 
 void Rigidbody::UpdateVelocity(float dt)
 {
+	if (fixed)
+		return;
+	constexpr glm::vec3 gravity(0, -9.8, 0);
+	if(useGravity)
+		linearVelocity += dt * (gravity + inverseMass * forceAccumulator );
 	linearVelocity += inverseMass * dt * forceAccumulator;
 	angularMomentum += dt * torqueAccumulator;
 	angularVelocity = globalInverseInertiaTensor * angularMomentum;
@@ -78,6 +86,8 @@ void Rigidbody::UpdateVelocity(float dt)
 
 void Rigidbody::UpdatePosition(float dt)
 {
+	if (fixed)
+		return;
 	position += linearVelocity * dt;
 	// Todo: hack this away later
 	collider.aabb.center = position;
@@ -90,4 +100,16 @@ void Rigidbody::UpdatePosition(float dt)
 	orientation = glm::rotate(orientation, angle, axis);
 
 	UpdateOrientation();
+}
+
+void Rigidbody::Reset()
+{
+	linearVelocity = glm::vec3(0);
+	angularVelocity = glm::vec3(0);
+	angularMomentum = glm::vec3(0);
+	forceAccumulator = glm::vec3(0);
+	torqueAccumulator = glm::vec3(0);
+
+	position = glm::vec3(0);
+	orientation = glm::vec3(0);
 }

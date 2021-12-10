@@ -435,8 +435,13 @@ int main(int argc, char *argv[]) {
     glfwSetTime(0.0);
     double lastTime = glfwGetTime();
     float accumulatedTime = 0.0;
-
+    static bool oneStep = true;
     while (!glfwWindowShouldClose(window)) {
+        /*if(oneStep)
+        {
+            oneStep = false;
+	        continue;
+        }*/
         input.PreEventPoll();
         glfwPollEvents();
         double currentTime = glfwGetTime();
@@ -452,10 +457,16 @@ int main(int argc, char *argv[]) {
 
 
 
-        guiSystem.NewFrame();
-        guiSystem.DockspaceBegin();
-        app->Draw(input, deltaTime, accumulatedTime);
-        accumulatedTime += deltaTime;
+		guiSystem.NewFrame();
+		guiSystem.DockspaceBegin();
+
+        if(oneStep)
+        {
+			oneStep = false;
+		}
+        else
+            app->Draw(input, deltaTime, accumulatedTime);
+		accumulatedTime += deltaTime;
         guiSystem.DockspaceEnd();
         if (renderUI) {
             ImGui::Render();

@@ -68,7 +68,7 @@ void ForwardRendering::Draw(const Scene &scene) {
         glm::vec3 color{ 1, 1, 0.1 };
         glm::vec3 color2{ 1, 0.1, 0.1 };
         // dd::plane(glm::value_ptr(pos), glm::value_ptr(norm), glm::value_ptr(color), glm::value_ptr(color2), 1000, 100);
-        dd::xzSquareGrid(-1000, 1000, -1.0, 100, glm::value_ptr(color));
+        dd::xzSquareGrid(-100, 100, -1.0, 10, glm::value_ptr(color));
     }
 
 

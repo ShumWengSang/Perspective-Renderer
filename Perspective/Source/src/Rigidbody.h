@@ -42,8 +42,11 @@ struct Rigidbody {
 	glm::vec3 halfExtent{};
 	Collider collider;
 
-	void UpdateOrientation(void);
+	bool fixed = false;
+	bool useGravity = false;
 
+	void UpdateOrientation(void);
+	void Reset();
 	void AddCollider(Collider& collider);
 
 	const glm::vec3 LocalToGlobal(const glm::vec3& p) const;

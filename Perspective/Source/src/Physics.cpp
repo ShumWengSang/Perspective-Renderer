@@ -3,8 +3,12 @@
 
 #include <TransformSystem.h>
 
-void Physics::Update(float dt, int iterations)
+void Physics::Update(float deltatime, int iterations)
 {
+	const float dt = deltatime / iterations;
+	// pre process
+	contacts.clear();
+
 	// Update broadphase and arbiters
 	for (int i = 0; i < iterations; ++i)
 	{
@@ -14,31 +18,26 @@ void Physics::Update(float dt, int iterations)
 			rb->UpdateInvInertialWorld();
 		}
 
-		// broadphase.Update();
-		// ColliderPairList& colliderPairs = broadphase.ComputePairs();
-
-		for (const ColliderPair& pair : colliderPairs)
+		// Broadphase n^2
+		for(auto iterbody1 = rigidbodies.begin(); iterbody1 != rigidbodies.end(); ++iterbody1)
 		{
-			Arbiter newArbiter(pair.first->rb, pair.second->rb);
-			ArbiterKey key(pair.first->rb, pair.second->rb);
-			// If we have contacts
-			if (!newArbiter.contacts.empty())
+			for(auto iterbody2 = iterbody1 + 1; iterbody2 != rigidbodies.end(); ++iterbody2)
 			{
-				// Add to arbiter list
-
-				auto iter = arbiters.find(key);
-				if (iter == arbiters.end())
+				std::vector<Contact> out;
+				// Narrow collision
+				if(NarrowCollision::Detect(*iterbody1, *iterbody2, out))
 				{
-					arbiters.insert(std::make_pair(key, newArbiter));
+					for (auto contactIter = out.begin(); contactIter != out.end(); ++contactIter)
+					{
+						auto it = std::find_if(contacts.begin(), contacts.end(),
+							[this, &contactIter](const Contact& ci) {
+								return glm::length2(contactIter->Position - ci.Position) <= 0.02 ? true : false;
+							});
+						if (it == contacts.end())
+							contacts.push_back(*contactIter);
+					}
+					ImGui::Text("Colliding!");
 				}
-				else
-				{
-					iter->second.Update(newArbiter.contacts);
-				}
-			}
-			else
-			{
-				arbiters.erase(key);
 			}
 		}
 
@@ -52,9 +51,9 @@ void Physics::Update(float dt, int iterations)
 		}
 
 		// Collision response
-		for(auto& arbiter : arbiters)
+		for(auto& contact : contacts)
 		{
-			arbiter.second.ApplySolver(&solver, dt);
+			solver.ApplyImpulse(&contact,dt);
 		}
 
 		// Integrate velocity -> position

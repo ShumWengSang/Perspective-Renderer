@@ -29,10 +29,9 @@ void rbSolver::ApplyImpulse(Contact* contact, float dt) const
 		float e = contact->Body[0]->restitution * contact->Body[1]->restitution;
 		impulse_mag = -(1 + e) * (glm::dot(relativeVeclocity, contact->Normal));
 		impulse_mag += biasFactor * std::max(contact->PenetrationDepth, 0.0f) / dt;
-		impulse_mag /= K[0] + K[1];
+		impulse_mag /= (K[0] + K[1]);
 	}
 	impulse = impulse_mag * contact->Normal;
-
 	contact->Body[0]->ApplyImpulse(impulse, contact->RelativeBodyPosition[0]);
 	contact->Body[1]->ApplyImpulse(-impulse, contact->RelativeBodyPosition[1]);
 

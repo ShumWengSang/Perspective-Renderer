@@ -26,6 +26,7 @@ public:
 	bool RegisterRigidbody(Rigidbody* rb);
 private:
 	std::vector<Rigidbody*> rigidbodies;
+	std::vector<Contact> contacts;
 	std::map<ArbiterKey, Arbiter> arbiters;
 	NSquared broadphase;
 	rbSolver solver;

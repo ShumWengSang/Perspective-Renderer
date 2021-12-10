@@ -23,6 +23,8 @@ public:
 
     void Draw(Input const &input, float deltaTime, float runningTime) override;
 
+    void Reset();
+
     Entity& InitEntities(Material* mat, Model* model, float mass,glm::vec3 pos, glm::vec3 scale);
 
 };

@@ -96,6 +96,17 @@ CS460AssignmentFour::Settings CS460AssignmentFour::Setup() {
 	return settings;
 }
 
+void CS460AssignmentFour::Reset()
+{
+	for (int i = 0; i < boxes.size(); ++i)
+	{
+		boxes[i].rb->Reset();
+		boxes[i].rb->position = glm::vec3(0, 20 + 5 * (i + 1), 0);
+		boxes[i].rb->orientation = glm::quat(1, 0, 0, 0);
+	}
+}
+
+
 void CS460AssignmentFour::Init() {
 
 	PowerPlantMaterial* powerPlantMaterial = new PowerPlantMaterial();
@@ -106,15 +117,31 @@ void CS460AssignmentFour::Init() {
 	newmodel->material = powerPlantMaterial;
 	// Floor
 	{
-		InitEntities(powerPlantMaterial, newmodel, 10000, glm::vec3(0), glm::vec3(1000, 10, 1000) );
+		auto& ent = InitEntities(powerPlantMaterial, newmodel, 10000, glm::vec3(0), glm::vec3(10, 10, 10) );
+		ent.rb->fixed = true;
+		ent.rb->restitution = 0.f;
+		ent.rb->friction= 0.5f;
 	}
+	const float density = 849.f;
+	const float volume = 10 * 10 * 10;
+	const float mass = density * volume;
 
+	Reset();
+	/*{
+	auto& ent = boxes.emplace_back(InitEntities(powerPlantMaterial, newmodel, 10,
+		glm::vec3(0, 15, 0), glm::vec3(1, 1, 1)));
+		ent.rb->restitution = 0.1f;
+		ent.rb->friction = 0.3f;
+	}*/
 	// Boxes
-	 for(int i = 0; i < 1; ++i)
+	 for(int i = 0; i < 5; ++i)
 	 {
-		 boxes.emplace_back(InitEntities(powerPlantMaterial, newmodel, 10000,
-		 glm::vec3(0, 20 + 50 * (i + 1), 0), glm::vec3(10, 10, 10)));
+		 auto& ent = boxes.emplace_back(InitEntities(powerPlantMaterial, newmodel, 10,
+		 glm::vec3(0, 20 + 5 * (i + 1), 0), glm::vec3(1, 1, 1)));
+		 ent.rb->restitution = 0.1f;
+		 ent.rb->friction = 0.3f;
 	 }
+
 
 	// Load the skybox
 	scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({
@@ -153,28 +180,42 @@ void CS460AssignmentFour::Draw(const Input& input, float deltaTime, float runnin
 
 	for(auto& entity : boxes)
 	{
-		glm::vec3 gravity {0, -980.f, 0};
-		entity.rb->ApplyForce(gravity);
+		entity.rb->useGravity = true;
+		/*glm::vec3 gravity {0, -9.8f, 0};
+		entity.rb->ApplyForce(gravity);*/
 	}
-	physicsEnvironment.Update(deltaTime, 4);
+	static int iterations = 4;
+	ImGui::DragInt("Iterations for physics", &iterations);
+	physicsEnvironment.Update(deltaTime, iterations);
 
+	int i = 0; 
 	for(auto& entity : scene.entities)
 	{
 		if(entity.rb)
 		{
+			char buffer[100];
+			sprintf(buffer, "Position %i: [%f %f %f]", i, entity.rb->position.x, entity.rb->position.y, entity.rb->position.z);
+			if(entity.rb->fixed)
+			{
+				ImGui::Text(buffer);
+				// ImGui::DragFloat3(buffer, glm::value_ptr(entity.rb->position), 1, -50, 50);
+			}
+			else
+			{
+				ImGui::Text(buffer);
+			}
+			sprintf(buffer, "Fixed? %i", i);
+			ImGui::Checkbox(buffer, &entity.rb->fixed);
 			Transform& trans = TransformSystem::getInstance().Get(entity.transformID);
 			trans.SetLocalPosition(entity.rb->position);
 			trans.SetRotationMatrix(glm::toMat4(entity.rb->orientation));
+			++i;
 		}
 	}
 
 	if(ImGui::Button("Reset Sim"))
 	{
-		for (int i = 0; i < boxes.size(); ++i)
-		{
-			boxes[i].rb->position = glm::vec3(0, 20 + 50 * (i + 1),0);
-			boxes[i].rb->orientation = glm::quat(1,0,0,0);
-		}
+		Reset();
 	}
 
 	scene.mainCamera->Update(input, deltaTime);

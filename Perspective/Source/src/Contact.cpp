@@ -143,7 +143,7 @@ namespace NarrowCollision
 			return false;
 		}
 
-		static bool CheckSeparationStatus(SAT::SATContext& ctx, const glm::quat* quats, SAT::SATEvalStatus& status)
+		static bool CheckIfSeparated(SAT::SATContext& ctx, const glm::quat* quats, SAT::SATEvalStatus& status)
 		{
 			bool separated = false;
 			glm::mat3 R[2]{ glm::toMat3(quats[0]), glm::toMat3(quats[1]) };
@@ -151,13 +151,13 @@ namespace NarrowCollision
 			// SAT using local axes of Box0
 			ctx.current_axis_id = SeparatingAxis::Box0X;
 			separated = SeparatedOnAxis(glm::vec3(R[0][0]), ctx, status);
-			if (separated) return false;
+			if (separated) return true;
 			ctx.current_axis_id = SeparatingAxis::Box0Y;
 			separated = SeparatedOnAxis(glm::vec3(R[0][1]), ctx, status);
-			if (separated) return false;
+			if (separated) return true;
 			ctx.current_axis_id = SeparatingAxis::Box0Z;
 			separated = SeparatedOnAxis(glm::vec3(R[0][2]), ctx, status);
-			if (separated) return false;
+			if (separated) return true;
 
 			// SAT using local axes of Box1
 			ctx.current_axis_id = SeparatingAxis::Box1X;
@@ -224,6 +224,7 @@ namespace NarrowCollision
 		// Set the normal
 		contact_out->Normal = glm::normalize(penetration.axis);
 
+
 		// Based on the axis of penetration, determine the position, penetration depth, and direction of normal
 		switch (axis_id)
 		{
@@ -240,7 +241,7 @@ namespace NarrowCollision
 			}
 
 			// Determine position + penetration depth through GJK
-			contact_out->Position = GJK::FurthestVertexAlongAxis(-contact_out->Normal,
+			contact_out->Position = GJK::FurthestVertexAlongAxis(contact_out->Normal,
 				ctx.h[1], box1->orientation, ctx.RT[1], box1->position);
 			contact_out->PenetrationDepth = penetration.depth;
 			break;
@@ -267,7 +268,7 @@ namespace NarrowCollision
 		{
 			glm::quat R[2]{ box0->orientation, box1->orientation };
 			// Point from box1 to box0
-			if (glm::dot(glm::normalize(ctx.distance), contact_out->Normal))
+			if (glm::dot(glm::normalize(ctx.distance), contact_out->Normal) >= 0)
 			{
 				contact_out->Normal *= -1;
 			}
@@ -291,7 +292,7 @@ namespace NarrowCollision
 				}
 				if (i != colIndex[1])
 				{
-					midpoint_on_colliding_edge[1][i] = best_axis_localbox[1][i] < 0 ? ctx.h[1][i] : -ctx.h[1][i];
+					midpoint_on_colliding_edge[1][i] = best_axis_localbox[1][i] > 0 ? ctx.h[1][i] : -ctx.h[1][i];
 				}
 			}
 
@@ -317,14 +318,25 @@ namespace NarrowCollision
 			// Tweak contact out position by taking average
 			contact_out->Position = 0.5f * (pointOut[0] + pointOut[1]);
 			contact_out->PenetrationDepth = penetration.depth * 0.5f;
+			break;
 		}
-		break;
 		}
 
 		contact_out->RelativeBodyPosition[0] = contact_out->Position - box0->position;
 		contact_out->RelativeBodyPosition[1] = contact_out->Position - box1->position;
 		contact_out->Body[0] = const_cast<Rigidbody*>(box0);
 		contact_out->Body[1] = const_cast<Rigidbody*>(box1);
+
+		glm::vec3 end = contact_out->Position + contact_out->Normal * 10;
+		glm::vec3 color {1, 0, 1};
+		// dd::arrow(glm::value_ptr(contact_out->Position), glm::value_ptr(end), glm::value_ptr(color), 10);
+		const float size = 0.1f;
+		dd::box(glm::value_ptr(contact_out->Position), glm::value_ptr(color), size, size, size);
+
+		color = {1,1,1};
+		glm::vec3 to = contact_out->Position + contact_out->Normal * contact_out->PenetrationDepth;
+		dd::arrow(glm::value_ptr(contact_out->Position), glm::value_ptr(to), glm::value_ptr(color), 0.5);
+
 	}
 
 	bool Detect(Rigidbody* box0, Rigidbody* box1, std::vector<Contact>& contacts_out)
@@ -349,11 +361,12 @@ namespace NarrowCollision
 		SAT::SATEvalStatus status;
 
 		// Meat of SAT
-		if (SAT::CheckSeparationStatus(ctx, R, status)) {
+		if (SAT::CheckIfSeparated(ctx, R, status)) {
 			return false;
 		}
+		ImGui::Text("Passed SAT!");
 		int best_count = 1;
-#if 1
+#if 0
 		// Sorts penetration
 		std::stable_sort(status.penetration.begin(), status.penetration.end(),
 			[](auto const& lhs, auto const& rhs) {
@@ -369,9 +382,12 @@ namespace NarrowCollision
 		);
 #endif
 		Contact contact_out;
-		for (int i = 0; i < best_count; ++i) {
-			BuildContact(status.penetration[i].axis_id, box0, box1, ctx, status.penetration[i], &contact_out);
+		// std::cout <<"Number of contacts: " << best_count << std::endl;
+		for (int i = 0; i < 1; ++i) {
+			// BuildContact(status.penetration[i].axis_id, box0, box1, ctx, status.penetration[i], &contact_out);
+			BuildContact(status.best_axis_id, box0, box1, ctx, status.penetration[static_cast<int>(status.best_axis_id)], &contact_out);
 			contacts_out.emplace_back(contact_out);
+			
 		}
 
 		return true;
