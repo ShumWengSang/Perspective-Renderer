@@ -19,6 +19,17 @@
 #include "Contact.h"
 #include "Rigidbody.h"
 #include "N_SquareBroadphase.h"
+
+enum PhysicsIntegrateMode
+{
+	Semi_Euler,
+	RK2,
+	RK4,
+	Count
+};
+
+inline char * PhysicsIntergrateModeNames [] = { "Semi Euler", "RK2", "RK4"};
+
 class Physics
 {
 public:
@@ -28,8 +39,11 @@ public:
 	void Clear();
 private:
 	std::vector<Rigidbody*> rigidbodies;
+	std::vector<Joints*> joints;
 	std::vector<Contact> contacts;
 	std::map<ArbiterKey, Arbiter> arbiters;
 	NSquared broadphase;
 	rbSolver solver;
+public:
+	inline static PhysicsIntegrateMode mode = Semi_Euler;
 };

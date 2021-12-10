@@ -104,7 +104,7 @@ void CS460AssignmentFour::Reset()
 
 	// Floor
 	{
-		auto& ent = InitEntities(cubeModel, 10000, glm::vec3(0), glm::vec3(10, 10, 10));
+		auto& ent = InitEntities(cubeModel, 10000, glm::vec3(0), glm::vec3(10, 2, 10));
 		ent.rb->fixed = true;
 		ent.rb->restitution = 0.f;
 		ent.rb->friction = 0.5f;
@@ -229,6 +229,18 @@ void CS460AssignmentFour::Draw(const Input& input, float deltaTime, float runnin
 		{
 			mode = i;
 			Reset();
+		}
+	}
+
+	// static int selected = -1;
+	if (ImGui::CollapsingHeader("Choose Integration Mode"))
+	{
+		for (int n = 0; n < PhysicsIntegrateMode::Count; n++)
+		{
+			char buf[64];
+			sprintf(buf, "%s", PhysicsIntergrateModeNames[n]);
+			if (ImGui::Selectable(buf, Physics::mode == n))
+				Physics::mode = static_cast<PhysicsIntegrateMode>(n);
 		}
 	}
 

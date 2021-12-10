@@ -47,6 +47,17 @@ struct Rigidbody {
 	bool fixed = false;
 	bool useGravity = false;
 
+	struct SolverWorkArea
+	{
+		glm::vec3 delta_linear_velocity{};
+		glm::vec3 delta_angular_momentum{};
+		glm::vec3 delta_angular_velocity{};
+
+		SolverWorkArea() = default;
+
+		void Clear();
+	} solver_work_area;
+
 	void UpdateOrientation(float dt);
 	void Reset();
 	void AddCollider(Collider& collider);
@@ -61,6 +72,7 @@ struct Rigidbody {
 	void ApplyImpulse(const glm::vec3& impulse, const glm::vec3 relativePosition);
 	void UpdateVelocity(float dt);
 	void UpdatePosition(float dt);
+	void CorrectVelocity();
 	void UpdateInvInertialWorld()
 	{
 		globalInverseInertiaTensor = glm::toMat3(orientation) * localInverseInertiaTensor * glm::toMat3(inverseOrientation);

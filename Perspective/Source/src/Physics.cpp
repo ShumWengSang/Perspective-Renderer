@@ -6,6 +6,7 @@
 void Physics::Update(float deltatime, int iterations)
 {
 	const float dt = deltatime / iterations;
+	// const float dt = deltatime;
 	// pre process
 	contacts.clear();
 
@@ -15,6 +16,7 @@ void Physics::Update(float deltatime, int iterations)
 		// Update inertia tensor
 		for(const auto rb : rigidbodies)
 		{
+			rb->solver_work_area.Clear();
 			rb->UpdateInvInertialWorld();
 		}
 
@@ -48,11 +50,19 @@ void Physics::Update(float deltatime, int iterations)
 			body.UpdateVelocity(dt);
 
 		}
-
-		// Collision response
-		for(auto& contact : contacts)
+		// for (int i = 0; i < 1; ++i)
 		{
-			solver.ApplyImpulse(&contact,dt);
+			// Collision response
+			for (auto& contact : contacts)
+			{
+				solver.ApplyImpulse(&contact, dt);
+			}
+		}
+		// Integrate velocity -> position
+		for (auto& rigidbodyPtr : rigidbodies)
+		{
+			auto& body = *rigidbodyPtr;
+			body.CorrectVelocity();
 		}
 
 		// Integrate velocity -> position
