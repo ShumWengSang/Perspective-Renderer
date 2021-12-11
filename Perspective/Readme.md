@@ -1,23 +1,25 @@
-# Advanced Animation CS460 Assignment 3
+# Advanced Animation CS460 Assignment 4
 ### Student: Roland Shum
 ### Professor: Prof Xin Li
 
 # Assignment Objectives
 (1) Object Modeling:
-  * Default set to a depth of 5, can handle depth of 20 (since animation has ~20 nodes in a chain)
-  * Attempts to find a solution to the target (returns true or false)
-  * Implemented moving along path towards target, then change state to do IK animation
-(2) Inverse Kinematics
-    * CCD implemented
-      * Will find a solution for end effector to reach target within x iterations.
-    * Motions generated creating a new Animation frame that slerps rotation.
-      * Motion is smooth
-      * No constraints implemented
-      * No animation blending implemented, so it is jumpy sometimes
-    * Enforced Priority implemented 
-      * For every node from tip to root
-        * Once you modify the current node, modify the 3 nodes ahead of current node again.
-    * Alien will move in path to the green ball, and when it reaches it will move its head down to it.
+  * Option A completed with Suspension Bridge scenario
+  * Interaction with environment
+    * Press 'SPACEBAR' to fire box in front of camera
+  
+(2) Physically based Animation
+    * Robust implementation of physics engine
+      * Semi Implicit Euler Integration
+      * Runge-Kutta 2nd Order
+      * Runge-Kutta 4th Order (Extra Credit)
+    * Implemented Joint Constraint Solver
+    * Implemented Contact Constraint and Friction Solver 
+    * Stable and realistic behavior
+    
+(3) Visualization
+    * Five scenarios implemented to demonstrate physics engine 
+    * Rendered contact points + cubes + joints
 
 # How to Build:
 * **Run prepackaged file "RunCMake.bat" **which will 
@@ -34,16 +36,9 @@
 * **[Hold Right Mouse button + Drag] to rotate camera**
 * Q and E to accelerate up and down
 * **Scroll to zoom **
-* Rendering speed of ~110 FPS on my laptop
+* Spacebar to fire 
+* Rendering speed of ~140 FPS on my laptop
 * Modify ImGui GUI at will to make things nice and simple
-  * Restart button to restart animation
-    * This updates the Curve to go to the target point 
-  * 'Inverse Kinematics' 
-    * You can see the bones the IK is affecting
-    * "Show IK Anim Solution" 
-    * Can modify the number of iterations per frame to find a solution
-    * Can modify the threshold (how close enough to the target) to be considered solved
-    * Can modify the number of bones to affect (from end effector)
 
 
 # High Level Explanation
@@ -52,18 +47,25 @@
   * Has deferred and forward rendering for OpenGL
 * Relevant files for grading:
   * Project: Perspective
-    * CS460AssignmentOne.cpp 
-      * Main entry point to the scene
-      * Implemented animation state machine to determine what the animation should do
-      * When the running animation reaches the last point, the IK will attempt to solve 
-    * Animator.h
-      * Retrieves the current animation's bones that are chained
-      * Can manually apply the IK chain to see end result of IK 
-    * IKSolver.h/.cpp
-      * CCD solver implemented
-      * Puts nodes in World Transform to find rotation 
-      * No constraints implemented 
-      * Enforced Priority implemented
+    * Contact.cpp
+        * Contains information relevant to the collision between two objects
+        * Uses SAT to detect collision between two objects
+        * SAT to give axis of collision 
+        * SAT to give penetration distance of collision
+        * GJK to give point of collision
+        * Builds a Contact based on these information
+    * Physics.cpp
+        * Physics loop
+        * External forces integrated to velocity
+        * Velocity integrated to position/rotation
+        * Implemented RK2, RK4, Semi-Euler integration
+    * Rigidbody.cpp
+        * Contains all the relevant information for a rigidbody
+    * rbSolver.cpp
+        * Contact Solver
+        * Applies impulses to 'correct' velocity and position
+    * Joint.cpp
+        * Joint Solver
 
 # Developed on
 Windows:
