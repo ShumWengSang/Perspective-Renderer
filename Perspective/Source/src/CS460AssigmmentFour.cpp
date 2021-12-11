@@ -103,13 +103,13 @@ void CS460AssignmentFour::Reset()
 	scene.entities.clear();
 	rbs.clear();
 	boxes.clear();
-
+	Entity floor;
 	// Floor
 	{
-		auto& ent = InitEntities(cubeModel, 10000, glm::vec3(0), glm::vec3(10, 2, 10));
-		ent.rb->fixed = true;
-		ent.rb->restitution = 0.f;
-		ent.rb->friction = 0.5f;
+		floor = InitEntities(cubeModel, 10000, glm::vec3(0), glm::vec3(10, 2, 10));
+		floor.rb->fixed = true;
+		floor.rb->restitution = 0.f;
+		floor.rb->friction = 0.5f;
 	}
 
 	switch(mode)
@@ -134,11 +134,56 @@ void CS460AssignmentFour::Reset()
 		}
 		break;
 	case 2:
-		for(int i = 0; i < boxes.size(); ++i)
-		{
-			
-		}
+		auto& ent = boxes.emplace_back(InitEntities(cubeModel, 10, glm::vec3(9, 11, 0), glm::vec3(1, 1, 1)));
+		ent.rb->friction = 0.2f;
+		
+		Joint& joint = joints.emplace_back();
+		joint->set(floor.rb, ent.rb, glm::vec3(0.0f, 11.0f, 0));
+		physicsEnvironment.RegisterJoint(&joint);
 		break;
+	case 3:
+		const int numPlanks = 15;
+		float mass = 50.0f;
+
+		for (int i = 0; i < numPlanks; ++i)
+		{
+			auto& ent = boxes.emplace_back(InitEntities(cubeModel, mass, glm::vec3(-8.5f + 1.25f * i, 5.0f, 0), glm::vec3(1, 1, 1)));
+			ent.rb->friction = 0.2f;
+		}
+
+		// Tuning
+		float frequencyHz = 2.0f;
+		float dampingRatio = 0.7f;
+
+		// frequency in radians
+		float omega = 2.0f * 3.1415 * frequencyHz;
+
+		// damping coefficient
+		float d = 2.0f * mass * dampingRatio * omega;
+
+		// spring stifness
+		float k = mass * omega * omega;
+
+		// magic formulas
+		constexpr float timeStep = (1 / 60.f);
+		float softness = 1.0f / (d + timeStep * k);
+		float biasFactor = timeStep * k / (d + timeStep * k);
+
+		for (int i = 0; i < numPlanks; ++i)
+		{
+			Joint& joint = joints.emplace_back();
+			joint.Set(boxes[i].rb, boxes[i + 1].rb, glm::vec3(-9.125f + 1.25f * i, 5.0f, 0.0f));
+			joint.softness = softness;
+			joint.biasFactor = biasFactor;
+
+			physicsEnvironment.RegisterJoint(&j);
+		}
+
+		j->Set(bodies + numPlanks, bodies, Vec2(-9.125f + 1.25f * numPlanks, 5.0f));
+		j->softness = softness;
+		j->biasFactor = biasFactor;
+		world.Add(j);
+
 	}
 }
 
