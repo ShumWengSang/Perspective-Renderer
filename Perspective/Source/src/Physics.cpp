@@ -97,9 +97,22 @@ bool Physics::RegisterRigidbody(Rigidbody* rb)
 	return false;
 }
 
+bool Physics::RegisterJoint(Joint* joint)
+{
+	auto iter = std::find(joints.begin(), joints.end(), joint);
+	if (iter == joints.end())
+	{
+		joints.emplace_back(joint);
+		return true;
+	}
+	return false;
+}
+
+
 void Physics::Clear()
 {
 	rigidbodies.clear();
 	contacts.clear();
 	arbiters.clear();
+	joints.clear();
 }

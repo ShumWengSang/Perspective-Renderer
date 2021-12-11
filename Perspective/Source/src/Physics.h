@@ -19,6 +19,7 @@
 #include "Contact.h"
 #include "Rigidbody.h"
 #include "N_SquareBroadphase.h"
+#include "Joint.h"
 
 enum PhysicsIntegrateMode
 {
@@ -35,11 +36,11 @@ class Physics
 public:
 	void Update(float dt, int iterations);
 	bool RegisterRigidbody(Rigidbody* rb);
-
+	bool RegisterJoint(Joint* joint);
 	void Clear();
 private:
 	std::vector<Rigidbody*> rigidbodies;
-	std::vector<Joints*> joints;
+	std::vector<Joint*> joints;
 	std::vector<Contact> contacts;
 	std::map<ArbiterKey, Arbiter> arbiters;
 	NSquared broadphase;

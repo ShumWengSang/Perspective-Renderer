@@ -31,12 +31,14 @@
 #include "BezierCurve.h"
 #include "Physics.h"
 #include "Rigidbody.h"
+#include "Joint.h"
 
 namespace {
 	Scene scene{};
 	std::vector<Model*> model;
 	std::vector<Animation*> animation;
 	std::vector<Rigidbody> rbs;
+	std::vector<Joint> joints;
 	std::vector<Entity> boxes;
 	Animator* animator;
 
