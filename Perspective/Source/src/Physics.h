@@ -38,6 +38,7 @@ public:
 	bool RegisterRigidbody(Rigidbody* rb);
 	bool RegisterJoint(Joint* joint);
 	void Clear();
+	void DrawJoints();
 private:
 	std::vector<Rigidbody*> rigidbodies;
 	std::vector<Joint*> joints;
@@ -45,6 +46,8 @@ private:
 	std::map<ArbiterKey, Arbiter> arbiters;
 	NSquared broadphase;
 	rbSolver solver;
+
+	void DebugDrawJoint(Joint* joint);
 public:
 	inline static PhysicsIntegrateMode mode = Semi_Euler;
 };

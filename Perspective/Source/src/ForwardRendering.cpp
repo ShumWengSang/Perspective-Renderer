@@ -43,7 +43,7 @@ void ForwardRendering::Draw(const Scene &scene) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     static bool drawFloor = false;
-    ImGui::Checkbox("Draw Floor", &drawFloor);
+    // ImGui::Checkbox("Draw Floor", &drawFloor);
 
     if(drawFloor)
     { 

@@ -83,7 +83,7 @@ Entity& CS460AssignmentFour::InitEntities(Model* model, float mass, glm::vec3 po
 CS460AssignmentFour::~CS460AssignmentFour() {
 	for (int i = 0; i < model.size(); ++i)
 		delete model[i];
-	
+
 	for (int i = 0; i < animation.size(); ++i)
 		delete animation[i];
 	delete animator;
@@ -100,9 +100,11 @@ CS460AssignmentFour::Settings CS460AssignmentFour::Setup() {
 
 void CS460AssignmentFour::Reset()
 {
+	pause = true;
 	scene.entities.clear();
 	rbs.clear();
 	boxes.clear();
+	physicsEnvironment.Clear();
 	Entity floor;
 	// Floor
 	{
@@ -110,9 +112,10 @@ void CS460AssignmentFour::Reset()
 		floor.rb->fixed = true;
 		floor.rb->restitution = 0.f;
 		floor.rb->friction = 0.5f;
+		floor.rb->inverseMass = 0.f;
 	}
 
-	switch(mode)
+	switch (mode)
 	{
 	default:
 	case 0:
@@ -134,20 +137,23 @@ void CS460AssignmentFour::Reset()
 		}
 		break;
 	case 2:
-		auto& ent = boxes.emplace_back(InitEntities(cubeModel, 10, glm::vec3(9, 11, 0), glm::vec3(1, 1, 1)));
+	{
+		auto& ent = boxes.emplace_back(InitEntities(cubeModel, 10, glm::vec3(9, 10, 0), glm::vec3(1, 1, 1)));
 		ent.rb->friction = 0.2f;
-		
+
 		Joint& joint = joints.emplace_back();
-		joint->set(floor.rb, ent.rb, glm::vec3(0.0f, 11.0f, 0));
+		joint.Set(floor.rb, ent.rb, glm::vec3(0.0f, 21.0f, 0));
 		physicsEnvironment.RegisterJoint(&joint);
-		break;
+			break;
+	}
 	case 3:
-		const int numPlanks = 15;
+	{
+		const int numPlanks = 2;
 		float mass = 50.0f;
 
 		for (int i = 0; i < numPlanks; ++i)
 		{
-			auto& ent = boxes.emplace_back(InitEntities(cubeModel, mass, glm::vec3(-8.5f + 1.25f * i, 5.0f, 0), glm::vec3(1, 1, 1)));
+			auto& ent = boxes.emplace_back(InitEntities(cubeModel, mass, glm::vec3(-23.5f + 13.5f * i, 15.0f, 0), glm::vec3(1, 1, 1)));
 			ent.rb->friction = 0.2f;
 		}
 
@@ -165,31 +171,100 @@ void CS460AssignmentFour::Reset()
 		float k = mass * omega * omega;
 
 		// magic formulas
-		constexpr float timeStep = (1 / 60.f);
+		constexpr float timeStep = (1 / 140.f);
 		float softness = 1.0f / (d + timeStep * k);
 		float biasFactor = timeStep * k / (d + timeStep * k);
 
-		for (int i = 0; i < numPlanks; ++i)
 		{
 			Joint& joint = joints.emplace_back();
-			joint.Set(boxes[i].rb, boxes[i + 1].rb, glm::vec3(-9.125f + 1.25f * i, 5.0f, 0.0f));
+			joint.Set(floor.rb, boxes[0].rb, glm::vec3(-18.125f - 13.5f, 15.0f, 0.0f));
 			joint.softness = softness;
 			joint.biasFactor = biasFactor;
 
-			physicsEnvironment.RegisterJoint(&j);
+			physicsEnvironment.RegisterJoint(&joint);
 		}
 
-		j->Set(bodies + numPlanks, bodies, Vec2(-9.125f + 1.25f * numPlanks, 5.0f));
-		j->softness = softness;
-		j->biasFactor = biasFactor;
-		world.Add(j);
+		for (int i = 0; i < numPlanks - 1; ++i)
+		{
+			Joint& joint = joints.emplace_back();
+			joint.Set(boxes[i].rb, boxes[i + 1].rb, glm::vec3(-18.125f + 13.5f * i, 15.0f, 0.0f));
+			joint.softness = softness;
+			joint.biasFactor = biasFactor;
 
+			physicsEnvironment.RegisterJoint(&joint);
+		}
+		{
+			/*Joint& joint = joints.emplace_back();
+			joint.Set(boxes.back().rb, floor.rb, glm::vec3(-18.125f + 13.5f * numPlanks, 15.0f, 0.0f));
+			joint.softness = softness;
+			joint.biasFactor = biasFactor;
+			physicsEnvironment.RegisterJoint(&joint);*/
+			break;
+		}
+	}
+		case 4:
+		{
+			const int numPlanks = 10;
+			float mass = 50.0f;
+
+			for (int i = 0; i < numPlanks; ++i)
+			{
+				auto& ent = boxes.emplace_back(InitEntities(cubeModel, mass, glm::vec3(-23.5f + 13.5f * i, 15.0f, 0), glm::vec3(1, 1, 1)));
+				ent.rb->friction = 0.2f;
+			}
+
+			// Tuning
+			float frequencyHz = 2.0f;
+			float dampingRatio = 0.7f;
+
+			// frequency in radians
+			float omega = 2.0f * 3.1415 * frequencyHz;
+
+			// damping coefficient
+			float d = 2.0f * mass * dampingRatio * omega;
+
+			// spring stifness
+			float k = mass * omega * omega;
+
+			// magic formulas
+			constexpr float timeStep = (1 / 140.f);
+			float softness = 1.0f / (d + timeStep * k);
+			float biasFactor = timeStep * k / (d + timeStep * k);
+
+			{
+				Joint& joint = joints.emplace_back();
+				joint.Set(floor.rb, boxes[0].rb, glm::vec3(-18.125f - 13.5f, 15.0f, 0.0f));
+				joint.softness = softness;
+				joint.biasFactor = biasFactor;
+
+				physicsEnvironment.RegisterJoint(&joint);
+			}
+
+			for (int i = 0; i < numPlanks - 1; ++i)
+			{
+				Joint& joint = joints.emplace_back();
+				joint.Set(boxes[i].rb, boxes[i + 1].rb, glm::vec3(-18.125f + 13.5f * i, 15.0f, 0.0f));
+				joint.softness = softness;
+				joint.biasFactor = biasFactor;
+
+				physicsEnvironment.RegisterJoint(&joint);
+			}
+			{
+				Joint& joint = joints.emplace_back();
+				joint.Set(boxes.back().rb, floor.rb, glm::vec3(-18.125f + 13.5f * numPlanks, 15.0f, 0.0f));
+				joint.softness = softness;
+				joint.biasFactor = biasFactor;
+				physicsEnvironment.RegisterJoint(&joint);
+				break;
+			}
+		}
 	}
 }
 
 
 void CS460AssignmentFour::Init() {
 	rbs.reserve(2000);
+	joints.reserve(2000);
 
 	PowerPlantMaterial* ppMat = new PowerPlantMaterial();
 	ppMat->ReadMaterialFromFile("Common/PowerPlantFiles/");
@@ -201,7 +276,7 @@ void CS460AssignmentFour::Init() {
 	cubeModel->material = powerPlantMaterial;
 
 
-	 Reset();
+	Reset();
 
 	// Load the skybox
 	scene.probe.skyCube = TextureSystem::getInstance().LoadCubeMap({
@@ -238,19 +313,43 @@ void CS460AssignmentFour::Resize(int width, int height) {
 
 void CS460AssignmentFour::Draw(const Input& input, float deltaTime, float runningTime) {
 
-	for(auto& entity : boxes)
+	ImGui::Checkbox("Pause (Uncheck to run simulation)", &pause);
+	if (ImGui::Button("One Step"))
+	{
+		one_step = true;
+	}
+	for (auto& entity : boxes)
 	{
 		entity.rb->useGravity = true;
-		/*glm::vec3 gravity {0, -9.8f, 0};
-		entity.rb->ApplyForce(gravity);*/
 	}
 	static int iterations = 4;
-	ImGui::DragInt("Iterations for physics", &iterations);
-	physicsEnvironment.Update(deltaTime, iterations);
-
-	for(auto& entity : scene.entities)
+	if (ImGui::CollapsingHeader("Simulation Options"))
 	{
-		if(entity.rb)
+		ImGui::DragInt("Iterations for physics", &iterations);
+		ImGui::Text("Integration Modes: ");
+		ImGui::Indent();
+		for (int n = 0; n < PhysicsIntegrateMode::Count; n++)
+		{
+			char buf[64];
+			sprintf(buf, "%s", PhysicsIntergrateModeNames[n]);
+			if (ImGui::Selectable(buf, Physics::mode == n))
+				Physics::mode = static_cast<PhysicsIntegrateMode>(n);
+		}
+		ImGui::Unindent();
+		ImGui::Text("Press Spacebar to fire cannon into world.");
+	}
+
+
+	if(this->one_step || !this->pause)
+		physicsEnvironment.Update(deltaTime, iterations);
+	this->one_step = false;
+	physicsEnvironment.DrawJoints();
+	
+
+
+	for (auto& entity : scene.entities)
+	{
+		if (entity.rb)
 		{
 			Transform& trans = TransformSystem::getInstance().Get(entity.transformID);
 			trans.SetLocalPosition(entity.rb->position);
@@ -259,8 +358,7 @@ void CS460AssignmentFour::Draw(const Input& input, float deltaTime, float runnin
 	}
 
 	static int forceMult = 100000;
-	ImGui::SliderInt("Firing Force", &forceMult, 1, 1000000);
-	if(input.WasKeyReleased(GLFW_KEY_SPACE))
+	if (input.WasKeyReleased(GLFW_KEY_SPACE))
 	{
 		auto& ent = boxes.emplace_back(InitEntities(cubeModel, 10,
 			glm::vec3(scene.mainCamera->GetPosition()), glm::vec3(1, 1, 1)));
@@ -269,9 +367,11 @@ void CS460AssignmentFour::Draw(const Input& input, float deltaTime, float runnin
 
 
 	char buffer[100];
+	ImGui::NewLine();
+	static char * scenarioNames []= {"Stacking Boxes", "Falling Boxes", "Simple Pendulum", "Dual Pendulum", "Suspension Bridge"};
 	for (int i = 0; i < 5; ++i)
 	{
-		sprintf(buffer, "Start scenarion %i", i);
+		sprintf(buffer, "Start scenario: %s", scenarioNames[i]);
 		if (ImGui::Button(buffer))
 		{
 			mode = i;
@@ -280,16 +380,7 @@ void CS460AssignmentFour::Draw(const Input& input, float deltaTime, float runnin
 	}
 
 	// static int selected = -1;
-	if (ImGui::CollapsingHeader("Choose Integration Mode"))
-	{
-		for (int n = 0; n < PhysicsIntegrateMode::Count; n++)
-		{
-			char buf[64];
-			sprintf(buf, "%s", PhysicsIntergrateModeNames[n]);
-			if (ImGui::Selectable(buf, Physics::mode == n))
-				Physics::mode = static_cast<PhysicsIntegrateMode>(n);
-		}
-	}
+
 
 	scene.mainCamera->Update(input, deltaTime);
 	DebugDrawSystem::getInstance().Update(scene);

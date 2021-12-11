@@ -5,12 +5,6 @@
 
 #include "MyMath.h"
 
-void Rigidbody::SolverWorkArea::Clear()
-{
-	delta_linear_velocity = {};
-	delta_angular_momentum = {};
-	delta_angular_velocity = {};
-}
 
 void Rigidbody::UpdateOrientation(float dt)
 {
@@ -75,15 +69,6 @@ void Rigidbody::ApplyForce(const glm::vec3& f)
 	forceAccumulator += f;
 }
 
-void Rigidbody::CorrectVelocity()
-{
-	if (fixed)
-		return;
-
-	linearVelocity += solver_work_area.delta_linear_velocity;
-	angularMomentum += solver_work_area.delta_angular_momentum;
-	angularVelocity += solver_work_area.delta_angular_velocity;
-}
 
 void Rigidbody::ApplyForce(const glm::vec3& f, const glm::vec3& at)
 {
@@ -97,10 +82,14 @@ void Rigidbody::ApplyImpulse(const glm::vec3& impulse, const glm::vec3 relativeP
 {
 	if (fixed)
 		return;
-	solver_work_area.delta_linear_velocity += inverseMass * impulse;
+	
 	const glm::vec3 L = glm::cross(relativePosition, impulse);
-	solver_work_area.delta_angular_momentum += L;
-	solver_work_area.delta_angular_velocity += globalInverseInertiaTensor * L;
+
+
+	linearVelocity += inverseMass * impulse;
+	angularMomentum += L;
+	angularVelocity += globalInverseInertiaTensor * L;
+
 }
 
 void Rigidbody::UpdateVelocity(float dt)

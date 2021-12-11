@@ -16,7 +16,6 @@ void Physics::Update(float deltatime, int iterations)
 		// Update inertia tensor
 		for(const auto rb : rigidbodies)
 		{
-			rb->solver_work_area.Clear();
 			rb->UpdateInvInertialWorld();
 		}
 
@@ -50,19 +49,27 @@ void Physics::Update(float deltatime, int iterations)
 			body.UpdateVelocity(dt);
 
 		}
-		// for (int i = 0; i < 1; ++i)
+
+		for (int i = 0; i < joints.size(); ++i)
+		{
+			joints[i]->PreStep( 1 / dt);
+		}
+		for (int i = 0; i < 32; ++i)
 		{
 			// Collision response
 			for (auto& contact : contacts)
 			{
-				solver.ApplyImpulse(&contact, dt);
+				solver.PenetrationConstraintSolve(&contact, dt);
 			}
-		}
-		// Integrate velocity -> position
-		for (auto& rigidbodyPtr : rigidbodies)
-		{
-			auto& body = *rigidbodyPtr;
-			body.CorrectVelocity();
+			for (auto& contact : contacts)
+			{
+				solver.FrictionConstraintSolve(&contact, dt);
+			}
+
+			for (auto jointptr : joints)
+			{
+				jointptr->ApplyImpulse();
+			}
 		}
 
 		// Integrate velocity -> position
@@ -82,6 +89,8 @@ void Physics::Update(float deltatime, int iterations)
 		rb->forceAccumulator = glm::vec3(0);
 		rb->torqueAccumulator = glm::vec3(0);
 	}
+
+
 
 }
 
@@ -115,4 +124,32 @@ void Physics::Clear()
 	contacts.clear();
 	arbiters.clear();
 	joints.clear();
+}
+
+void Physics::DebugDrawJoint(Joint* joint)
+{
+	Rigidbody* b1 = joint->body1;
+	Rigidbody* b2 = joint->body2;
+
+	glm::quat R1(b1->orientation);
+	glm::quat R2(b2->orientation);
+
+	glm::vec3 x1 = b1->position;
+	glm::vec3 p1 = x1 + R1 * joint->localAnchor1;
+
+	glm::vec3 x2 = b2->position;
+	glm::vec3 p2 = x2 + R2 * joint->localAnchor2;
+
+	glm::vec3 color (0,1,0);
+	dd::line(glm::value_ptr(x1), glm::value_ptr(p1), glm::value_ptr(color));
+	color = {1,0,0};
+	dd::line(glm::value_ptr(x2), glm::value_ptr(p2), glm::value_ptr(color));
+}
+
+void Physics::DrawJoints()
+{
+	for (auto joint : joints)
+	{
+		DebugDrawJoint(joint);
+	}
 }

@@ -391,6 +391,9 @@ namespace NarrowCollision
 
 		return true;
 	}
+
+
+
 }
 
 Arbiter::Arbiter(Rigidbody* a, Rigidbody* b)
@@ -461,7 +464,7 @@ void Arbiter::ApplySolver(rbSolver* solver, float dt)
 {
 	for (Contact& contact : contacts)
 	{
-		solver->ApplyImpulse(&contact, dt);
+		solver->PenetrationConstraintSolve(&contact, dt);
 	}
 }
 

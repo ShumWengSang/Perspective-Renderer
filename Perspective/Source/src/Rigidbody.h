@@ -47,17 +47,6 @@ struct Rigidbody {
 	bool fixed = false;
 	bool useGravity = false;
 
-	struct SolverWorkArea
-	{
-		glm::vec3 delta_linear_velocity{};
-		glm::vec3 delta_angular_momentum{};
-		glm::vec3 delta_angular_velocity{};
-
-		SolverWorkArea() = default;
-
-		void Clear();
-	} solver_work_area;
-
 	void UpdateOrientation(float dt);
 	void Reset();
 	void AddCollider(Collider& collider);

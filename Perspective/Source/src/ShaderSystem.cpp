@@ -260,7 +260,7 @@ void ShaderSystem::Update(float dt) {
 
     GuiSystem& guiSystem = GuiSystem::getInstance();
 
-    guiSystem.AddGui("Shader Error Reports", std::ref(GuiFunc));
+    // guiSystem.AddGui("Shader Error Reports", std::ref(GuiFunc));
 
     if(timer <= 1.0f)
         return;

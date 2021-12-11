@@ -29,6 +29,26 @@ struct Contact {
     glm::vec3 RelativeBodyPosition[2];
     Rigidbody* Body[2];
 
+    struct SolverWorkArea
+    {
+        glm::vec3 delta_linear_velocity{};
+        glm::vec3 delta_angular_momentum{};
+        glm::vec3 delta_angular_velocity{};
+        float impulse{};
+        float biasImpulse{};
+        SolverWorkArea() = default;
+
+        void Clear()
+        {
+            delta_linear_velocity = {};
+            delta_angular_momentum = {};
+            delta_angular_velocity = {};
+            impulse = {};
+            biasImpulse = {};
+        }
+
+    } solver_work_area;
+
     // direction of Normal is always from Body[1] to Body[0]
     glm::vec3 Normal;
 
@@ -75,6 +95,8 @@ struct Contact {
 
         return true;
     }
+
+
 };
 
 namespace NarrowCollision

@@ -47,7 +47,7 @@ void FinalPass<AssignmentOne>::Draw(const GBuffer &gBuffer, const LightBuffer &l
     }
     glDepthFunc(GL_LEQUAL);
     //glEnable(GL_DEPTH_TEST);
-    ImGui::Checkbox("Copy Depth Buffer", (bool *) (&copyDepthBuffer.value));
+    // ImGui::Checkbox("Copy Depth Buffer", (bool *) (&copyDepthBuffer.value));
 /*    if(copyDepthBuffer.value)
     {
         glBlitNamedFramebuffer(gBuffer.frameBuffer, 0, 0, 0, gBuffer.width, gBuffer.height, 0, 0, gBuffer.width, gBuffer.height,

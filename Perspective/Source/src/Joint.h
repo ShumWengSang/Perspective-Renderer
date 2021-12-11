@@ -16,14 +16,24 @@
  * Creation date: 1/24/2021
  * End Header --------------------------------------------------------*/
 #pragma once
-struct Contact;
-class rbSolver
+#include "Rigidbody.h"
+
+struct Joint
 {
-public:
-	rbSolver(float bias = 0.05f) : biasFactor(bias){};
-	void PenetrationConstraintSolve(Contact* contact, float dt) const;
-	void FrictionConstraintSolve(Contact* contact, float dt) const;
-private:
-	const float biasFactor;
-	const float slop = 0.01f;
+	Joint() = default;
+
+	void Set(Rigidbody* body1, Rigidbody* body2, const glm::vec3& anchor);
+
+	void PreStep(float inv_dt);
+	void ApplyImpulse();
+
+	glm::mat3 M;
+	glm::vec3 localAnchor1{}, localAnchor2{};
+	glm::vec3 r1{}, r2{};
+	glm::vec3 bias{};
+	glm::vec3 P {};		// accumulated impulse
+	Rigidbody* body1 = nullptr;
+	Rigidbody* body2 = nullptr;
+	float biasFactor = 0.2f;
+	float softness = 0.0f;
 };

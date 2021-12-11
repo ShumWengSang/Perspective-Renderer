@@ -31,6 +31,9 @@ public:
 
     Material* powerPlantMaterial = nullptr;
     Model* cubeModel = nullptr;
+
+    bool pause = true;
+    bool one_step = false;
 };
 
 
