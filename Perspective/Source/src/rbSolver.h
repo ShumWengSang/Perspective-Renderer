@@ -22,7 +22,7 @@ class rbSolver
 public:
 	rbSolver(float bias = 0.05f) : biasFactor(bias){};
 	void PenetrationConstraintSolve(Contact* contact, float dt) const;
-	void FrictionConstraintSolve(Contact* contact, float dt) const;
+	void FrictionConstraintSolve(Contact* contact, float dt) const {}
 private:
 	const float biasFactor;
 	const float slop = 0.01f;
