@@ -31,7 +31,7 @@ Currently, the renderer features an easy way of adding new passes for rendering.
 * Loading of FBX models and animations
 * Playing FBX animations 
 * Generating a bezier curve path based on input points
-* 
+* Rigidbody Physics Simulator
 
 My work on Inverse Kinematics as well as a physics simluator can be accessed through the Worldspace branch.
 
@@ -194,31 +194,45 @@ Here is another picture of the light pass on the sphere. We can see the ImGui on
 https://user-images.githubusercontent.com/8475959/113263025-23461300-9286-11eb-8fd5-3f44174c0d62.mp4
 
 Here is a FBX model loaded and animated properly
-[!Whale](/images/whale.gif)
+![Whale](/images/whale.gif)
 
 Generation of bezier curve paths using ImPlot
-[!Zoom](/images/zoom2.gif)
+![Zoom](/images/zoom2.gif)
 
 Mixing inverse kinematics as well as moving animation to make monster's head reach out to destination
-[ik](/images/ik4.gif)
+![ik](/images/ik4.gif)
 
 Implementation of rigidbody physics: Pendulum
-[pendulum] (/images/pendulum.gif)
+![pendulum](/images/pendulum.gif)
 
 Implementation of rigidbody physics: Double Pendulum
-[pendulum2] (/images/dualpendulum.mp4)
+
+
+https://user-images.githubusercontent.com/8475959/148859585-b62acf35-5f44-401a-bd91-b57508628877.mp4
+
 
 Implementation of rigidbody physics: Suspension Bridge
-[Suspension] (/images/suspensionbridge.mp4)
+
+
+https://user-images.githubusercontent.com/8475959/148859615-249e0e80-d86b-4eee-a319-b3e1ac3acb15.mp4
+
 
 Implementation of rigidbody physics: Stacking of 5 boxes
-[Stacking] (/images/stacking1.gif)
+![Stacking](/images/stacking1.gif)
 
 Implementation of rigidbody physics: Firing into 5 boxes
-[Stacking2] (/images/boxes.mp4)
+
+
+
+https://user-images.githubusercontent.com/8475959/148859637-8df1ad04-0719-40c1-b8c2-7ade5d81bd82.mp4
+
+
 
 Implementation of rigidbody physics: Falling boxes
-[FallingBoxes] (/images/fallingboxes.mp4)
+
+
+https://user-images.githubusercontent.com/8475959/148859643-ae31969d-617e-44ce-8b97-98f0ac84765c.mp4
+
 
 # To Build
 
