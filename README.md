@@ -194,31 +194,35 @@ Here is another picture of the light pass on the sphere. We can see the ImGui on
 https://user-images.githubusercontent.com/8475959/113263025-23461300-9286-11eb-8fd5-3f44174c0d62.mp4
 
 Here is a FBX model loaded and animated properly
-[!Whale](/images/whale.gif)
+![Whale](/images/whale.gif)
 
 Generation of bezier curve paths using ImPlot
-[!Zoom](/images/zoom2.gif)
+![Zoom](/images/zoom2.gif)
 
 Mixing inverse kinematics as well as moving animation to make monster's head reach out to destination
-[ik](/images/ik4.gif)
+![ik](/images/ik4.gif)
 
 Implementation of rigidbody physics: Pendulum
-[pendulum] (/images/pendulum.gif)
+![pendulum](/images/pendulum.gif)
 
 Implementation of rigidbody physics: Double Pendulum
-[pendulum2] (/images/dualpendulum.mp4)
+
+https://github.com/ShumWengSang/Perspective-Renderer/tree/main/images/dualpendulum.mp4
 
 Implementation of rigidbody physics: Suspension Bridge
-[Suspension] (/images/suspensionbridge.mp4)
+
+https://github.com/ShumWengSang/Perspective-Renderer/tree/main/images/suspensionbridge.mp4
 
 Implementation of rigidbody physics: Stacking of 5 boxes
-[Stacking] (/images/stacking1.gif)
+![Stacking](/images/stacking1.gif)
 
 Implementation of rigidbody physics: Firing into 5 boxes
-[Stacking2] (/images/boxes.mp4)
+
+https://github.com/ShumWengSang/Perspective-Renderer/tree/main/images/boxes.mp4
 
 Implementation of rigidbody physics: Falling boxes
-[FallingBoxes] (/images/fallingboxes.mp4)
+
+https://github.com/ShumWengSang/Perspective-Renderer/tree/main/images/fallingboxes.mp4
 
 # To Build
 
