@@ -31,7 +31,7 @@ Currently, the renderer features an easy way of adding new passes for rendering.
 * Loading of FBX models and animations
 * Playing FBX animations 
 * Generating a bezier curve path based on input points
-* 
+* Rigidbody Physics Simulator
 
 My work on Inverse Kinematics as well as a physics simluator can be accessed through the Worldspace branch.
 
