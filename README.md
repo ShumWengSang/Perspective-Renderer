@@ -28,6 +28,14 @@ Currently, the renderer features an easy way of adding new passes for rendering.
 * Oct Tree generation 
 * BSP Tree generation
 * JSON loading of trees
+* Loading of FBX models and animations
+* Playing FBX animations 
+* Generating a bezier curve path based on input points
+* 
+
+My work on Inverse Kinematics as well as a physics simluator can be accessed through the Worldspace branch.
+
+
 
 ## Some pictures
 A nice console so that anything I print can be seen in the gui.
@@ -185,6 +193,32 @@ Here is another picture of the light pass on the sphere. We can see the ImGui on
 
 https://user-images.githubusercontent.com/8475959/113263025-23461300-9286-11eb-8fd5-3f44174c0d62.mp4
 
+Here is a FBX model loaded and animated properly
+[!Whale](/images/whale.gif)
+
+Generation of bezier curve paths using ImPlot
+[!Zoom](/images/zoom2.gif)
+
+Mixing inverse kinematics as well as moving animation to make monster's head reach out to destination
+[ik](/images/ik4.gif)
+
+Implementation of rigidbody physics: Pendulum
+[pendulum] (/images/pendulum.gif)
+
+Implementation of rigidbody physics: Double Pendulum
+[pendulum2] (/images/dualpendulum.mp4)
+
+Implementation of rigidbody physics: Suspension Bridge
+[Suspension] (/images/suspensionbridge.mp4)
+
+Implementation of rigidbody physics: Stacking of 5 boxes
+[Stacking] (/images/stacking1.gif)
+
+Implementation of rigidbody physics: Firing into 5 boxes
+[Stacking2] (/images/boxes.mp4)
+
+Implementation of rigidbody physics: Falling boxes
+[FallingBoxes] (/images/fallingboxes.mp4)
 
 # To Build
 
@@ -201,6 +235,10 @@ However, passing an argument to the command will cause it to load the obj.
 * BRDF lighting
 * SSAO
 * and more to think off!
+
+# Regrets
+* I wish I had the discpline to section out seperate scenes as I worked on each feature so I can show them off.
+* Unfortunately, I didn't and so people are stuck with seeing the latest work I'm working on
 
 # Credits
 * DigiPen Institute of Technology Professor Pushpak Karnick for providing the slides and maths
